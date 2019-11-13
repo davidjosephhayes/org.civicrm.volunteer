@@ -39,7 +39,7 @@
                   <button class="detail-btn" ng-hide="showVolunteer" ng-click="volSignup(appeal.project.flexibleNeed,appeal.project_id)">
                      <i class="fa fa-users" aria-hidden="true" ></i> {{ts('Volunteer!')}}
                   </button>
-                  <button ng-show="showShift" class="detail-btn" ng-click="redirectTo(appeal.project_id)">{{ts('Search For Shifts!')}}</button>
+                  <button ng-show="showShift" class="detail-btn appeal-search-shifts" ng-click="redirectTo(appeal.project_id)">{{ts('Search For Shifts!')}}</button>
                </div>
                <div class="loc">
                   <h2 ng-if="!locAny" class="m-t-0">Location</h2>
@@ -53,10 +53,12 @@
                      </a>
                   </em> 
 				      <div class="text-center">
-				      <button><i class="fa fa-chevron-circle-right" aria-hidden="true" ng-click="redirectTo(appeal.project_id)">{{ts('More Shifts')}}</i></button>
-				   </div>
-            </div>
-			   <div class="p-l-15">			   	  
+                     <button class="appeal-more-shifts">
+                        <i class="fa fa-chevron-circle-right" aria-hidden="true" ng-click="redirectTo(appeal.project_id)"></i> {{ts('More Shifts')}}
+                     </button>
+                  </div>
+               </div>
+               <div class="p-l-15">			   	  
                   <br /><br />
                   <h2 ng-if="appeal.project.description != 'null' && appeal.show_project_information == 1" class="m-t-0">{{appeal.project.title}}</h2>
                   <p ng-if="appeal.project.description != 'null' && appeal.show_project_information == 1" ng-bind-html="appeal.project.description"></p>
@@ -72,7 +74,6 @@
                   		<!-- <a href="#">link</a> -->
                   	</div>
                   </div>
-                                  
                </div>
             </div>
            <!-- <div class="clearfix"></div>
