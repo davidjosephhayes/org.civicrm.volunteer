@@ -39,13 +39,13 @@
                      <button class="detail-btn" ng-hide="showVolunteer" ng-click="volSignup(appeal.project.flexibleNeed,appeal.project_id)">
                         <i class="fa fa-users" aria-hidden="true" ></i> {{ts('Volunteer!')}}
                      </button>
-                     <button ng-show="showShift" class="detail-btn appeal-search-shifts" ng-click="redirectTo(appeal.project_id)">{{ts('Search For Shifts!')}}</button>
+                     <button ng-show="showShift && appeal.project.available_shifts" class="detail-btn appeal-search-shifts" ng-click="redirectTo(appeal.project_id)">{{ts('Search For Shifts!')}}</button>
                   </div>
                   <div class="loc">
                      <h2 ng-if="!locAny" class="m-t-0">Location</h2>
                      <p ng-if="!locAny" ng-bind-html="appeal.location" ></p>
                   </div>
-                  <div class="p-l-15" ng-show="showShift"> 
+                  <div class="p-l-15" ng-show="showShift && appeal.project.available_shifts"> 
                      <h2 class="m-t-0">Available Shifts</h2>
                      <em>
                         <a ng-repeat="shift in appeal.project.available_shifts track by $index" ng-href="#">
