@@ -1,4 +1,4 @@
-<table class="display dataTable no-footer" role="grid">
+<table class="display dataTable no-footer appeal-list" role="grid">
    <thead>
       <tr role="row">
          <th class="ui-state-default crm-vol-manage-beneficiaries"> {{ts("Image")}} </th>
@@ -12,7 +12,7 @@
    <tbody>
       <tr ng-repeat="appeal in appeals track by $index" role="row">
 
-         <td class="crm-vol-manage-toggle appeal-details__image">
+         <td class="crm-vol-manage-toggle appeal-image">
             <span ng-if="appeal.image"><img src={{supporting_data.image_upload_url+"appeal/thumb/"+appeal.image}} alt="Opportunity Image"></span>
          </td>
          <td class="crm-vol-manage-project">
@@ -28,7 +28,7 @@
          <td class="crm-vol-manage-entity" ng-bind-html="appeal.location=appeal.location" > 
           
          </td>
-         <td class="crm-vol-manage-beneficiaries"> 
+         <td class="crm-vol-manage-beneficiaries appeal-buttons"> 
             <button ng-click="redirectTo(appeal.id)">
                <i class="fa fa-chevron-circle-right" aria-hidden="true"></i> {{ts('More Info')}}
             </button>
