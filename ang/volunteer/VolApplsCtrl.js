@@ -173,7 +173,9 @@
         .then(function (data) {
           let projectAppeals=[];
           for(let key in data.values.appeal) {
-            projectAppeals.push(data.values.appeal[key]);
+            const appeal = data.values.appeal[key];
+            appeal.hide_appeal_volunteer_button = parseInt(appeal.hide_appeal_volunteer_button);
+            projectAppeals.push(appeal);
           }
           $scope.appeals=projectAppeals;
           $scope.totalRec=data.values.total_appeal;
