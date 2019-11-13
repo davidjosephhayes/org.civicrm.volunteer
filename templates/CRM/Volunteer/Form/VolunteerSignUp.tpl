@@ -81,14 +81,14 @@
     </fieldset>
   {/if}
 
-  <div>
+  <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="bottom"}
   </div>
 </div>
 
 {if $allowAdditionalVolunteers}
-</form>
-<form>
+  </form>
+  <form>
   <div class="crm-volunteer-additional-volunteers-template">
     <div class='additional-volunteer-profile'>
       {foreach from=$additionalVolunteersTemplate key=ufID item=ufFields }
