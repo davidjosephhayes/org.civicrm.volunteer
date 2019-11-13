@@ -7,7 +7,7 @@
             </div>
             <div class="pull-right {{appeal.image ? 'w-70' : ''}}">
                <div class="p-l-15">
-                  <h2 class="m-t-0">{{ appeal.title }}</h2>
+                  <h2 class="m-t-0 appeal-title" ng-click="redirectTo(appeal.id)">{{ appeal.title }}</h2>
                   <em>{{appeal.beneficiary_display_name}}</em>
                   <p ng-if="appeal.appeal_teaser">{{ appeal.appeal_teaser }}</p>
                   <p ng-if="!appeal.appeal_teaser" ng-bind-html="appeal.appeal_description | textShortenerFilter:50"></p>
