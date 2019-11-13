@@ -61,7 +61,7 @@
     $scope.custom_fieldset_volunteer = custom_fieldset_volunteer.values;
 
     //Get appeal data with search text and/or pagination
-    getAppeals = function (advancedFilter,filterObj, firstTime) {
+    getAppeals = function (advancedFilter, filterObj, firstTime) {
       CRM.$('#crm-main-content-wrapper').block();
       // this line will check if the argument is undefined, null, or false
       // if so set it to false, otherwise set it to it's original value
@@ -98,15 +98,22 @@
           params.advanced_search.appealCustomFieldData ? $scope.appealCustomFieldData=params.advanced_search.appealCustomFieldData : null;
         }
       }
-      $scope.currentPage?params.page_no=$scope.currentPage:null;
-      $scope.search?params.search_appeal=$scope.search:null;
-      $scope.sortby?params.orderby=$scope.sortby:null;
-      $scope.order?params.order=$scope.order:null;
-      if($scope.advanced_search) {
+      $scope.currentPage ? params.page_no=$scope.currentPage : null;
+      $scope.search ? params.search_appeal=$scope.search : null;
+      $scope.sortby ? params.orderby=$scope.sortby : null;
+      $scope.order ? params.order=$scope.order : null;
+
+      // Date and Location Search
+      if ($scope.advanced_search) {
+        
         // Default Proximity Object Set to empty.
         params.advanced_search={proximity:{}};
-        $scope.date_start?params.advanced_search.fromdate=$scope.date_start:null;
-        $scope.date_end?params.advanced_search.todate=$scope.date_end:null;
+        
+        // Date Search
+        $scope.date_start ? params.advanced_search.fromdate=$scope.date_start : null;
+        $scope.date_end ? params.advanced_search.todate=$scope.date_end : null;
+        
+        // Proximity Search
         // If Show appeals done anywhere checkbox is disable then and then proximity set. 
         if(!$scope.show_appeals_done_anywhere) {
           $scope.radius?params.advanced_search.proximity.radius=$scope.radius:null;
@@ -114,14 +121,16 @@
           if($scope.location_finder_way == "use_postal_code") {
             $scope.postal_code?params.advanced_search.proximity.postal_code=$scope.postal_code:null;
           } else {
-            $scope.lat?params.advanced_search.proximity.lat=$scope.lat:null;
-            $scope.lon?params.advanced_search.proximity.lon=$scope.lon:null;
+            $scope.lat ? params.advanced_search.proximity.lat=$scope.lat : null;
+            $scope.lon ? params.advanced_search.proximity.lon=$scope.lon : null;
           }
         }
-        $scope.show_appeals_done_anywhere?params.advanced_search.show_appeals_done_anywhere=$scope.show_appeals_done_anywhere:null;
+        $scope.show_appeals_done_anywhere ? params.advanced_search.show_appeals_done_anywhere=$scope.show_appeals_done_anywhere : null;
+
         // Pass custom field data from advance search to API.
         params.advanced_search.appealCustomFieldData = $scope.appealCustomFieldData;
       }
+      
       var current_parms = $route.current.params;
       if (current_parms.beneficiary && typeof current_parms.beneficiary === "string") {
         params.beneficiary = current_parms.beneficiary;
@@ -144,6 +153,8 @@
           });
         }
       }
+
+      // Custom Data Search
       if(params.advanced_search) {
         for (var key in params.advanced_search.appealCustomFieldData) {
           if (params.advanced_search.appealCustomFieldData.hasOwnProperty(key)) {
@@ -169,6 +180,7 @@
           }
         }
       }
+      
       return crmApi('VolunteerAppeal', 'getsearchresult', params)
         .then(function (data) {
           let projectAppeals=[];
