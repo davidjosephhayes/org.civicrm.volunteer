@@ -45,7 +45,7 @@
              ng-change='searchRes()'/>
           <i class="fa fa-search"></i>
         </div>
-        <div class="pull-left m-5">
+        <div class="pull-left search-buttons m-5">
           <div class="volunteer_appeal_result_count_message">{{totalRec}} {{ ts('Opportunities') }}</div>
           <div class="advance_filter_wrapper">
             <button ng-click="openModal()"><i class="fa fa-filter" aria-hidden="true"></i></button>
@@ -54,7 +54,7 @@
               <button ng-click="resetFilter()">Reset Filters</button>
           </div>
         </div>
-        <div class="pull-right m-5">
+        <div class="pull-right search-display m-5">
           <button class="grid_view_button" ng-class="{grid_active : activeGrid === 'list_view'}" ng-click="changeview('~/volunteer/AppealList.html', 'list_view')"><i class="fa fa-bars"></i></button>
           <button class="grid_view_button" ng-class="{grid_active : activeGrid === 'grid_view'}" ng-click="changeview('~/volunteer/AppealGrid.html', 'grid_view')"><i class="fa fa-th-large"></i></button>
           <select ng-model="sortValue" ng-options="option.val for option in options" ng-change="sort()">
@@ -138,7 +138,7 @@
   {{ts('No results found. Please try different search criteria.')}}
 </div>
 <div ng-include="currentTemplate"></div>
-<div class="pull-right">
+<div class="pull-right appeal-pagination">
   <div  ng-show="appeals.length>0">
     <button ng-disabled="currentPage == 1" ng-click="prevPageData()">
       <i class="fa fa-backward" aria-hidden="true"></i>
