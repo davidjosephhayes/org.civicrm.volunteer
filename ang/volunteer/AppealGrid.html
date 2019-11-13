@@ -15,10 +15,10 @@
             </div>
             <div class="clearfix"></div>
             <div class="text-right appeal-buttons">
-               <button ng-click="redirectTo(appeal.id)">
+               <button ng-click="redirectTo(appeal.id)" class="appeal-more-info">
                   <i class="fa fa-chevron-circle-right" aria-hidden="true"></i> {{ts('More Info')}}
                </button>
-               <button ng-click="volSignup(appeal.need_flexi_id, appeal.project_id, appeal.hide_appeal_volunteer_button)" aria-hidden="true" value="volunteer">
+               <button ng-click="volSignup(appeal.need_flexi_id, appeal.project_id, appeal.hide_appeal_volunteer_button)" aria-hidden="true" value="volunteer" class="appeal-volunteer">
                   <i class="fa fa-users"></i> {{ts('Volunteer')}}
                </button>
             </div>
