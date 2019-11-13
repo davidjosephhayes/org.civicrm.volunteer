@@ -261,8 +261,7 @@
 
     $scope.volSignup= function(need_flexi_id,projectId,hide_appeal_volunteer_button) {
       if(hide_appeal_volunteer_button == "1") {
-        // TODO
-        $window.location.href = CRM.url("civicrm/vol/#/volunteer/opportunities", "project="+projectId+"&hideSearch=1");
+        $location.url("/volunteer/opportunities?project="+projectId+"&hideSearch=1");
       } else {
         $window.location.href =CRM.url("civicrm/volunteer/signup", "reset=1&needs[]="+need_flexi_id+"&dest=list");
       }
