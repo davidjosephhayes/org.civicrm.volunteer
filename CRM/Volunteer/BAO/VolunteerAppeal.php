@@ -295,9 +295,7 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
     $project = CRM_Volunteer_BAO_Project::retrieveByID($api['project_id']);
     $openNeeds = $project->open_needs;
     $project = $project->toArray();
-    foreach ($openNeeds as $key => $need) {
-      $project['available_shifts'][] = $need['display_time'];
-    }
+    $project['available_shifts'] = $openNeeds;
     if (empty($api2['loc_block_id']) || empty($api2['api.LocBlock.getsingle']['address_id'])) {
       $api2['location'] = "";
     } else {

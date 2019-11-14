@@ -41,7 +41,7 @@
     $scope.locAny = parseInt(appeal.location_done_anywhere); 
     $scope.showVolunteer = parseInt(appeal.hide_appeal_volunteer_button); 
     $scope.supporting_data = supporting_data.values;
-    $scope.redirectTo=function(projectId) {  
+    $scope.redirectTo=function(projectId) {
       $location.url("/volunteer/opportunities?project="+projectId+"&hideSearch=1");
     }
     // Redirect Back to Search Appeal Page.

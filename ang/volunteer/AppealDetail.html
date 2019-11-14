@@ -45,14 +45,14 @@
                      <h2 ng-if="!locAny" class="m-t-0">Location</h2>
                      <p ng-if="!locAny" ng-bind-html="appeal.location" ></p>
                   </div>
-                  <div class="p-l-15" ng-show="showShift && appeal.project.available_shifts"> 
+                  <div class="p-l-15 appeal-available-shifts" ng-show="showShift && appeal.project.available_shifts"> 
                      <h2 class="m-t-0">Available Shifts</h2>
-                     <em>
-                        <a ng-repeat="shift in appeal.project.available_shifts track by $index" ng-href="#">
-                           <div>{{shift}}</div>
-                        </a>
-                     </em> 
-                     <div class="appeal-available-shift-buttons">
+                     <ul>
+                        <li ng-repeat="shift in appeal.project.available_shifts track by $index">
+                           <a ng-click="volSignup(shift.id)">{{shift.display_time}}</a>
+                        </li>
+                     </ul> 
+                     <div class="appeal-available-shifts-buttons">
                         <button class="appeal-more-shifts" ng-click="redirectTo(appeal.project_id)">
                            <i class="fa fa-chevron-circle-right" aria-hidden="true"></i> {{ts('More Shifts')}}
                         </button>
