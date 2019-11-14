@@ -1,4 +1,7 @@
 (function(angular, $, _) {
+
+  console.log(CRM.angRequires('volunteer'));
+
   // Declare a list of dependencies.
   angular
     .module('volunteer', CRM.angRequires('volunteer'))

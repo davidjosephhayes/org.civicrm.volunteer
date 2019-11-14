@@ -32,7 +32,7 @@
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
     
     $scope.search="";
-    $scope.currentTemplate = "~/volunteer/AppealGrid.html"; //default view is grid view
+    $scope.currentTemplate = "~/volunteer/AppealCalendar.html"; //default view is grid view
     $scope.totalRec;
     $scope.currentPage = 1;
     $scope.pageSize = 10;
@@ -40,10 +40,22 @@
     $scope.options = [{key:"dateE",val:"Upcoming"},{key:"dateS",val:ts('Newest Opportunities')},{key:"titleA",val:"Title A-Z"},{key:"titleD",val:"Title Z-A"},{key:"benfcrA",val:"Project Beneficiary A-Z"},{key:"benfcrD",val:"Project Beneficiary Z-A"}];
     $scope.sortValue = $scope.options[0];
     $scope.sortby=$scope.order = null;
-    $scope.activeGrid = "grid_view";
+    $scope.activeGrid = "calendar_view";
     $scope.beneficiary_name = [];
     $scope.custom_field_display = [];
     $scope.supporting_data = supporting_data.values;
+
+    // config object for calendar
+    $scope.uiConfig = {
+      calendar:{
+        height: 450,
+        header:{
+          left: 'month basicWeek basicDay agendaWeek agendaDay',
+          center: 'title',
+          right: 'today prev,next'
+        },
+      }
+    };
 
     //Change reult view
     $scope.changeview = function(tpl, type){
@@ -194,6 +206,10 @@
             projectAppeals.push(appeal);
           }
           $scope.appeals=projectAppeals;
+          $scope.calendarAppeals = [projectAppeals.map(function(projectAppeal){
+            console.log(projectAppeal);
+            return {title: 'Birthday Party',start: new Date(2019, 11, 1, 19, 0),end: new Date(2019, 11, 1, 22, 30),allDay: false,url: 'http://google.com/'};
+          })];
           $scope.totalRec=data.values.total_appeal;
           $scope.numberOfPages= Math.ceil($scope.totalRec/$scope.pageSize);
           $scope.closeModal();
