@@ -62,12 +62,15 @@
 
     //Get appeal data with search text and/or pagination
     getAppeals = function (advancedFilter, filterObj, firstTime) {
+      
       CRM.$('#crm-main-content-wrapper').block();
+
       // this line will check if the argument is undefined, null, or false
       // if so set it to false, otherwise set it to it's original value
       var firstTime = firstTime || false;
       let params={};
       if($window.localStorage.getItem("search_params") && firstTime == true) {
+        
         params = JSON.parse($window.localStorage.getItem("search_params"));
         params.page_no ? $scope.currentPage=params.page_no : null;
         params.search_appeal ? $scope.search=params.search_appeal : null;
@@ -75,6 +78,7 @@
         params.order ? $scope.order=params.order : null;
         params.sortOption ? $scope.sortValue=$scope.options[params.sortOption] : 0;
         params.advanced_search_option ? $scope.advanced_search=params.advanced_search_option : false;
+
         if(params.advanced_search_option) {
           params.advanced_search.fromdate ? $scope.date_start=params.advanced_search.fromdate : null;
           params.advanced_search.todate ? $scope.date_end=params.advanced_search.todate : null;
