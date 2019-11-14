@@ -21,7 +21,7 @@
     });
   });
 
-  angular.module('volunteer').controller('VolApplsCtrl', function ($route, $scope, crmApi, $window, custom_fieldset_volunteer, supporting_data, $location) {
+  angular.module('volunteer').controller('VolApplsCtrl', function ($route, $scope, crmApi, $window, custom_fieldset_volunteer, supporting_data, $location, uiCalendarConfig) {
 
     if (!$window.location.origin) {
       $window.location.origin = $window.location.protocol + "//" 
@@ -45,12 +45,15 @@
     $scope.custom_field_display = [];
     $scope.supporting_data = supporting_data.values;
 
+    $scope.appeals = [];
+    $scope.calendarAppeals = [];
+
     // config object for calendar
     $scope.uiConfig = {
       calendar:{
-        height: 450,
+        height: 650,
         header:{
-          left: 'month basicWeek basicDay agendaWeek agendaDay',
+          left: 'month', //  basicWeek basicDay agendaWeek agendaDay
           center: 'title',
           right: 'today prev,next'
         },
@@ -199,18 +202,29 @@
       
       return crmApi('VolunteerAppeal', 'getsearchresult', params)
         .then(function (data) {
-          let projectAppeals=[];
-          for(let key in data.values.appeal) {
-            const appeal = data.values.appeal[key];
+          
+          const appeals = data.values.appeal.map(function(appeal){
             appeal.hide_appeal_volunteer_button = parseInt(appeal.hide_appeal_volunteer_button);
-            projectAppeals.push(appeal);
-          }
-          $scope.appeals=projectAppeals;
-          $scope.calendarAppeals = [projectAppeals.map(function(projectAppeal){
-            console.log(projectAppeal);
-            return {title: 'Birthday Party',start: new Date(2019, 11, 1, 19, 0),end: new Date(2019, 11, 1, 22, 30),allDay: false,url: 'http://google.com/'};
-          })];
-          $scope.totalRec=data.values.total_appeal;
+            appeal.hide_appeal_volunteer_button = parseInt(appeal.display_volunteer_shift);
+            return appeal;
+          });
+          $scope.appeals = appeals;
+          
+          $scope.calendarAppeals.splice(0, $scope.calendarAppeals.length);
+          uiCalendarConfig.calendars.appeals.fullCalendar('removeEventSources'); uiCalendarConfig.calendars.appeals.fullCalendar('removeEvents');
+          appeals.forEach(function(appeal){
+            const calendarAppeal = {
+              id: appeal.id,
+              title: appeal.title,
+            };
+            calendarAppeal.start = new Date(2019, 10, 1, 19, 0);
+            calendarAppeal.end = new Date(2019, 10, 1, 20, 0);
+            // calendarAppeal.allDay = true; 
+            $scope.calendarAppeals.push(calendarAppeal);
+            console.log(calendarAppeal);
+          });
+          
+          $scope.totalRec = data.values.total_appeal;
           $scope.numberOfPages= Math.ceil($scope.totalRec/$scope.pageSize);
           $scope.closeModal();
           CRM.$('#crm-main-content-wrapper').unblock();
