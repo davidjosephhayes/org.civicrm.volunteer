@@ -335,11 +335,8 @@ body {font-family: "Lato", sans-serif;}
 
 /* Style the tab */
 .tab {
-  float: left;
   border: 1px solid #ccc;
   background-color: #f1f1f1;
-  width: 30%;
-  height: 300px;
   padding: 15px 10px;
   overflow: auto;
 }
@@ -357,7 +354,7 @@ body {font-family: "Lato", sans-serif;}
   cursor: pointer;
   transition: 0.3s;
   font-size: 12px;
-    font-weight: normal;
+  font-weight: normal;
   /*font-size: 17px;*/
 }
 
@@ -369,16 +366,14 @@ body {font-family: "Lato", sans-serif;}
 /* Create an active/current "tab button" class */
 .tab button.active {
   background-color: #ccc;
+  cursor: default;
 }
 
 /* Style the tab content */
 .tabcontent {
-  float: left;
   padding: 15px;
   border: 1px solid #989393;/*#ccc;*/
-  width: 70%;
   border-left: none;
-  height: 300px;
 }
 .postal-code-input{
   width: 124px;
@@ -473,6 +468,7 @@ body {font-family: "Lato", sans-serif;}
 }
 .advance_filter_body {
   height: 420px;
+  overflow-y: scroll;
 }
 .custom_fied_content {
   overflow: auto;
