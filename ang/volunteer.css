@@ -481,7 +481,7 @@ body {font-family: "Lato", sans-serif;}
 }
 .advance_filter_body {
   height: 420px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 .custom_fied_content {
   overflow: auto;
