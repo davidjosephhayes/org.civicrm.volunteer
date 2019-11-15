@@ -878,6 +878,7 @@ class CRM_Volunteer_Upgrader extends CRM_Volunteer_Upgrader_Base {
     $dependencies = array(
       // @TODO move this config out of code
       'org.civicrm.angularprofiles',
+      'org.civicrm.fieldmetadata',
     );
 
     $unmet = array();
