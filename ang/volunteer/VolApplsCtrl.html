@@ -146,12 +146,12 @@
 <div class="crm-vol-half-responsive crm-vol-opp-cart" ></div>
 <div class="clear"></div>
 <!-- Results -->
-<div class="crm-vol-opp-results messages status no-popup" ng-if="appeals.length==0">
+<div class="crm-vol-opp-results messages status no-popup" ng-if="appeals.length==0 && activeGrid !== 'calendar_view'">
   <div class="icon inform-icon"></div>
   {{ts('No results found. Please try different search criteria.')}}
 </div>
 <div ng-include="currentTemplate"></div>
-<div class="pull-right appeal-pagination">
+<div class="pull-right appeal-pagination" ng-if="activeGrid !== 'calendar_view'">
   <div  ng-show="appeals.length>0">
     <button ng-if="currentPage > 1" ng-click="prevPageData()">
       <i class="fa fa-backward" aria-hidden="true"></i>

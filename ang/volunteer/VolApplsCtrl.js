@@ -37,7 +37,14 @@
     $scope.currentPage = 1;
     $scope.pageSize = 10;
     $scope.appealCustomFieldData = {};
-    $scope.options = [{key:"dateE",val:"Upcoming"},{key:"dateS",val:ts('Newest Opportunities')},{key:"titleA",val:"Title A-Z"},{key:"titleD",val:"Title Z-A"},{key:"benfcrA",val:"Project Beneficiary A-Z"},{key:"benfcrD",val:"Project Beneficiary Z-A"}];
+    $scope.options = [
+      {key:"dateE",val:"Upcoming"},
+      {key:"dateS",val:ts('Newest Opportunities')},
+      {key:"titleA",val:"Title A-Z"},
+      {key:"titleD",val:"Title Z-A"},
+      {key:"benfcrA",val:"Project Beneficiary A-Z"},
+      {key:"benfcrD",val:"Project Beneficiary Z-A"}
+    ];
     $scope.sortValue = $scope.options[0];
     $scope.sortby=$scope.order = null;
     $scope.activeGrid = "calendar_view";
@@ -46,19 +53,6 @@
     $scope.supporting_data = supporting_data.values;
 
     $scope.appeals = [];
-    $scope.calendarAppeals = [];
-
-    // config object for calendar
-    $scope.uiConfig = {
-      calendar:{
-        height: 650,
-        header:{
-          left: 'month', //  basicWeek basicDay agendaWeek agendaDay
-          center: 'title',
-          right: 'today prev,next'
-        },
-      }
-    };
 
     //Change reult view
     $scope.changeview = function(tpl, type){
@@ -209,21 +203,7 @@
             return appeal;
           });
           $scope.appeals = appeals;
-          
-          $scope.calendarAppeals.splice(0, $scope.calendarAppeals.length);
-          uiCalendarConfig.calendars.appeals.fullCalendar('removeEventSources'); uiCalendarConfig.calendars.appeals.fullCalendar('removeEvents');
-          appeals.forEach(function(appeal){
-            const calendarAppeal = {
-              id: appeal.id,
-              title: appeal.title,
-            };
-            calendarAppeal.start = new Date(2019, 10, 1, 19, 0);
-            calendarAppeal.end = new Date(2019, 10, 1, 20, 0);
-            // calendarAppeal.allDay = true; 
-            $scope.calendarAppeals.push(calendarAppeal);
-            console.log(calendarAppeal);
-          });
-          
+                    
           $scope.totalRec = data.values.total_appeal;
           $scope.numberOfPages= Math.ceil($scope.totalRec/$scope.pageSize);
           $scope.closeModal();
@@ -375,6 +355,27 @@
       $location.search('beneficiary', null);
       $route.reload();
     }
+
+    /**
+     * Calendar View
+     */
+    
+    // config object for calendar
+    $scope.uiConfig = {
+      calendar:{
+        height: 650,
+        header:{
+          left: 'month', //  basicWeek basicDay agendaWeek agendaDay
+          center: 'title',
+          right: 'today prev,next'
+        },
+      }
+    };
+    $scope.calendarAppeals = [
+      function(start, end, timezone, callback) {
+        console.log('eventsSources', start,end,timezone,callback)
+      },
+    ];
 
     // https://tc39.github.io/ecma262/#sec-array.prototype.findIndex
     if (!Array.prototype.findIndex) {
