@@ -903,11 +903,31 @@ class CRM_Volunteer_Upgrader extends CRM_Volunteer_Upgrader_Base {
   }
 
   /**
+   * CiviVolunteer 2303 update adds dates to Volunteer Projects.
+   *
+   * @return boolean TRUE on success
+   */
+  public function upgrade_2303() {
+    $this->ctx->log->info('Applying update 2303 - CiviVolunteer Volunteer Project Dates');
+    $this->schemaUpgradeVolunteerProjectDates();
+
+    return TRUE;
+  }
+
+  /**
    * Volunteer Appeal Functionality Integrated.
    * Execute sql queries for relevant volunteer appeal functionality.
    */
   public function schemaUpgradeVolunteerAppeal() {
     $this->executeSqlFile('sql/volunteer_upgrade_with_appeal_2.1.sql');
+  }
+
+  /**
+   * Volunteer Project dates
+   * Execute sql queries for relevant volunteer project dates.
+   */
+  public function schemaUpgradeVolunteerProjectDates() {
+    $this->executeSqlFile('sql/volunteer_upgrade_2.2.sql');
   }
 
 }

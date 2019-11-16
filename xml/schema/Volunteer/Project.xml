@@ -27,6 +27,19 @@
     <add>4.5</add>
     <comment>The title of the Volunteer Project</comment>
   </field>
+    <field>
+    <name>display_start_date</name>
+    <title>Calendar Start Date</title>
+    <type>date</type>
+    <add>5.19</add>
+  </field>
+  <field>
+    <name>display_end_date</name>
+    <title>Calendar End Date</title>
+    <type>date</type>
+    <add>5.19</add>
+    <comment>Used for specifying fuzzy dates, e.g., this project lasts from 12/01/2015 and 12/31/2015.</comment>
+  </field>
   <field>
     <name>description</name>
     <title>Description</title>

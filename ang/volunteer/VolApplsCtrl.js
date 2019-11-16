@@ -69,11 +69,7 @@
     // Assign custom field set values.
     $scope.custom_fieldset_volunteer = custom_fieldset_volunteer.values;
 
-    //Get appeal data with search text and/or pagination
-    getAppeals = function (advancedFilter, filterObj, firstTime) {
-      
-      CRM.$('#crm-main-content-wrapper').block();
-
+    const getParams = function() {
       // this line will check if the argument is undefined, null, or false
       // if so set it to false, otherwise set it to it's original value
       var firstTime = firstTime || false;
@@ -193,6 +189,16 @@
           }
         }
       }
+
+      return params;
+    }
+
+    //Get appeal data with search text and/or pagination
+    const getAppeals = function (advancedFilter, filterObj, firstTime) {
+      
+      CRM.$('#crm-main-content-wrapper').block();
+
+      const params = getParams();
       
       return crmApi('VolunteerAppeal', 'getsearchresult', params)
         .then(function (data) {
@@ -365,7 +371,7 @@
       calendar:{
         height: 650,
         header:{
-          left: 'month', //  basicWeek basicDay agendaWeek agendaDay
+          left: 'month agendaWeek agendaDay', //  basicWeek basicDay 
           center: 'title',
           right: 'today prev,next'
         },
@@ -373,7 +379,27 @@
     };
     $scope.calendarAppeals = [
       function(start, end, timezone, callback) {
-        console.log('eventsSources', start,end,timezone,callback)
+
+        const params = getParams();
+        params.sequential = 1;
+
+        CRM.$('#crm-main-content-wrapper').block();
+
+        return crmApi('VolunteerProject', 'get', params)
+        .then(function (projects) {
+          
+          console.log(data);
+
+          return data.values.map(function());
+
+        },function(error) {
+          CRM.$('#crm-main-content-wrapper').unblock();
+          if (error.is_error) {
+            CRM.alert(error.error_message, ts("Error"), "error");
+          } else {
+            return error;
+          }
+        }); 
       },
     ];
 
