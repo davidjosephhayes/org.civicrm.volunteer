@@ -512,3 +512,29 @@ body {font-family: "Lato", sans-serif;}
 .filter_data {
   margin-bottom: 4px;
 }
+
+/**
+ * Calendar styles 
+ */
+ .crm-container .fc-past{
+  background-color: #eee;
+}
+.crm-container .fc-event {
+  color: #fff;
+  cursor: pointer;
+}
+.crm-container .fc-event:hover {
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+}
+.crm-container .fc-event.fc-unavailable {
+  color: #000;
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+.crm-container .fc-event.fc-unavailable:hover {
+  color: #000;
+  text-decoration: none;
+}
+

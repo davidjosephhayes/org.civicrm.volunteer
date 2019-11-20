@@ -75,7 +75,7 @@ class CRM_Volunteer_BAO_NeedSearch {
 
     // Prepare select query for preparing fetch opportunity.
     // Join relevant table of need.
-    $select = " SELECT project.id,project.title, project.description, project.is_active, project.loc_block_id, project.campaign_id, need.id as need_id, need.start_time, need.end_time, need.duration, need.quantity, need.is_flexible, need.visibility_id, need.is_active as need_active,need.created as need_created,need.last_updated as need_last_updated,need.role_id as role_id, addr.street_address, addr.city, addr.postal_code, country.name as country, state.name as state_province, opt.label as role_lable, opt.description as role_description, campaign.title as campaign_title ";
+    $select = " SELECT project.id,project.title, project.description, project.is_active, project.loc_block_id, project.campaign_id, need.id as need_id, need.start_time, need.end_time, need.duration, need.quantity, need.is_flexible, need.visibility_id, need.is_active as need_active,need.created as need_created,need.last_updated as need_last_updated,need.role_id as role_id, addr.street_address, addr.city, addr.postal_code, country.name as country, state.name as state_province, opt.label as role_label, opt.description as role_description, campaign.title as campaign_title ";
     $from = " FROM civicrm_volunteer_project AS project";
     $join = " LEFT JOIN civicrm_volunteer_need AS need ON (need.project_id = project.id) ";
     $join .= " LEFT JOIN civicrm_loc_block AS loc ON (loc.id = project.loc_block_id) ";
@@ -96,6 +96,11 @@ class CRM_Volunteer_BAO_NeedSearch {
 
     $visibility_id = CRM_Volunteer_BAO_Project::getVisibilityId('name', "public");
     $where = " Where project.is_active = 1 AND need.visibility_id = ".$visibility_id;
+    // search role and project information
+    if($this->searchParams['need']['search']) {
+      $name = CRM_Core_DAO::escapeString($this->searchParams['need']['search']);
+      $where .= " AND (opt.label LIKE '%$name%' OR project.title LIKE '%$name%')";
+    }
     // Default Filter parameter of date start and date end field of need table.
     if(empty($this->searchParams['need']['date_start']) && empty($this->searchParams['need']['date_end'])) {
       $where .= " AND (
@@ -133,7 +138,7 @@ class CRM_Volunteer_BAO_NeedSearch {
     // Add role filter if passed in UI.
     if($this->searchParams['need']['role_id'] && is_array($this->searchParams['need']['role_id'])) {
       $role_id_string = implode(",", $this->searchParams['need']['role_id']);
-      $where .= " And need.role_id IN (".$role_id_string.")";
+      $where .= " AND need.role_id IN (".$role_id_string.")";
     }
     // Add with(benificiary) filter if passed in UI.
     if($this->searchParams['project']['project_contacts']['volunteer_beneficiary']) {
@@ -202,10 +207,10 @@ class CRM_Volunteer_BAO_NeedSearch {
         $project_opportunities[$i]['display_time'] = "Any";
       }
       $project_opportunities[$i]['role_id'] = $dao->role_id;
-      if(empty($dao->role_lable)) {
+      if(empty($dao->role_label)) {
         $project_opportunities[$i]['role_label'] = "Any";
       } else {
-        $project_opportunities[$i]['role_label'] = $dao->role_lable;
+        $project_opportunities[$i]['role_label'] = $dao->role_label;
       }
       $project_opportunities[$i]['role_description'] = $dao->role_description;
       $project_opportunities[$i]['project']['description'] =  $dao->description;
@@ -317,6 +322,11 @@ class CRM_Volunteer_BAO_NeedSearch {
    */
   private function setSearchParams($userSearchParams) {
     $this->setSearchDateParams($userSearchParams);
+
+    $search = CRM_Utils_Array::value('search', $userSearchParams);
+    if (CRM_Utils_Type::validate($search, 'String', FALSE)) {
+      $this->searchParams['need']['search'] = $search;
+    }
 
     $projectId = CRM_Utils_Array::value('project', $userSearchParams);
     if (CRM_Utils_Type::validate($projectId, 'Positive', FALSE)) {

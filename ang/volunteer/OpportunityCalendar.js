@@ -25,7 +25,6 @@
 
     //reset page count and search data
     $scope.searchRes = function(){
-      console.log($scope.search, uiCalendarConfig.calendars.opportunities);
       uiCalendarConfig.calendars.opportunities.fullCalendar('refetchEvents');
     }
 
@@ -44,7 +43,14 @@
           right: 'today prev,next'
         },
         eventClick: function(calEvent, jsEvent, view) {
-          // console.log(calEvent);
+          if (calEvent.className.includes('fc-unavailable')) {
+            if (calEvent.need.quantity_available<1) {
+              CRM.alert(ts('Unfortunately, this opportunity is full.'), ts("Oh no!"));
+            } else {
+              CRM.alert(ts('Unfortunately, this opportunity is unavailable currently.'), ts("Oh no!"));
+            }
+            return;
+          }
           $scope.volSignup(calEvent.id);
         },
       }
@@ -68,6 +74,9 @@
             limit: 0,
           },
         };
+
+        if ($scope.search)
+          params.search = $scope.search;
 
         crmApi('VolunteerNeed', 'getsearchresult', params)
         .then(function(data){
@@ -96,16 +105,13 @@
             const now = moment();
             const date_start = need.start_time && moment(need.start_time);
             return (
-              // in future -- param to api only supports by day, now time
+              // in future -- param to api only supports by day, not time
               (need.start_time && date_start.isAfter(now)) &&
-              // supported schedulte types
-              (need.schedule_type === 'shift' || need.schedule_type === 'flexible') &&
-              // not full
-              need.quantity_available>0
+              // supported schedule types
+              (need.schedule_type === 'shift' || need.schedule_type === 'flexible')
+              // // not full -- manage with class that way we can hide/show with css
+              // && need.quantity_available>0
             );
-          }).
-          filter(function(need){
-
           })
           .map(function(need){
             const start = moment(need.start_time);
@@ -113,6 +119,7 @@
               id: need.id,
               title: need.role_label.trim() + ' (' + need.project.title.trim() + ')',
               start: start,
+              className: need.quantity_available>0 ? 'fc-available' : 'fc-unavailable',
               need: need,
             };
             if (need.end_time) {
@@ -126,9 +133,7 @@
             return eventSource;
           });
           
-          console.log({events});
           callback(events);
-
           CRM.$('#crm-main-content-wrapper').unblock();
 
         },function(error) {
