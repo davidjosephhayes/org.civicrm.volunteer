@@ -1,7 +1,7 @@
 (function (angular, $, _) {
 
   angular.module('volunteer').config(function ($routeProvider) {
-    $routeProvider.when('/volunteer/appeals', {
+    $routeProvider.when('/volunteer/appeals/:initialView?', {
       controller: 'VolApplsCtrl',
       // update the search params in the URL without reloading the route     
       templateUrl: '~/volunteer/VolApplsCtrl.html',
@@ -21,18 +21,23 @@
     });
   });
 
-  angular.module('volunteer').controller('VolApplsCtrl', function ($route, $scope, crmApi, $window, custom_fieldset_volunteer, supporting_data, $location, uiCalendarConfig) {
+  angular.module('volunteer').controller('VolApplsCtrl', function ($route, $routeParams, $scope, crmApi, $window, custom_fieldset_volunteer, supporting_data, $location, uiCalendarConfig) {
 
     if (!$window.location.origin) {
       $window.location.origin = $window.location.protocol + "//" 
-        + $window.location.hostname 
-        + ($window.location.port ? ':' + $window.location.port : '');
+      + $window.location.hostname 
+      + ($window.location.port ? ':' + $window.location.port : '');
     }
+
+    let initialView = $routeParams.initialView || 'grid';
+    if (!['list', 'grid'].includes(initialView))
+      initialView = 'grid';
     
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
     
     $scope.search="";
-    $scope.currentTemplate = "~/volunteer/AppealGrid.html"; //default view is grid view
+    $scope.activeGrid = initialView + "_view";
+    $scope.currentTemplate = "~/volunteer/Appeal" + initialView.charAt(0).toUpperCase() + initialView.slice(1).toLowerCase() + ".html"; //default view is grid view
     $scope.totalRec;
     $scope.currentPage = 1;
     $scope.pageSize = 10;
@@ -47,7 +52,6 @@
     ];
     $scope.sortValue = $scope.options[0];
     $scope.sortby=$scope.order = null;
-    $scope.activeGrid = "grid_view";
     $scope.beneficiary_name = [];
     $scope.custom_field_display = [];
     $scope.supporting_data = supporting_data.values;
@@ -58,7 +62,10 @@
     $scope.changeview = function(tpl, type){
       $scope.activeGrid = type;
       $scope.currentTemplate = tpl;
-    }
+    };
+    $scope.goToCalendar=function() {
+      $location.path("/volunteer/opportunitycalendar");
+    };
     // Clear checkbox selection in Date and Location Filter.
     $scope.clear = function clear() {
       $scope.location_finder_way = null;
@@ -69,10 +76,11 @@
     // Assign custom field set values.
     $scope.custom_fieldset_volunteer = custom_fieldset_volunteer.values;
 
+    var firstTime;
     const getParams = function() {
       // this line will check if the argument is undefined, null, or false
       // if so set it to false, otherwise set it to it's original value
-      var firstTime = firstTime || false;
+      firstTime = firstTime || false;
       let params={};
       if($window.localStorage.getItem("search_params") && firstTime == true) {
         
@@ -361,106 +369,6 @@
       $location.search('beneficiary', null);
       $route.reload();
     }
-
-    /**
-     * Calendar View
-     */
-    
-    // config object for calendar
-    $scope.uiConfig = {
-      calendar:{
-        height: 650,
-        header:{
-          left: 'month agendaWeek agendaDay', //  basicWeek basicDay 
-          center: 'title',
-          right: 'today prev,next'
-        },
-      }
-    };
-    $scope.calendarSources = [];
-    $scope.calendarEvents = [
-      function(start, end, timezone, callback) {
-
-        CRM.$('#crm-main-content-wrapper').block();
-
-        // const $calendar = uiCalendarConfig.calendars.appeals;
-        // const currentView = $calendar.fullCalendar('getView').type;
-
-        const appealParams = getParams();
-        console.log({appealParams});
-
-        //by specifying an or time range, we get all shifts that over lap our calendar time range
-        const timeRange = [start.format("YYYY-MM-DD HH:mm:ss"), end.format("YYYY-MM-DD HH:mm:ss")];
-
-        const params = {
-          sequential: 1,
-          is_public
-          project_id: { // need a project id
-            'IS NOT NULL': 1,
-          },
-          start_time: timeRange,
-          end_time: timeRange,
-
-          options: {
-            sort: 'start_time asc',
-            or: [
-              ['start_time', 'end_time'],
-            ],
-          },
-        };
-
-        return crmApi('VolunteerNeed', 'get', params)
-        .then(function (data) {
-
-          $scope.calendarSources = data.values;
-          console.log($scope.calendarSources);
-          
-            // show projects on momth view
-            data.values
-            .filter(function(project){
-              return project.display_start_date && project.display_start_date.length>0;
-            })
-            .map(function(project){
-              const eventSource = {
-                id: project.id,
-                title: project.title,
-                start: moment(project.display_start_date),
-              };
-              if (project.display_end_date && project.display_end_date.length>0) {
-                eventSource.end = moment(project.display_end_date);
-              }
-              return eventSource;
-            }) :
-            // show shifts on week and day views
-            data.values
-            .filter(function(project){
-              return project['api.VolunteerNeed.get'].values.length>0;
-            })
-            .map(function(project){
-              return project['api.VolunteerNeed.get'].values.map(function(need){
-                return {
-                  id: project.id,
-                  title: project.title,
-                  start: moment(project.display_start_date),
-                };
-              });
-            })
-            .map(function(deepShifts){
-              [].concat.apply([], Object.keys(obj.errors).map(key => obj.errors[key])).join(', ')
-            })
-          
-          console.log({events});
-          callback(events);
-
-          CRM.$('#crm-main-content-wrapper').unblock();
-
-        },function(error) {
-          callback([]);
-          CRM.alert(error.is_error ? error.error_message : error, ts("Error"), "error");
-          CRM.$('#crm-main-content-wrapper').unblock();
-        }); 
-      },
-    ];
 
     // https://tc39.github.io/ecma262/#sec-array.prototype.findIndex
     if (!Array.prototype.findIndex) {

@@ -1,0 +1,24 @@
+<div class="crm-container">
+  <div class="crm-vol-opp-search">
+    <div class="crm-block ui-tabs ui-widget ui-widget-content ui-corner-all">
+      <div class="crm-group">
+        <div class="pull-left search-box m-5">
+          <input type="text" name="searchAppeal" ng-model="search" placeholder="{{ ts('Search') }}" ng-model-options='{ debounce: 1000 }'
+             ng-change='searchRes()'/>
+          <i class="fa fa-search"></i>
+        </div>
+        <div class="pull-right search-display m-5">
+          <button class="grid_view_button" ng-click="goToAppeals('list')"><i class="fa fa-bars"></i></button>
+          <button class="grid_view_button" ng-click="goToAppeals('grid')"><i class="fa fa-th-large"></i></button>
+          <button class="grid_view_button grid_active"><i class="fa fa-calendar"></i></button>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Results -->
+<div class="grid appeal-calendar">
+  <div ui-calendar="uiConfig.calendar" class="calendar" ng-model="calendarEvents" calendar="opportunities"></div> 
+</div>
+<div class="clear"></div>

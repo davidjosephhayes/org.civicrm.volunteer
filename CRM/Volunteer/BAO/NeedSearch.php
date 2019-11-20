@@ -75,7 +75,7 @@ class CRM_Volunteer_BAO_NeedSearch {
 
     // Prepare select query for preparing fetch opportunity.
     // Join relevant table of need.
-    $select = " SELECT project.id,project.title, project.description, project.is_active, project.loc_block_id, project.campaign_id, need.id as need_id, need.start_time, need.end_time, need.is_flexible, need.visibility_id, need.is_active as need_active,need.created as need_created,need.last_updated as need_last_updated,need.role_id as role_id, addr.street_address, addr.city, addr.postal_code, country.name as country, state.name as state_province, opt.label as role_lable, opt.description as role_description, campaign.title as campaign_title ";
+    $select = " SELECT project.id,project.title, project.description, project.is_active, project.loc_block_id, project.campaign_id, need.id as need_id, need.start_time, need.end_time, need.duration, need.quantity, need.is_flexible, need.visibility_id, need.is_active as need_active,need.created as need_created,need.last_updated as need_last_updated,need.role_id as role_id, addr.street_address, addr.city, addr.postal_code, country.name as country, state.name as state_province, opt.label as role_lable, opt.description as role_description, campaign.title as campaign_title ";
     $from = " FROM civicrm_volunteer_project AS project";
     $join = " LEFT JOIN civicrm_volunteer_need AS need ON (need.project_id = project.id) ";
     $join .= " LEFT JOIN civicrm_loc_block AS loc ON (loc.id = project.loc_block_id) ";
@@ -182,11 +182,17 @@ class CRM_Volunteer_BAO_NeedSearch {
       $project_opportunities[$i]['is_flexible'] = $dao->is_flexible;
       $project_opportunities[$i]['visibility_id'] = $dao->visibility_id;
       $project_opportunities[$i]['is_active'] = $dao->need_active;
+      $project_opportunities[$i]['quantity'] = (int)$dao->quantity;
+      $project_opportunities[$i]['quantity_assigned'] = (int)CRM_Volunteer_BAO_Need::getAssignmentCount($dao->need_id);
+      $project_opportunities[$i]['quantity_available'] = $project_opportunities[$i]['quantity'] - $project_opportunities[$i]['quantity_assigned'];
       $project_opportunities[$i]['created'] = $dao->need_created;
       $project_opportunities[$i]['last_updated'] = $dao->need_last_updated;
       if(isset($dao->start_time) && !empty($dao->start_time)) {
+        $project_opportunities[$i]['start_time'] = $dao->start_time;
+        $project_opportunities[$i]['duration'] = $dao->duration;
         $start_time = CRM_Utils_Date::customFormat($dao->start_time, $timeFormat);
         if(isset($dao->end_time) && !empty($dao->end_time)) {
+          $project_opportunities[$i]['end_time'] = $dao->end_time;
           $end_time = CRM_Utils_Date::customFormat($dao->end_time, $timeFormat);
           $project_opportunities[$i]['display_time'] = $start_time ." - ". $end_time;
         } else {
