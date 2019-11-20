@@ -32,7 +32,7 @@
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
     
     $scope.search="";
-    $scope.currentTemplate = "~/volunteer/AppealCalendar.html"; //default view is grid view
+    $scope.currentTemplate = "~/volunteer/AppealGrid.html"; //default view is grid view
     $scope.totalRec;
     $scope.currentPage = 1;
     $scope.pageSize = 10;
@@ -47,7 +47,7 @@
     ];
     $scope.sortValue = $scope.options[0];
     $scope.sortby=$scope.order = null;
-    $scope.activeGrid = "calendar_view";
+    $scope.activeGrid = "grid_view";
     $scope.beneficiary_name = [];
     $scope.custom_field_display = [];
     $scope.supporting_data = supporting_data.values;
@@ -377,28 +377,72 @@
         },
       }
     };
-    $scope.calendarAppeals = [
+    $scope.calendarSources = [];
+    $scope.calendarEvents = [
       function(start, end, timezone, callback) {
+
+        const $calendar = uiCalendarConfig.calendars.appeals;
+        const currentView = $calendar.fullCalendar('getView').type;
 
         const params = getParams();
         params.sequential = 1;
+        params['api.VolunteerNeed.get'] = {
+          sequential: 1,
+        };
+        console.log({uiCalendarConfig, start, end, timezone, params});
 
         CRM.$('#crm-main-content-wrapper').block();
 
         return crmApi('VolunteerProject', 'get', params)
-        .then(function (projects) {
-          
-          console.log(data);
+        .then(function (data) {
 
-          return data.values.map(function());
+          $scope.calendarSources = data.values;
+          console.log($scope.calendarSources);
+          
+          const events = currentView == 'month' ?
+            // show projects on momth view
+            data.values
+            .filter(function(project){
+              return project.display_start_date && project.display_start_date.length>0;
+            })
+            .map(function(project){
+              const eventSource = {
+                id: project.id,
+                title: project.title,
+                start: moment(project.display_start_date),
+              };
+              if (project.display_end_date && project.display_end_date.length>0) {
+                eventSource.end = moment(project.display_end_date);
+              }
+              return eventSource;
+            }) :
+            // show shifts on week and day views
+            data.values
+            .filter(function(project){
+              return project['api.VolunteerNeed.get'].values.length>0;
+            })
+            .map(function(project){
+              return project['api.VolunteerNeed.get'].values.map(function(need){
+                return {
+                  id: project.id,
+                  title: project.title,
+                  start: moment(project.display_start_date),
+                };
+              });
+            })
+            .map(function(deepShifts){
+              [].concat.apply([], Object.keys(obj.errors).map(key => obj.errors[key])).join(', ')
+            })
+          
+          console.log({events});
+          callback(events);
+
+          CRM.$('#crm-main-content-wrapper').unblock();
 
         },function(error) {
+          callback([]);
+          CRM.alert(error.is_error ? error.error_message : error, ts("Error"), "error");
           CRM.$('#crm-main-content-wrapper').unblock();
-          if (error.is_error) {
-            CRM.alert(error.error_message, ts("Error"), "error");
-          } else {
-            return error;
-          }
         }); 
       },
     ];
