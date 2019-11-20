@@ -14,8 +14,6 @@
 
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
     
-    console.log(uiCalendarConfig.calendars);
-    $scope.calendar = uiCalendarConfig.calendars.opportunities;
     $scope.search = "";
     $scope.totalRec;
 
@@ -27,8 +25,8 @@
 
     //reset page count and search data
     $scope.searchRes = function(){
-      console.log($scope.search);
-      $scope.calendar.fullCalendar('refetchEvents');
+      console.log($scope.search, uiCalendarConfig.calendars.opportunities);
+      uiCalendarConfig.calendars.opportunities.fullCalendar('refetchEvents');
     }
 
     $scope.volSignup = function(need_flexi_id) {
@@ -64,8 +62,8 @@
           sequential: 1,
           visibility_id: 1,
           is_active: 1,
-          start_date: now.isBefore(start) ? start.format("YYYY-MM-DD HH:mm:ss") : now.format("YYYY-MM-DD HH:mm:ss"),
-          end_date: end.format("YYYY-MM-DD HH:mm:ss"),
+          date_start: now.isBefore(start) ? start.format("YYYY-MM-DD HH:mm:ss") : now.format("YYYY-MM-DD HH:mm:ss"),
+          date_end: end.format("YYYY-MM-DD HH:mm:ss"),
           options: {
             limit: 0,
           },
@@ -93,13 +91,21 @@
             }
             return need;
           })
+          // time / quantity constraints
           .filter(function(need){
+            const now = moment();
+            const date_start = need.start_time && moment(need.start_time);
             return (
+              // in future -- param to api only supports by day, now time
+              (need.start_time && date_start.isAfter(now)) &&
               // supported schedulte types
               (need.schedule_type === 'shift' || need.schedule_type === 'flexible') &&
               // not full
               need.quantity_available>0
             );
+          }).
+          filter(function(need){
+
           })
           .map(function(need){
             const start = moment(need.start_time);
