@@ -7,6 +7,12 @@
              ng-change='searchRes()'/>
           <i class="fa fa-search"></i>
         </div>
+        <div class="pull-left search-buttons m-5">
+          <div class="volunteer_appeal_result_count_message">{{totalRec}} {{ ts('Opportunities') }}</div>
+          <div class="reset_filter">
+              <button ng-click="resetSearch()"> {{ts('Reset Search')}}</button>
+          </div>
+        </div>
         <div class="pull-right search-display m-5">
           <button class="grid_view_button" ng-click="goToAppeals('list')"><i class="fa fa-bars"></i></button>
           <button class="grid_view_button" ng-click="goToAppeals('grid')"><i class="fa fa-th-large"></i></button>

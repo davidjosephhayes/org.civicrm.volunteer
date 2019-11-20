@@ -24,15 +24,18 @@
     };
 
     //reset page count and search data
+    $scope.resetSearch = function(){
+      $scope.search = "";
+      $scope.searchRes();
+    };
     $scope.searchRes = function(){
       uiCalendarConfig.calendars.opportunities.fullCalendar('refetchEvents');
-    }
+    };
 
     $scope.volSignup = function(need_flexi_id) {
       $window.location.href =CRM.url("civicrm/volunteer/signup", "reset=1&needs[]="+need_flexi_id+"&dest=list");
-    }
+    };
 
-    
     // config object for calendar
     $scope.uiConfig = {
       calendar:{
@@ -45,9 +48,9 @@
         eventClick: function(calEvent, jsEvent, view) {
           if (calEvent.className.includes('fc-unavailable')) {
             if (calEvent.need.quantity_available<1) {
-              CRM.alert(ts('Unfortunately, this opportunity is full.'), ts("Oh no!"));
+              CRM.alert(ts('Unfortunately this opportunity is full.'), ts("Oh no!"));
             } else {
-              CRM.alert(ts('Unfortunately, this opportunity is unavailable currently.'), ts("Oh no!"));
+              CRM.alert(ts('Unfortunately this opportunity is unavailable currently.'), ts("Oh no!"));
             }
             return;
           }
@@ -132,6 +135,8 @@
             }
             return eventSource;
           });
+
+          $scope.totalRec = events.length;
           
           callback(events);
           CRM.$('#crm-main-content-wrapper').unblock();
