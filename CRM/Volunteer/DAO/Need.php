@@ -161,6 +161,7 @@ class CRM_Volunteer_DAO_Need extends CRM_Core_DAO {
         'project_id' => array(
           'name' => 'project_id',
           'type' => CRM_Utils_Type::T_INT,
+          'title' => ts('CiviVolunteer Project ID', array('domain' => 'org.civicrm.volunteer')) ,
           'description' => 'FK to civicrm_volunteer_project table which contains entity_table + entity for each volunteer project (initially civicrm_event + eventID).',
           'required' => false,
           'table_name' => 'civicrm_volunteer_need',
