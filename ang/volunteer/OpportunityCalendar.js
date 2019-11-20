@@ -33,7 +33,7 @@
     };
 
     $scope.volSignup = function(need_flexi_id) {
-      $window.location.href =CRM.url("civicrm/volunteer/signup", "reset=1&needs[]="+need_flexi_id+"&dest=list");
+      $window.location.href =CRM.url("civicrm/volunteer/signup", "reset=1&needs[]="+need_flexi_id+"&dest=calendar");
     };
 
     // config object for calendar

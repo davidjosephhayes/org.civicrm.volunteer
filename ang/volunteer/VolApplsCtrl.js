@@ -29,15 +29,20 @@
       + ($window.location.port ? ':' + $window.location.port : '');
     }
 
+    var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
+    
     let initialView = $routeParams.initialView || 'grid';
     if (!['list', 'grid'].includes(initialView))
       initialView = 'grid';
+
+    //Change reult view
+    $scope.changeView = function(view){
+      $scope.activeView = view;
+      $scope.currentTemplate = "~/volunteer/Appeal" + view.charAt(0).toUpperCase() + view.slice(1).toLowerCase() + ".html"; //default view is grid view
+    };
     
-    var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
-    
-    $scope.search="";
-    $scope.activeGrid = initialView + "_view";
-    $scope.currentTemplate = "~/volunteer/Appeal" + initialView.charAt(0).toUpperCase() + initialView.slice(1).toLowerCase() + ".html"; //default view is grid view
+    $scope.search = "";
+    $scope.changeView(initialView);
     $scope.totalRec;
     $scope.currentPage = 1;
     $scope.pageSize = 10;
@@ -58,11 +63,6 @@
 
     $scope.appeals = [];
 
-    //Change reult view
-    $scope.changeview = function(tpl, type){
-      $scope.activeGrid = type;
-      $scope.currentTemplate = tpl;
-    };
     $scope.goToCalendar=function() {
       $location.path("/volunteer/opportunitycalendar");
     };
@@ -303,7 +303,7 @@
       if(hide_appeal_volunteer_button == "1") {
         $location.url("/volunteer/opportunities?project="+projectId+"&hideSearch=1");
       } else {
-        $window.location.href =CRM.url("civicrm/volunteer/signup", "reset=1&needs[]="+need_flexi_id+"&dest=list");
+        $window.location.href =CRM.url("civicrm/volunteer/signup", "reset=1&needs[]="+need_flexi_id+"&dest=" + $scope.activeView);
       }
     }
 

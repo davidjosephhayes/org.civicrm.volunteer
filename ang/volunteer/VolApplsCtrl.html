@@ -55,8 +55,8 @@
           </div>
         </div>
         <div class="pull-right search-display m-5">
-          <button class="grid_view_button" ng-class="{grid_active : activeGrid === 'list_view'}" ng-click="changeview('~/volunteer/AppealList.html', 'list_view')"><i class="fa fa-bars"></i></button>
-          <button class="grid_view_button" ng-class="{grid_active : activeGrid === 'grid_view'}" ng-click="changeview('~/volunteer/AppealGrid.html', 'grid_view')"><i class="fa fa-th-large"></i></button>
+          <button class="grid_view_button" ng-class="{grid_active : activeView === 'list'}" ng-click="changeView('list')"><i class="fa fa-bars"></i></button>
+          <button class="grid_view_button" ng-class="{grid_active : activeView === 'grid'}" ng-click="changeView('grid')"><i class="fa fa-th-large"></i></button>
           <button class="grid_view_button" ng-click="goToCalendar()"><i class="fa fa-calendar"></i></button>
           <select ng-model="sortValue" ng-options="option.val for option in options" ng-change="sort()">
           </select>
@@ -150,7 +150,7 @@
   <div class="icon inform-icon"></div>
   {{ts('No results found. Please try different search criteria.')}}
 </div>
-<div ng-include="currentTemplate"></div>
+<div ng-if="currentTemplate" ng-include="currentTemplate"></div>
 <div class="pull-right appeal-pagination">
   <div  ng-show="appeals.length>0">
     <button ng-if="currentPage > 1" ng-click="prevPageData()">
