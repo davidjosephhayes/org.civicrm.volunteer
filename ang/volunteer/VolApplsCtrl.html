@@ -1,5 +1,5 @@
 <div class="crm-container">
-  <div class="active_filters" ng-if="active_search.advanced_search_option==true || active_search.beneficiary!== undefined">
+  <div class="active_filters" ng-if="activeGrid !== 'calendar_view' && (active_search.advanced_search_option==true || active_search.beneficiary!== undefined)">
     <span class="active_filter_heading"><b>Active Filters : </b></span>
     <div class="active_filter_content">
       <div ng-if="active_search.advanced_search_option==true">
@@ -45,7 +45,7 @@
              ng-change='searchRes()'/>
           <i class="fa fa-search"></i>
         </div>
-        <div class="pull-left search-buttons m-5">
+        <div class="pull-left search-buttons m-5" ng-if="activeGrid !== 'calendar_view'">
           <div class="volunteer_appeal_result_count_message">{{totalRec}} {{ ts('Opportunities') }}</div>
           <div class="advance_filter_wrapper">
             <button ng-click="openModal()"><i class="fa fa-filter" aria-hidden="true"></i></button>
@@ -58,9 +58,9 @@
           <button class="grid_view_button" ng-class="{grid_active : activeGrid === 'list_view'}" ng-click="changeview('~/volunteer/AppealList.html', 'list_view')"><i class="fa fa-bars"></i></button>
           <button class="grid_view_button" ng-class="{grid_active : activeGrid === 'grid_view'}" ng-click="changeview('~/volunteer/AppealGrid.html', 'grid_view')"><i class="fa fa-th-large"></i></button>
           <button class="grid_view_button" ng-class="{grid_active : activeGrid === 'calendar_view'}" ng-click="changeview('~/volunteer/AppealCalendar.html', 'calendar_view')"><i class="fa fa-calendar"></i></button>
-          <select ng-model="sortValue" ng-options="option.val for option in options" ng-change="sort()">
+          <select ng-model="sortValue" ng-options="option.val for option in options" ng-change="sort()" ng-if="activeGrid !== 'calendar_view'">
           </select>
-          <i class="fa fa-sort-amount-desc" aria-hidden="true"></i>
+          <i class="fa fa-sort-amount-desc" aria-hidden="true" ng-if="activeGrid !== 'calendar_view'"></i>
         </div>
         <div class="clearfix"></div>
       </div>

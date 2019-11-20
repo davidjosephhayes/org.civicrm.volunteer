@@ -381,25 +381,40 @@
     $scope.calendarEvents = [
       function(start, end, timezone, callback) {
 
-        const $calendar = uiCalendarConfig.calendars.appeals;
-        const currentView = $calendar.fullCalendar('getView').type;
-
-        const params = getParams();
-        params.sequential = 1;
-        params['api.VolunteerNeed.get'] = {
-          sequential: 1,
-        };
-        console.log({uiCalendarConfig, start, end, timezone, params});
-
         CRM.$('#crm-main-content-wrapper').block();
 
-        return crmApi('VolunteerProject', 'get', params)
+        // const $calendar = uiCalendarConfig.calendars.appeals;
+        // const currentView = $calendar.fullCalendar('getView').type;
+
+        const appealParams = getParams();
+        console.log({appealParams});
+
+        //by specifying an or time range, we get all shifts that over lap our calendar time range
+        const timeRange = [start.format("YYYY-MM-DD HH:mm:ss"), end.format("YYYY-MM-DD HH:mm:ss")];
+
+        const params = {
+          sequential: 1,
+          is_public
+          project_id: { // need a project id
+            'IS NOT NULL': 1,
+          },
+          start_time: timeRange,
+          end_time: timeRange,
+
+          options: {
+            sort: 'start_time asc',
+            or: [
+              ['start_time', 'end_time'],
+            ],
+          },
+        };
+
+        return crmApi('VolunteerNeed', 'get', params)
         .then(function (data) {
 
           $scope.calendarSources = data.values;
           console.log($scope.calendarSources);
           
-          const events = currentView == 'month' ?
             // show projects on momth view
             data.values
             .filter(function(project){
