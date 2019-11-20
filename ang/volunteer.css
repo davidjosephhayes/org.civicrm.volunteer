@@ -516,6 +516,9 @@ body {font-family: "Lato", sans-serif;}
 /**
  * Calendar styles 
  */
+ .crm-container .opportunity-calendar {
+   padding-top: 15px;
+ }
  .crm-container .fc-past{
   background-color: #eee;
 }
