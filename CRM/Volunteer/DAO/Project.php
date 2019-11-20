@@ -63,17 +63,6 @@ class CRM_Volunteer_DAO_Project extends CRM_Core_DAO {
    */
   public $title;
   /**
-   *
-   * @var date
-   */
-  public $display_start_date;
-  /**
-   * Used for specifying fuzzy dates, e.g., this project lasts from 12/01/2015 and 12/31/2015.
-   *
-   * @var date
-   */
-  public $display_end_date;
-  /**
    * Full description of the Volunteer Project. Text and HTML allowed. Displayed on sign-up screens.
    *
    * @var text
@@ -157,23 +146,6 @@ class CRM_Volunteer_DAO_Project extends CRM_Core_DAO {
           'required' => true,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
-          'table_name' => 'civicrm_volunteer_project',
-          'entity' => 'Project',
-          'bao' => 'CRM_Volunteer_DAO_Project',
-        ) ,
-        'display_start_date' => array(
-          'name' => 'display_start_date',
-          'type' => CRM_Utils_Type::T_DATE,
-          'title' => ts('Calendar Start Date', array('domain' => 'org.civicrm.volunteer')) ,
-          'table_name' => 'civicrm_volunteer_project',
-          'entity' => 'Project',
-          'bao' => 'CRM_Volunteer_DAO_Project',
-        ) ,
-        'display_end_date' => array(
-          'name' => 'display_end_date',
-          'type' => CRM_Utils_Type::T_DATE,
-          'title' => ts('Calendar End Date', array('domain' => 'org.civicrm.volunteer')) ,
-          'description' => 'Used for specifying fuzzy dates, e.g., this project lasts from 12/01/2015 and 12/31/2015.',
           'table_name' => 'civicrm_volunteer_project',
           'entity' => 'Project',
           'bao' => 'CRM_Volunteer_DAO_Project',
