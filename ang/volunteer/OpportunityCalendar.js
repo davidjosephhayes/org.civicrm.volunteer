@@ -75,8 +75,21 @@
           //   $(".fc-next-button").removeClass('fc-state-disabled'); 
           //   $(".fc-next-button").prop('disabled', false); 
           // }
-        }
-      }
+        },
+        eventAfterAllRender: function(view){
+          let totalRec = 0;
+          const events = uiCalendarConfig.calendars.opportunities.fullCalendar('clientEvents');
+          events.forEach(function(event){
+            if (
+              (view.start.isSameOrBefore(event.start, 'day') && view.end.isAfter(event.start, 'day')) ||
+              (view.start.isBefore(event.end, 'day') && view.end.isSameOrAfter(event.end, 'day'))
+              ) {
+              totalRec++;
+            }
+          });
+          $scope.totalRec = totalRec;
+        },
+      },
     };
     $scope.calendarSources = [];
     $scope.calendarEvents = [
@@ -156,7 +169,7 @@
             return eventSource;
           });
 
-          $scope.totalRec = events.length;
+          // $scope.totalRec = events.length;
           
           callback(events);
           CRM.$('#crm-main-content-wrapper').unblock();
