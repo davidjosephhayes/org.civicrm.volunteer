@@ -532,8 +532,10 @@ body {font-family: "Lato", sans-serif;}
   text-decoration: none;
 }
 .crm-container .fc-event.fc-full,
-.crm-container .fc-event.fc-registered {
+.crm-container .fc-event.fc-registered,
+.crm-container .fc-event.fc-registered.fc-full {
   background-color: #c0392b;
+  color: #fff;
   cursor: not-allowed;
 }
 .crm-container .fc-event.fc-full:hover,
@@ -544,7 +546,7 @@ body {font-family: "Lato", sans-serif;}
   color: #000;
   background-color: #ddd;
 }
-.crm-container .fc-event.fc-full:hover {
+.crm-container .fc-event.fc-full:not(.fc-registered):hover {
   color: #000;
 }
 
