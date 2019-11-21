@@ -516,10 +516,10 @@ body {font-family: "Lato", sans-serif;}
 /**
  * Calendar styles 
  */
- .crm-container .opportunity-calendar {
-   padding-top: 15px;
- }
- .crm-container .fc-past{
+.crm-container .opportunity-calendar {
+  padding-top: 15px;
+}
+.crm-container .fc-past{
   background-color: #eee;
 }
 .crm-container .fc-event {
@@ -531,13 +531,20 @@ body {font-family: "Lato", sans-serif;}
   cursor: pointer;
   text-decoration: none;
 }
-.crm-container .fc-event.fc-unavailable {
-  color: #000;
-  background-color: #ddd;
+.crm-container .fc-event.fc-full,
+.crm-container .fc-event.fc-registered {
+  background-color: #c0392b;
   cursor: not-allowed;
 }
-.crm-container .fc-event.fc-unavailable:hover {
-  color: #000;
+.crm-container .fc-event.fc-full:hover,
+.crm-container .fc-event.fc-registered:hover {
   text-decoration: none;
+}
+.crm-container .fc-event.fc-full {
+  color: #000;
+  background-color: #ddd;
+}
+.crm-container .fc-event.fc-full:hover {
+  color: #000;
 }
 

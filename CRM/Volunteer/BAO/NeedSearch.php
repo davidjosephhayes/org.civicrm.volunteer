@@ -180,6 +180,7 @@ class CRM_Volunteer_BAO_NeedSearch {
     $i=0;
     $config = CRM_Core_Config::singleton();
     $timeFormat = $config->dateformatDatetime;
+    $contact_id = CRM_Core_Session::getLoggedInContactID();
     // Prepare array for need of projects.
     while ($dao->fetch()) {
       $project_opportunities[$i]['id'] = $dao->need_id;
@@ -190,6 +191,7 @@ class CRM_Volunteer_BAO_NeedSearch {
       $project_opportunities[$i]['quantity'] = (int)$dao->quantity;
       $project_opportunities[$i]['quantity_assigned'] = (int)CRM_Volunteer_BAO_Need::getAssignmentCount($dao->need_id);
       $project_opportunities[$i]['quantity_available'] = $project_opportunities[$i]['quantity'] - $project_opportunities[$i]['quantity_assigned'];
+      $project_opportunities[$i]['quantity_assigned_current_user'] = $contact_id === null ? 0 : (int)CRM_Volunteer_BAO_Need::getAssignmentCount($dao->need_id, $contact_id);
       $project_opportunities[$i]['created'] = $dao->need_created;
       $project_opportunities[$i]['last_updated'] = $dao->need_last_updated;
       if(isset($dao->start_time) && !empty($dao->start_time)) {

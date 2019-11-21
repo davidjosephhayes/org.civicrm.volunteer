@@ -46,7 +46,11 @@
           right: 'today prev,next'
         },
         eventClick: function(calEvent, jsEvent, view) {
-          if (calEvent.className.includes('fc-unavailable')) {
+          if (calEvent.className.includes('fc-registered')) {
+            CRM.alert(ts('You are already registered for this opportunity.'), ts("Good news!"));
+            return;
+          }
+          if (calEvent.className.includes('fc-full')) {
             if (calEvent.need.quantity_available<1) {
               CRM.alert(ts('Unfortunately this opportunity is full.'), ts("Oh no!"));
             } else {
@@ -151,11 +155,16 @@
           })
           .map(function(need){
             const start = moment(need.start_time);
+            const classNames = [];
+            if (need.quantity_assigned_current_user>0)
+              classNames.push('fc-registered');
+            if (need.quantity_available<1)
+              classNames.push('fc-full');
             const eventSource = {
               id: need.id,
               title: need.role_label.trim() + ' (' + need.project.title.trim() + ')',
               start: start,
-              className: need.quantity_available>0 ? 'fc-available' : 'fc-unavailable',
+              className: classNames.length>0 ? classNames.join(' ') : 'fc-available',
               need: need,
             };
             if (need.end_time) {
