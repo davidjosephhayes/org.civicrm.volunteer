@@ -10,7 +10,7 @@
     });
   });
 
-  angular.module('volunteer').controller('OpportunityCalendar', function ($route, $scope, crmApi, $window, $location, uiCalendarConfig) {
+  angular.module('volunteer').controller('OpportunityCalendar', function ($route, $scope, crmApi, $window, $location, volunteerCalendarConfig) {
 
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
     
@@ -29,7 +29,7 @@
       $scope.searchRes();
     };
     $scope.searchRes = function(){
-      uiCalendarConfig.calendars.opportunities.fullCalendar('refetchEvents');
+      volunteerCalendarConfig.calendars.opportunities.fullCalendar('refetchEvents');
     };
 
     $scope.volSignup = function(need_flexi_id) {
@@ -82,7 +82,7 @@
         },
         eventAfterAllRender: function(view){
           let totalRec = 0;
-          const events = uiCalendarConfig.calendars.opportunities.fullCalendar('clientEvents');
+          const events = volunteerCalendarConfig.calendars.opportunities.fullCalendar('clientEvents');
           events.forEach(function(event){
             if (
               (view.start.isSameOrBefore(event.start, 'day') && view.end.isAfter(event.start, 'day')) ||

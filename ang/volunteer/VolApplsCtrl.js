@@ -21,7 +21,7 @@
     });
   });
 
-  angular.module('volunteer').controller('VolApplsCtrl', function ($route, $routeParams, $scope, crmApi, $window, custom_fieldset_volunteer, supporting_data, $location, uiCalendarConfig) {
+  angular.module('volunteer').controller('VolApplsCtrl', function ($route, $routeParams, $scope, crmApi, $window, custom_fieldset_volunteer, supporting_data, $location, volunteerCalendarConfig) {
 
     if (!$window.location.origin) {
       $window.location.origin = $window.location.protocol + "//" 

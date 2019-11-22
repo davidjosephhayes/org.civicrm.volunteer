@@ -666,11 +666,24 @@ function _volunteer_isVolListingApiCall($entity, $action) {
  *   An array containing a list of all Angular modules.
  */
 function volunteer_civicrm_angularModules(&$angularModules) {
-  $angularModules['ui.calendar'] = [
+  $angularModules['volunteer.modal'] = [
     'ext' => 'org.civicrm.volunteer',
     'basePages' => ['civicrm/vol'],
     'js' => [
-      'ang/uiCalendar/calendar.js',
+      'ang/modules/modal.js',
+    ],
+    'css' => [
+      'ang/modules/modal.css',
+    ],
+  ];
+  $angularModules['volunteer.calendar'] = [
+    'ext' => 'org.civicrm.volunteer',
+    'basePages' => ['civicrm/vol'],
+    'js' => [
+      'ang/modules/calendar.js',
+    ],
+    'requires' => [
+      // 'volunteer.modal',
     ],
   ];
   $angularModules['volunteer'] = [
@@ -683,7 +696,8 @@ function volunteer_civicrm_angularModules(&$angularModules) {
       'crmUtil',
       'ngRoute',
       'ngSanitize',
-      'ui.calendar',
+      // 'volunteer.modal',
+      'volunteer.calendar',
     ],
     'js' => [
       'ang/volunteer.js',
