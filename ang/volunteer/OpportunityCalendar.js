@@ -45,9 +45,7 @@
 
     // modal window setup
     $scope.currentEvent = null;
-    $scope.eventInfoHeading = '';
-    $scope.eventInfoDescription = '';
-    $scope.eventInfoStatus = '';
+    $scope.currentEventStatus = '';
     $scope.openModal = function(id) {
       volunteerModalService.open(id);
     };
@@ -65,16 +63,14 @@
         },
         eventClick: function(calEvent, jsEvent, view) {
           $scope.currentEvent = calEvent;
-          $scope.eventInfoHeading = calEvent.title;
-          $scope.eventInfoDescription = calEvent.need.project.description;
-          $scope.eventInfoStatus = '';
+          $scope.currentEventStatus = '';
           if (calEvent.className.includes('fc-registered')) {
-            $scope.eventInfoStatus = 'registered';
+            $scope.currentEventStatus = 'registered';
           } else if (calEvent.className.includes('fc-full')) {
             if (calEvent.need.quantity_available<1) {
-              $scope.eventInfoStatus = 'full';
+              $scope.currentEventStatus = 'full';
             } else {
-              $scope.eventInfoStatus = 'other-unavailable';
+              $scope.currentEventStatus = 'other-unavailable';
             }
           }
           $scope.openModal('crm-vol-event-info');
