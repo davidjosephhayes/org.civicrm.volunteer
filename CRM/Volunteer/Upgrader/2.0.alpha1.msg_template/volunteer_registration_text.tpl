@@ -12,6 +12,7 @@ Description: {$volunteer_project.description}
 
 {if !empty($volunteer_project.location)}
 Location:
+    {$volunteer_project.location.address.name}
     {$volunteer_project.location.address.street_address}
     {$volunteer_project.location.address.city}
 

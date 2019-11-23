@@ -56,6 +56,9 @@
           <div class="status" ng-show="locBlock.count_loc_used > 0">{{ts("This location is used by other events/appeals. Modifying location information will change values for all events/appeals")}}</div>
           <fieldset class="crm-vol-location-address">
             <legend>{{ts("Address")}}</legend>
+            <div class="crm-vol-location-name" crm-ui-field='{name: "AppealForm.locBlock.name", title: ts("Name")}'>
+              <input ng-disabled="appeal.location_done_anywhere" size="30" crm-ui-id="AppealForm.locBlock.name"  ng-model="locBlock.address.name" />
+            </div>
             <div class="crm-vol-location-street" crm-ui-field='{name: "AppealForm.locBlock.street_address", title: ts("Street Address")}'>
               <input ng-disabled="appeal.location_done_anywhere" size="30" crm-ui-id="AppealForm.locBlock.street_address"  ng-model="locBlock.address.street_address" />
             </div>

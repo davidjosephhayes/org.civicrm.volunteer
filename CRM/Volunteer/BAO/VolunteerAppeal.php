@@ -300,6 +300,9 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
       $api2['location'] = "";
     } else {
       $address = "";
+      if ($api2['api.LocBlock.getsingle']['api.Address.getsingle']['name']) {
+        $address .= " ".$api2['api.LocBlock.getsingle']['api.Address.getsingle']['name'];
+      }
       if ($api2['api.LocBlock.getsingle']['api.Address.getsingle']['street_address']) {
         $address .= " ".$api2['api.LocBlock.getsingle']['api.Address.getsingle']['street_address'];
       }
@@ -368,7 +371,7 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
     $show_beneficiary_at_front = 1;
     $seperator = CRM_CORE_DAO::VALUE_SEPARATOR;
 
-    $select = " SELECT (select id from civicrm_volunteer_need where civicrm_volunteer_need.is_flexible = 1 and civicrm_volunteer_need.project_id=p.id) as need_flexi_id, appeal.*, addr.street_address, addr.city, addr.postal_code";
+    $select = " SELECT (select id from civicrm_volunteer_need where civicrm_volunteer_need.is_flexible = 1 and civicrm_volunteer_need.project_id=p.id) as need_flexi_id, appeal.*, addr.name as address_name, addr.street_address, addr.city, addr.postal_code";
     $select .= " , GROUP_CONCAT(DISTINCT need.id ) as need_id";//,mdt.need_start_time
     $from = " FROM civicrm_volunteer_appeal AS appeal";
     $join = " LEFT JOIN civicrm_volunteer_project AS p ON (p.id = appeal.project_id) ";
@@ -569,6 +572,9 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
       }
       // Prepare whole address of appeal in array.
       $address = "";
+      if ($dao->address_name) {
+        $address .= " ".$dao->address_name;
+      }
       if ($dao->street_address) {
         $address .= " ".$dao->street_address;
       }
