@@ -27,4 +27,30 @@
 <div class="grid opportunity-calendar">
   <div volunteer-calendar="uiConfig.calendar" class="calendar" ng-model="calendarEvents" calendar="opportunities"></div> 
 </div>
+<div volunteer-modal id="crm-vol-event-info">
+  <div class="modal">
+    <div class="modal-body">
+      <h2>{{eventInfoHeading}}</h2>
+      <div ng-if="eventInfoStatus" class="crm-vol-event-status messages status no-popup" ng-class="{'crm-ok': eventInfoStatus==='registered'}">
+        <div class="icon inform-icon"></div>
+        <span ng-if="eventInfoStatus==='registered'">
+            <strong>{{ts("Good news!")}}</strong> {{ts('You are already registered for this opportunity.')}}
+        </span>
+        <span ng-if="eventInfoStatus==='full'">
+            <strong>{{ts("Oh no!")}}</strong> {{ts('Unfortunately this opportunity is full.')}}
+        </span>
+        <span ng-if="eventInfoStatus==='other-unavailable'">
+            <strong>{{ts("Oh no!")}}</strong> {{ts('Unfortunately this opportunity is unavailable currently.')}}
+        </span>
+      </div>
+      <div ng-bind-html="eventInfoDescription"></div>
+      <hr />
+      <div class="crm-submit-buttons">
+        <button ng-if="!eventInfoStatus" ng-click="volSignupCurrentEvent()" class="crm-button crm-vol-event-info-register">Register Now!</button>
+        <button ng-click="closeModal('crm-vol-event-info')" class="crm-button crm-vol-event-info-close">Close</button>
+      </div>
+    </div>
+</div>
+<div class="modal-background"></div>
+</div>
 <div class="clear"></div>

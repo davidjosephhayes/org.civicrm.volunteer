@@ -10,7 +10,7 @@
     });
   });
 
-  angular.module('volunteer').controller('OpportunityCalendar', function ($route, $scope, crmApi, $window, $location, volunteerCalendarConfig) {
+  angular.module('volunteer').controller('OpportunityCalendar', function ($route, $scope, crmApi, $window, $location, volunteerCalendarConfig, volunteerModalService) {
 
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
     
@@ -35,7 +35,25 @@
     $scope.volSignup = function(need_flexi_id) {
       $window.location.href =CRM.url("civicrm/volunteer/signup", "reset=1&needs[]="+need_flexi_id+"&dest=calendar");
     };
+    $scope.volSignupCurrentEvent = function(){
+      if ($scope.currentEvent === null) {
+        console.warm('No current event set');
+        return;
+      }
+      $scope.volSignup($scope.currentEvent.id);
+    };
 
+    // modal window setup
+    $scope.currentEvent = null;
+    $scope.eventInfoHeading = '';
+    $scope.eventInfoDescription = '';
+    $scope.eventInfoStatus = '';
+    $scope.openModal = function(id) {
+      volunteerModalService.open(id);
+    };
+    $scope.closeModal = function(id) {
+      volunteerModalService.close(id);
+    };
     // config object for calendar
     $scope.uiConfig = {
       calendar:{
@@ -46,19 +64,21 @@
           right: 'today prev,next'
         },
         eventClick: function(calEvent, jsEvent, view) {
+          $scope.currentEvent = calEvent;
+          $scope.eventInfoHeading = calEvent.title;
+          $scope.eventInfoDescription = calEvent.need.project.description;
+          $scope.eventInfoStatus = '';
           if (calEvent.className.includes('fc-registered')) {
-            CRM.alert(ts('You are already registered for this opportunity.'), ts("Good news!"));
-            return;
-          }
-          if (calEvent.className.includes('fc-full')) {
+            $scope.eventInfoStatus = 'registered';
+          } else if (calEvent.className.includes('fc-full')) {
             if (calEvent.need.quantity_available<1) {
-              CRM.alert(ts('Unfortunately this opportunity is full.'), ts("Oh no!"));
+              $scope.eventInfoStatus = 'full';
             } else {
-              CRM.alert(ts('Unfortunately this opportunity is unavailable currently.'), ts("Oh no!"));
+              $scope.eventInfoStatus = 'other-unavailable';
             }
-            return;
           }
-          $scope.volSignup(calEvent.id);
+          $scope.openModal('crm-vol-event-info');
+          // $scope.volSignup(calEvent.id);
         },
         viewRender: function(currentView){
           const minDate = moment();
@@ -95,6 +115,7 @@
         },
       },
     };
+    // calendar setup
     $scope.calendarSources = [];
     $scope.calendarEvents = [
       function(start, end, timezone, callback) {
@@ -162,7 +183,7 @@
               classNames.push('fc-full');
             const eventSource = {
               id: need.id,
-              title: need.role_label.trim() + ' (' + need.project.title.trim() + ')',
+              title: need.role_label.trim() + ' - ' + need.project.title.trim(),
               start: start,
               className: classNames.length>0 ? classNames.join(' ') : 'fc-available',
               need: need,

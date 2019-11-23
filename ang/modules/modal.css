@@ -7,8 +7,9 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 11500;
   overflow: auto;
+  display: block;
 }
 .crm-vol-modal .modal .modal-body {
   padding: 20px;
@@ -23,7 +24,7 @@
   left: 0;
   background-color: #000;
   opacity: 0.75;
-  z-index: 900;
+  z-index: 11000;
 }
 body.modal-open {
   overflow: hidden;

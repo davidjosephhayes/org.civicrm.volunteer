@@ -53,10 +53,17 @@
               return;
             }
 
-            // move element to bottom of page (just before </body>) so it can be displayed above everything else
+            // move element to bottom of CiviCRM stuff
             element
-            .appendTo('body')
+            .appendTo('#crm_volunteer_angular_frame')
             .addClass('crm-vol-modal');
+
+            // close modal on esc press
+            document.addEventListener("keydown", function(e){
+              if (e.code!=='Escape')
+                return;
+              volunteerModalService.remove(attrs.id);
+            });
 
             // close modal on background click
             element.on('click', function (e) {

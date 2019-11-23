@@ -534,9 +534,8 @@ body {font-family: "Lato", sans-serif;}
 .crm-container .fc-event.fc-full,
 .crm-container .fc-event.fc-registered,
 .crm-container .fc-event.fc-registered.fc-full {
-  background-color: #c0392b;
+  background-color: #27ae60;
   color: #fff;
-  cursor: not-allowed;
 }
 .crm-container .fc-event.fc-full:hover,
 .crm-container .fc-event.fc-registered:hover {
