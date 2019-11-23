@@ -43,12 +43,13 @@
             <strong>{{ts("Oh no!")}}</strong> {{ts('Unfortunately this opportunity is unavailable currently.')}}
         </span>
       </div>
+      <div ng-bind-html="currentEvent.need.role_description"></div>
       <div ng-bind-html="currentEvent.need.project.description"></div>
       <crm-vol-loc-block data="{address: currentEvent.need.project.location}" heading="'Location'" />
       <hr />
       <div class="crm-submit-buttons">
-        <button ng-if="!currentEventStatus" ng-click="volSignupCurrentEvent()" class="crm-button crm-vol-event-info-register">Register Now!</button>
-        <button ng-click="closeModal('crm-vol-event-info')" class="crm-button crm-vol-event-info-close">Close</button>
+        <button ng-if="!currentEventStatus" ng-click="volSignupCurrentEvent()" class="crm-button crm-vol-event-info-register">{{ts('Register Now!')}}</button>
+        <button ng-click="closeModal('crm-vol-event-info')" class="crm-button crm-vol-event-info-close">{{ts('Close')}}</button>
       </div>
     </div>
   </div>

@@ -21,7 +21,7 @@
     });
   });
 
-  angular.module('volunteer').controller('VolApplsCtrl', function ($route, $routeParams, $scope, crmApi, $window, custom_fieldset_volunteer, supporting_data, $location, volunteerCalendarConfig) {
+  angular.module('volunteer').controller('VolApplsCtrl', function ($route, $routeParams, $scope, crmApi, $window, custom_fieldset_volunteer, supporting_data, $location, volunteerModalService) {
 
     if (!$window.location.origin) {
       $window.location.origin = $window.location.protocol + "//" 
@@ -220,7 +220,7 @@
                     
           $scope.totalRec = data.values.total_appeal;
           $scope.numberOfPages= Math.ceil($scope.totalRec/$scope.pageSize);
-          $scope.closeModal();
+          $scope.closeModal('crm-vol-advanced-filters');
           CRM.$('#crm-main-content-wrapper').unblock();
 
           var sortOption = $scope.options.findIndex(function(option) {
@@ -307,13 +307,12 @@
       }
     }
 
-    $scope.openModal=function(){
-      $scope.modalClass="modalDialog"
-    }
-
-    $scope.closeModal=function() {
-      $scope.modalClass=null;
-    }
+    $scope.openModal = function(id) {
+      volunteerModalService.open(id);
+    };
+    $scope.closeModal = function(id) {
+      volunteerModalService.close(id);
+    };
 
     $scope.active = 1;
     $scope.selectTab = function(value){

@@ -30,7 +30,7 @@
     });
   });
 
-  angular.module('volunteer').controller('VolOppsCtrl', function ($route, $scope, $window, $timeout, crmStatus, crmUiHelp, volOppSearch, countries, settings, supporting_data) {
+  angular.module('volunteer').controller('VolOppsCtrl', function ($route, $scope, $window, $timeout, crmStatus, crmUiHelp, volOppSearch, countries, settings, supporting_data, volunteerModalService) {
     // The ts() and hs() functions help load strings for this module.
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
     var hs = $scope.hs = crmUiHelp({file: 'ang/VolOppsCtrl'}); // See: templates/ang/VolOppsCtrl.hlp
@@ -147,39 +147,6 @@
       );
     };
 
-    $scope.showProjectDescription = function (project) {
-      var description = project.description;
-      var addressBlock = '';
-      var campaignBlock = '';
-
-      if (project.hasOwnProperty('campaign_title') && !_.isEmpty(project.campaign_title)) {
-        campaignBlock = '<p><strong>' + ts('Campaign:') + '</strong><br />' + project.campaign_title + '</p>';
-      }
-
-      if (project.hasOwnProperty('location')) {
-        if (!_.isEmpty(project.location.name)) {
-          addressBlock += project.location.name + '<br />';
-        }
-        if (!_.isEmpty(project.location.street_address)) {
-          addressBlock += project.location.street_address + '<br />';
-        }
-        if (!_.isEmpty(project.location.city)) {
-          addressBlock += project.location.city + '<br />';
-        }
-        if (!_.isEmpty(project.location.postal_code)) {
-          addressBlock += project.location.postal_code;
-        }
-      }
-      if (!_.isEmpty(addressBlock)) {
-        addressBlock = '<p><strong>Location:</strong><br />' + addressBlock + '</p>';
-      }
-      CRM.alert(description + campaignBlock + addressBlock, project.title, 'info', {expires: 0});
-    };
-
-    $scope.showRoleDescription = function (need) {
-      CRM.alert(need.role_description, need.role_label, 'info', {expires: 0});
-    };
-
     $scope.toggleSelection = function (need) {
       need.inCart = !need.hasOwnProperty('inCart') ? true : !need.inCart;
 
@@ -202,6 +169,19 @@
       }
       }, delay);
     };
+
+    // modal window setup
+    $scope.currentNeed = null;
+    $scope.openModal = function(id) {
+      volunteerModalService.open(id);
+    };
+    $scope.closeModal = function(id) {
+      volunteerModalService.close(id);
+    };
+    $scope.showNeed = function(need){
+      $scope.currentNeed = need;
+      $scope.openModal('crm-vol-opp-info');
+    }
 
     $scope.toggleCartList = function () {
       $scope.showCartContents = !$scope.showCartContents;
