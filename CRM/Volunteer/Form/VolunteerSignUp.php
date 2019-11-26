@@ -760,10 +760,21 @@ class CRM_Volunteer_Form_VolunteerSignUp extends CRM_Core_Form {
           $query = "reset=1&id={$eventId}";
           break;
         }
+      case 'grid':
+        $path = 'civicrm/vol/';
+        $fragment = '/volunteer/appeals/grid';
+        break;
       case 'list':
+        $path = 'civicrm/vol/';
+        $fragment = '/volunteer/appeals/list';
+        break;
+      case 'calendar':
+        $path = 'civicrm/vol/';
+        $fragment = '/volunteer/opportunitycalendar';
+        break;
       default:
         $path = 'civicrm/vol/';
-        $fragment = '/volunteer/opportunities';
+        $fragment = '/volunteer/appeals';
     }
 
     $this->_destination = CRM_Utils_System::url($path, $query, FALSE, $fragment);

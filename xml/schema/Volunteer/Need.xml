@@ -20,6 +20,7 @@
   </primaryKey>
   <field>
     <name>project_id</name>
+    <title>CiviVolunteer Project ID</title>
     <type>int unsigned</type>
     <required>false</required>
     <comment>FK to civicrm_volunteer_project table which contains entity_table + entity for each volunteer project (initially civicrm_event + eventID).</comment>

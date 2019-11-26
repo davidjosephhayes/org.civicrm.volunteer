@@ -642,6 +642,23 @@ function _volunteer_isVolListingApiCall($entity, $action) {
   return (in_array($entity, $entities) && in_array($action, $actions));
 }
 
+// /**
+//  * Implementation of hook_civicrm_coreResourceList.
+//  *
+//  * @param array $list
+//  *   An array of items about to be added to the page.
+//  * @param string $region
+//  *   Target region of the page - normally this is "html-header"
+//  */
+// function volunteer_civicrm_coreResourceList(&$list, $region) {
+// 	$resource = CRM_Core_Resources::singleton();
+// 	if ($region == 'html-header') {
+// 		$resource->addScriptFile('org.civicrm.volunteer', 'js/fullcalendar/lib/moment.min.js');
+// 		$resource->addScriptFile('org.civicrm.volunteer', 'js/fullcalendar/fullcalendar.min.js');
+// 		$resource->addStyleFile('org.civicrm.volunteer', 'js/fullcalendar/fullcalendar.min.css');
+// 	}
+// }
+
 /**
  * Implementation of hook_civicrm_angularModules.
  *
@@ -649,32 +666,53 @@ function _volunteer_isVolListingApiCall($entity, $action) {
  *   An array containing a list of all Angular modules.
  */
 function volunteer_civicrm_angularModules(&$angularModules) {
-  $angularModules['volunteer'] = array(
+  $angularModules['volunteer.modal'] = [
     'ext' => 'org.civicrm.volunteer',
-    'basePages' => array('civicrm/vol'),
-    'requires' => array(
+    'basePages' => ['civicrm/vol'],
+    'js' => [
+      'ang/modules/modal.js',
+    ],
+    'css' => [
+      'ang/modules/modal.css',
+    ],
+  ];
+  $angularModules['volunteer.calendar'] = [
+    'ext' => 'org.civicrm.volunteer',
+    'basePages' => ['civicrm/vol'],
+    'js' => [
+      'ang/modules/calendar.js',
+    ],
+    'requires' => [
+      // 'volunteer.modal',
+    ],
+  ];
+  $angularModules['volunteer'] = [
+    'ext' => 'org.civicrm.volunteer',
+    'basePages' => ['civicrm/vol'],
+    'requires' => [
       'crmApp',
       'crmProfileUtils',
       'crmUi',
       'crmUtil',
       'ngRoute',
       'ngSanitize',
-    ),
-    'js' =>
-      array (
-        0 => 'ang/volunteer.js',
-        1 => 'ang/volunteer/*.js',
-        2 => 'ang/volunteer/*/*.js'
-      ),
-    'css' => array(
+      // 'volunteer.modal',
+      'volunteer.calendar',
+    ],
+    'js' => [
+      'ang/volunteer.js',
+      'ang/volunteer/*.js',
+      'ang/volunteer/*/*.js',
+    ],
+    'css' => [
       'ang/volunteer.css',
       'ang/volunteer/shared/crmVolLocBlock.css',
       'ang/volunteer/shared/crmVolProjectDetail.css',
       'ang/volunteer/shared/crmVolProjectThumb.css',
-    ),
-    'partials' => array (0 => 'ang/volunteer'),
-    'settings' => array(),
-  );
+    ],
+    'partials' => ['ang/volunteer'],
+    'settings' => [],
+  ];
 
   // Perhaps the placement of this code is a little hackish; unless/until we
   // extend Civi\Angular\Page\Main, there doesn't appear to be a better

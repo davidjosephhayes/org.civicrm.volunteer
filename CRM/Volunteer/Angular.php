@@ -24,6 +24,11 @@ class CRM_Volunteer_Angular {
 
     CRM_Core_Resources::singleton()->addScriptFile('civicrm', 'packages/jquery/plugins/jquery.notify.min.js', 10, 'html-header');
 
+    $resource = CRM_Core_Resources::singleton();
+      $resource->addScriptFile('org.civicrm.volunteer', 'js/fullcalendar/lib/moment.min.js', 5, 'html-header');
+      $resource->addScriptFile('org.civicrm.volunteer', 'js/fullcalendar/fullcalendar.min.js', 10, 'html-header');
+      $resource->addStyleFile('org.civicrm.volunteer', 'js/fullcalendar/fullcalendar.min.css', 10, 'html-header');
+
     $loader = new \Civi\Angular\AngularLoader();
     
 

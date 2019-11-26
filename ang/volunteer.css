@@ -90,6 +90,10 @@ span.crm-button-text {
   padding: 2px 7px 2px 20px;
 }
 
+.crm-submit-buttons .crm-button {
+  cursor: pointer;
+}
+
 .crm-vol-project .select2-choice {
   min-height: 26px;
 }
@@ -508,3 +512,40 @@ body {font-family: "Lato", sans-serif;}
 .filter_data {
   margin-bottom: 4px;
 }
+
+/**
+ * Calendar styles 
+ */
+.crm-container .opportunity-calendar {
+  padding-top: 15px;
+}
+.crm-container .fc-past{
+  background-color: #eee;
+}
+.crm-container .fc-event {
+  color: #fff;
+  cursor: pointer;
+}
+.crm-container .fc-event:hover {
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+}
+.crm-container .fc-event.fc-full,
+.crm-container .fc-event.fc-registered,
+.crm-container .fc-event.fc-registered.fc-full {
+  background-color: #27ae60;
+  color: #fff;
+}
+.crm-container .fc-event.fc-full:hover,
+.crm-container .fc-event.fc-registered:hover {
+  text-decoration: none;
+}
+.crm-container .fc-event.fc-full {
+  color: #000;
+  background-color: #ddd;
+}
+.crm-container .fc-event.fc-full:not(.fc-registered):hover {
+  color: #000;
+}
+

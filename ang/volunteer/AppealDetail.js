@@ -49,7 +49,7 @@
       $location.path("/volunteer/appeals");
     }
     $scope.volSignup= function(need_flexi_id,projectId) {
-      $window.location.href = CRM.url("civicrm/volunteer/signup", "reset=1&needs[]="+need_flexi_id+"&dest=list");
+      $window.location.href = CRM.url("civicrm/volunteer/signup", "reset=1&needs[]="+need_flexi_id+"&dest=grid");
     }
   });
 })(angular, CRM.$, CRM._);
