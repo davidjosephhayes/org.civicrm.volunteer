@@ -1,5 +1,7 @@
 .crm-vol-modal {
   display: none;
+  position: relative;
+  z-index: 105000; /* wordpress menu bar is super high */
 }
 .crm-vol-modal .modal {
   position: fixed;
@@ -7,7 +9,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 11500;
+  z-index: 10;
   overflow: auto;
   display: block;
 }
@@ -24,7 +26,7 @@
   left: 0;
   background-color: #000;
   opacity: 0.75;
-  z-index: 11000;
+  z-index: 5;
 }
 body.modal-open {
   overflow: hidden;

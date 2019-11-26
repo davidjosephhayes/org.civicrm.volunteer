@@ -55,7 +55,7 @@
 
             // move element to bottom of CiviCRM stuff
             element
-            .appendTo('#crm_volunteer_angular_frame')
+            .appendTo('body')
             .addClass('crm-vol-modal');
 
             // close modal on esc press
