@@ -75,7 +75,7 @@ class CRM_Volunteer_BAO_NeedSearch {
 
     // Prepare select query for preparing fetch opportunity.
     // Join relevant table of need.
-    $select = " SELECT project.id,project.title, project.description, project.is_active, project.loc_block_id, project.campaign_id, need.id as need_id, need.start_time, need.end_time, need.duration, need.quantity, need.is_flexible, need.visibility_id, need.is_active as need_active,need.created as need_created,need.last_updated as need_last_updated,need.role_id as role_id, addr.street_address, addr.city, addr.postal_code, country.name as country, state.name as state_province, opt.label as role_label, opt.description as role_description, campaign.title as campaign_title ";
+    $select = " SELECT project.id,project.title, project.description, project.is_active, project.loc_block_id, project.campaign_id, need.id as need_id, need.start_time, need.end_time, need.duration, need.quantity, need.is_flexible, need.visibility_id, need.is_active as need_active,need.created as need_created,need.last_updated as need_last_updated,need.role_id as role_id, addr.name as address_name, addr.street_address, addr.city, addr.postal_code, country.name as country, state.name as state_province, opt.label as role_label, opt.description as role_description, campaign.title as campaign_title ";
     $from = " FROM civicrm_volunteer_project AS project";
     $join = " LEFT JOIN civicrm_volunteer_need AS need ON (need.project_id = project.id) ";
     $join .= " LEFT JOIN civicrm_loc_block AS loc ON (loc.id = project.loc_block_id) ";
@@ -224,7 +224,8 @@ class CRM_Volunteer_BAO_NeedSearch {
         "country" => $dao->country,
         "postal_code" => $dao->postal_code,
         "state_province" => $dao->state_province,
-        "street_address" => $dao->street_address
+        "street_address" => $dao->street_address,
+        "name" => $dao->address_name,
       );
       $beneficiary_display_name = explode(',', $dao->beneficiary_display_name);
       if(isset($beneficiary_display_name) && !empty($beneficiary_display_name) && is_array($beneficiary_display_name)) {
@@ -405,6 +406,7 @@ class CRM_Volunteer_BAO_NeedSearch {
       // CRM-17327
       if (empty($api['loc_block_id']) || empty($api['api.LocBlock.getsingle']['address_id'])) {
         $project['location'] = array(
+          'name' => NULL,
           'city' => NULL,
           'country' => NULL,
           'postal_code' => NULL,
@@ -419,6 +421,7 @@ class CRM_Volunteer_BAO_NeedSearch {
         $stateProvince = $stateProvinceId ? CRM_Core_PseudoConstant::stateProvince($stateProvinceId) : NULL;
 
         $project['location'] = array(
+          'name' => $api['api.LocBlock.getsingle']['api.Address.getsingle']['name'],
           'city' => $api['api.LocBlock.getsingle']['api.Address.getsingle']['city'],
           'country' => $country,
           'postal_code' => $api['api.LocBlock.getsingle']['api.Address.getsingle']['postal_code'],

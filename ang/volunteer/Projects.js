@@ -28,12 +28,12 @@
               'api.VolunteerProjectContact.get': {
                 relationship_type_id: "volunteer_beneficiary"
               },
-              'api.VolunteerProject.getlocblockdata': {
-                id: '$value.loc_block_id',
-                options: {limit: 0},
-                return: 'all',
-                sequential: 1
-              }
+              "api.LocBlock.getsingle": {
+                id: "$value.loc_block_id",
+                "api.Address.getsingle": {
+                  id: "$value.address_id",
+                }
+              },
             }).then(function (data) {
               // make the beneficiary IDs readily available for the live filter
               return _.each(data.values, function (element, index, list) {
@@ -90,48 +90,6 @@
       // Checking for string 'null' is probably unnecessary. We encountered such
       // records earlier in development, but this was likely a transient bug.
       return (project.entity_id && project.entity_table && project.entity_table !== 'null');
-    };
-
-    /**
-     * Utility for stringifying locations which may have varying levels of detail.
-     *
-     * @param array project
-     *   An item from the projectData provider.
-     * @return string
-     *   With HTML tags.
-     */
-    $scope.formatLocation = function (project) {
-      var result = '';
-
-      var locBlockData = project['api.VolunteerProject.getlocblockdata'].values;
-      if (_.isEmpty(locBlockData)) {
-        return result;
-      }
-
-      var address = locBlockData[0].address;
-      if (_.isEmpty(address)) {
-        return result;
-      }
-
-      if (address.street_address) {
-        result += address.street_address;
-      }
-
-      if (address.street_address && (address.city || address.postal_code)) {
-        result += '<br />';
-      }
-
-      if (address.city) {
-        result += address.city;
-      }
-
-      if (address.city && address.postal_code) {
-        result += ', ' + address.postal_code;
-      } else if (address.postal_code) {
-        result += address.postal_code;
-      }
-
-      return result;
     };
 
     // TODO for VOL-276: Replace or obviate the need for this method. This is

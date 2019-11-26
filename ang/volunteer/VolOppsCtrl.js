@@ -56,7 +56,6 @@
       }
     }
 
-
     $scope.countries = countries;
     $scope.roles = supporting_data.values.roles;
     $scope.searchParams = volOppSearch.params;
@@ -158,6 +157,9 @@
       }
 
       if (project.hasOwnProperty('location')) {
+        if (!_.isEmpty(project.location.name)) {
+          addressBlock += project.location.name + '<br />';
+        }
         if (!_.isEmpty(project.location.street_address)) {
           addressBlock += project.location.street_address + '<br />';
         }

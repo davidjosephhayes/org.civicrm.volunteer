@@ -42,8 +42,15 @@
                      <button ng-show="showShift && appeal.project.available_shifts" class="detail-btn appeal-search-shifts" ng-click="redirectTo(appeal.project_id)">{{ts('Search For Shifts!')}}</button>
                   </div>
                   <div class="loc">
-                     <h2 ng-if="!locAny" class="m-t-0">Location</h2>
-                     <p ng-if="!locAny" ng-bind-html="appeal.location" ></p>
+                     <crm-vol-loc-block
+                        ng-if="!locAny"
+                        header="Location"
+                        data="{
+                          address: appeal['api.LocBlock.getsingle'].id && 
+                                  appeal['api.LocBlock.getsingle']['api.Address.getsingle'].id && 
+                                  appeal['api.LocBlock.getsingle']['api.Address.getsingle']
+                        }"
+                      />
                   </div>
                   <div class="p-l-15 appeal-available-shifts" ng-show="showShift && appeal.project.available_shifts"> 
                      <h2 class="m-t-0">Available Shifts</h2>
