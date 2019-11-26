@@ -142,8 +142,64 @@
           volOppSearch.params.beneficiary = volOppSearch.params.beneficiary.split(',');
         }
 
+        // don't show past opportunities
+        if (!volOppSearch.params.date_start) {
+          const now = moment();
+          volOppSearch.params.date_start = now.format("YYYY-MM-DD HH:mm:ss");
+        }
+
+        // no pagination, do not limit results
+        volOppSearch.params.options = {
+          limit: 0,
+        };
+
+        CRM.$('#crm-main-content-wrapper').block();
+
         return crmApi('VolunteerNeed', 'getsearchresult', volOppSearch.params).then(function(data) {
-          result = data.values;
+
+          result = data.values
+          .map(function(need){
+            // add schedule type into object
+            need.schedule_type = 'unknown';
+            if (need.start_time) {
+              if (need.duration === '' || need.duration < 1) {
+                need.schedule_type = 'open';
+              } else if (!need.end_time) {
+                need.schedule_type = 'shift';
+              } else {
+                need.schedule_type = 'flexible';
+              }
+            } else {
+              console.warn('Need ' + need.id + ' has invalid times'); 
+            }
+            // add status into object
+            need.status = '';
+            if (need.quantity_assigned_current_user>0)
+              need.status = 'registered';
+            if (need.quantity_available<1)
+              need.status = 'full';
+            return need;
+          })
+          // time / quantity constraints
+          .filter(function(need){
+            const now = moment();
+            const date_start = need.start_time && moment(need.start_time);
+            return (
+              // in future -- param to api only supports by day, not time
+              (need.start_time && date_start.isAfter(now))
+              // supported schedule types
+              // (need.schedule_type === 'shift' || need.schedule_type === 'flexible')
+              // // not full -- manage with class that way we can hide/show with css
+              // && need.quantity_available>0
+            );
+          });
+
+          CRM.$('#crm-main-content-wrapper').unblock();
+
+        },function(error) {
+          callback([]);
+          CRM.alert(error.is_error ? error.error_message : error, ts("Error"), "error");
+          CRM.$('#crm-main-content-wrapper').unblock();
         });
       };
 
@@ -189,7 +245,9 @@
         restrict: 'E',
         controller: ['$scope', function($scope) {
           $scope.$watch('loc_block', function (newValue, oldValue, scope) {
-           $scope.cntAddressParts = _.size(newValue);
+           $scope.cntAddressParts = newValue.address ? Object.keys(newValue.address).filter(function(key){
+             return newValue.address[key] !== null && newValue.address[key].length>0;
+           }).length : 0;
           }, true);
         }],
         scope: {

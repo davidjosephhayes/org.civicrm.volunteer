@@ -62,7 +62,7 @@
             document.addEventListener("keydown", function(e){
               if (e.code!=='Escape')
                 return;
-              volunteerModalService.remove(attrs.id);
+              scope.$evalAsync(close);
             });
 
             // close modal on background click

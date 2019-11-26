@@ -147,6 +147,21 @@ span.crm-button-text {
   background: rgba(255, 255, 0, 0.1);
 }
 
+.crm-vol-opp-need.crm-vol-opp-need-status-registered td {
+  background: #27ae60;
+  color: #fff;
+}
+.crm-vol-opp-need.crm-vol-opp-need-status-full td {
+  background: #ddd;
+  color: #000;
+}
+.crm-vol-opp-project,
+.crm-vol-opp-beneficiary,
+.crm-vol-opp-role,
+.crm-vol-opp-time {
+  cursor: pointer;
+}
+
 #crm-vol-form-textarea-wrapper {
   clear: left;
 }
@@ -263,62 +278,6 @@ span.crm-button-text {
   cursor: pointer;
 }
 
-.modalDialog {
-  position: fixed;
-  font-family: Arial, Helvetica, sans-serif;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: rgba(82, 79, 79, 0.8);/*rgba(0,0,0,0.8);*/
-  z-index: 99999;
-  opacity:1;
-  -webkit-transition: opacity 400ms ease-in;
-  -moz-transition: opacity 400ms ease-in;
-  transition: opacity 400ms ease-in;
-  pointer-events: auto;
-}
-.modalDialog:target {
-  opacity:1;
-  pointer-events: auto;
-}
-
-.modalDialog > div {
-  max-width: 720px;
-  position: relative;
-  margin: 10% auto;
-  padding: 0px 0px 10px 0px;
-  /*border-radius: 10px;*/
-  border: black solid 1px;
-  background: #fff;
-  overflow: hidden;
-  overflow: auto;
-}
-
-.modal-header {
-    border-bottom: 1px solid #9e9e9e;
-    padding: 0px 20px;
-}
-
-.modal-header button{
-  float: right;
-  margin-top: 5px;
-  margin-right: 3px;
-}
-.modal-header h2{
-    margin-bottom: 10px !important;
-    margin-top: 5px;
-}
-.modalDialog > div input{
-  height: 20px !important; 
-}
-
-.modalDialog > div input[type="text"]
-{
-    height: 20px !important;
-   width: 128px;/*pr*/
-}
-
 .filter-model{
   padding: 15px;
 }
@@ -388,8 +347,6 @@ body {font-family: "Lato", sans-serif;}
 /* Style the tab content */
 .tabcontent {
   padding: 15px;
-  border: 1px solid #989393;/*#ccc;*/
-  border-left: none;
 }
 .postal-code-input{
   width: 124px;
@@ -471,20 +428,6 @@ body {font-family: "Lato", sans-serif;}
 }
 .advance_filter_wrapper {
   display: inline-block;
-}
-
-.advance_filter_footer {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  background: #fff;
-  left: 0;
-  box-shadow: 4px -1px 6px 0px rgba(0, 0, 0, 0.3);
-  padding: 5px 15px 15px 10px;
-}
-.advance_filter_body {
-  height: 420px;
-  overflow-y: auto;
 }
 .custom_fied_content {
   overflow: auto;
