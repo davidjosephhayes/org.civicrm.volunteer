@@ -56,7 +56,7 @@
             // move element to bottom of CiviCRM stuff
             element
             .appendTo('body')
-            .addClass('crm-vol-modal');
+            .addClass('crm-vol-modal crm-container');
 
             // close modal on esc press
             document.addEventListener("keydown", function(e){
