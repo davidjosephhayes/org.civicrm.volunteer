@@ -28,11 +28,11 @@
               'api.VolunteerProjectContact.get': {
                 relationship_type_id: "volunteer_beneficiary"
               },
-              "api.LocBlock.getsingle": {
-                id: "$value.loc_block_id",
-                "api.Address.getsingle": {
-                  id: "$value.address_id",
-                }
+              'api.VolunteerProject.getlocblockdata': {
+                id: '$value.loc_block_id',
+                options: {limit: 0},
+                return: 'all',
+                sequential: 1
               },
             }).then(function (data) {
               // make the beneficiary IDs readily available for the live filter
