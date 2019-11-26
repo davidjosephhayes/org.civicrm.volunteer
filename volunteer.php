@@ -127,6 +127,24 @@ function volunteer_civicrm_navigationMenu(&$menu) {
   ]);
 
   _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
+    'label' => E::ts('My Volunteer Commitments'),
+    'name' => 'volunteer_profile',
+    'url' => 'civicrm/vol/#/volunteer/commitments',
+    'permission' => NULL,
+    'operator' => NULL,
+    'separator' => 0,
+  ]);
+
+  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
+    'label' => E::ts('My Volunteer Profile'),
+    'name' => 'volunteer_profile',
+    'url' => 'civicrm/vol/#/volunteer/profile',
+    'permission' => NULL,
+    'operator' => NULL,
+    'separator' => 0,
+  ]);
+
+  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
       'label' => E::ts('Log Your Own Hours'),
       'name' => 'volunteer_log_own_hours',
       'url' => 'civicrm/vol/#/volunteer/log?',

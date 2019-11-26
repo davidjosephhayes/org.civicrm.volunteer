@@ -1,0 +1,58 @@
+<div class="crm-container">
+  <div class="crm-vol-opp-search">
+    <div class="crm-block ui-tabs ui-widget ui-widget-content ui-corner-all">
+      <div class="crm-group">
+        <div class="pull-left search-box m-5">
+          <input type="text" name="searchAppeal" ng-model="search" placeholder="{{ ts('Search') }}" ng-model-options='{ debounce: 1000 }'
+             ng-change='searchRes()'/>
+          <i class="fa fa-search"></i>
+        </div>
+        <div class="pull-left search-buttons m-5">
+          <div class="volunteer_appeal_result_count_message">{{totalRec}} {{ ts('Opportunities') }}</div>
+          <div class="reset_filter">
+              <button ng-click="resetSearch()"> {{ts('Reset Search')}}</button>
+          </div>
+        </div>
+        <div class="pull-right search-display m-5">
+          <button class="grid_view_button" ng-click="goToAppeals('list')"><i class="fa fa-bars"></i></button>
+          <button class="grid_view_button" ng-click="goToAppeals('grid')"><i class="fa fa-th-large"></i></button>
+          <button class="grid_view_button grid_active"><i class="fa fa-calendar"></i></button>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Results -->
+<div class="grid opportunity-calendar">
+  <div volunteer-calendar="uiConfig.calendar" class="calendar" ng-model="calendarEvents" calendar="opportunities"></div> 
+</div>
+<div volunteer-modal id="crm-vol-event-info">
+  <div class="modal">
+    <div class="modal-body">
+      <h2>{{currentEvent.title}}</h2>
+      <div ng-if="currentEventStatus" class="crm-vol-event-status messages status no-popup" ng-class="{'crm-ok': currentEventStatus==='registered'}">
+        <div class="icon inform-icon"></div>
+        <span ng-if="currentEventStatus==='registered'">
+            <strong>{{ts("Good news!")}}</strong> {{ts('You are already registered for this opportunity.')}}
+        </span>
+        <span ng-if="currentEventStatus==='full'">
+            <strong>{{ts("Oh no!")}}</strong> {{ts('Unfortunately this opportunity is full.')}}
+        </span>
+        <span ng-if="currentEventStatus==='other-unavailable'">
+            <strong>{{ts("Oh no!")}}</strong> {{ts('Unfortunately this opportunity is unavailable currently.')}}
+        </span>
+      </div>
+      <div ng-bind-html="currentEvent.need.role_description"></div>
+      <div ng-bind-html="currentEvent.need.project.description"></div>
+      <crm-vol-loc-block data="{address: currentEvent.need.project.location}" heading="'Location'" />
+      <hr />
+      <div class="crm-submit-buttons">
+        <button ng-if="!currentEventStatus" ng-click="volSignupCurrentEvent()" class="crm-button crm-vol-event-info-register">{{ts('Register Now!')}}</button>
+        <button ng-click="closeModal('crm-vol-event-info')" class="crm-button crm-vol-event-info-close">{{ts('Close')}}</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-background"></div>
+</div>
+<div class="clear"></div>
