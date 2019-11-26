@@ -12,45 +12,45 @@ class CRM_Volunteer_Permission {
    * @return array Keyed by machine names with human-readable labels for values
    */
   public static function getVolunteerPermissions() {
-    $prefix = ts('CiviVolunteer', array('domain' => 'org.civicrm.volunteer')) . ': ';
-    return array(
-      'register to volunteer' => array(
-        $prefix . ts('register to volunteer', array('domain' => 'org.civicrm.volunteer')),
-        ts('Access public-facing volunteer opportunity listings and registration forms', array('domain' => 'org.civicrm.volunteer')),
-      ),
-      'log own hours' => array(
-        $prefix . ts('log own hours', array('domain' => 'org.civicrm.volunteer')),
-        ts('Access forms to self-report performed volunteer hours', array('domain' => 'org.civicrm.volunteer')),
-      ),
-      'create volunteer projects' => array(
-        $prefix . ts('create volunteer projects', array('domain' => 'org.civicrm.volunteer')),
-        ts('Create a new volunteer project record in CiviCRM', array('domain' => 'org.civicrm.volunteer')),
-      ),
-      'edit own volunteer projects' => array(
-        $prefix . ts('edit own volunteer projects', array('domain' => 'org.civicrm.volunteer')),
-        ts('Edit volunteer project records for which the user is specified as the Owner', array('domain' => 'org.civicrm.volunteer')),
-      ),
-      'edit all volunteer projects' => array(
-        $prefix . ts('edit all volunteer projects', array('domain' => 'org.civicrm.volunteer')),
-        ts('Edit all volunteer project records, regardless of ownership', array('domain' => 'org.civicrm.volunteer')),
-      ),
-      'delete own volunteer projects' => array(
-        $prefix . ts('delete own volunteer projects', array('domain' => 'org.civicrm.volunteer')),
-        ts('Delete volunteer project records for which the user is specified as the Owner', array('domain' => 'org.civicrm.volunteer')),
-      ),
-      'delete all volunteer projects' => array(
-        $prefix . ts('delete all volunteer projects', array('domain' => 'org.civicrm.volunteer')),
-        ts('Delete any volunteer project record, regardless of ownership', array('domain' => 'org.civicrm.volunteer')),
-      ),
-      'edit volunteer project relationships' => array(
-        $prefix . ts('edit volunteer project relationships', array('domain' => 'org.civicrm.volunteer')),
-        ts('Override system-wide default project relationships for a particular volunteer project', array('domain' => 'org.civicrm.volunteer')),
-      ),
-      'edit volunteer registration profiles' => array(
-        $prefix . ts('edit volunteer registration profiles', array('domain' => 'org.civicrm.volunteer')),
-        ts('Override system-wide default registration profiles for a particular volunteer project', array('domain' => 'org.civicrm.volunteer')),
-      ),
-    );
+    $prefix = ts('CiviVolunteer', ['domain' => 'org.civicrm.volunteer']) . ': ';
+    return [
+      'register to volunteer' => [
+        $prefix . ts('register to volunteer', ['domain' => 'org.civicrm.volunteer']),
+        ts('Access public-facing volunteer opportunity listings and registration forms', ['domain' => 'org.civicrm.volunteer']),
+      ],
+      'log own hours' => [
+        $prefix . ts('log own hours', ['domain' => 'org.civicrm.volunteer']),
+        ts('Access forms to self-report performed volunteer hours', ['domain' => 'org.civicrm.volunteer']),
+      ],
+      'create volunteer projects' => [
+        $prefix . ts('create volunteer projects', ['domain' => 'org.civicrm.volunteer']),
+        ts('Create a new volunteer project record in CiviCRM', ['domain' => 'org.civicrm.volunteer']),
+      ],
+      'edit own volunteer projects' => [
+        $prefix . ts('edit own volunteer projects', ['domain' => 'org.civicrm.volunteer']),
+        ts('Edit volunteer project records for which the user is specified as the Owner', ['domain' => 'org.civicrm.volunteer']),
+      ],
+      'edit all volunteer projects' => [
+        $prefix . ts('edit all volunteer projects', ['domain' => 'org.civicrm.volunteer']),
+        ts('Edit all volunteer project records, regardless of ownership', ['domain' => 'org.civicrm.volunteer']),
+      ],
+      'delete own volunteer projects' => [
+        $prefix . ts('delete own volunteer projects', ['domain' => 'org.civicrm.volunteer']),
+        ts('Delete volunteer project records for which the user is specified as the Owner', ['domain' => 'org.civicrm.volunteer']),
+      ],
+      'delete all volunteer projects' => [
+        $prefix . ts('delete all volunteer projects', ['domain' => 'org.civicrm.volunteer']),
+        ts('Delete any volunteer project record, regardless of ownership', ['domain' => 'org.civicrm.volunteer']),
+      ],
+      'edit volunteer project relationships' => [
+        $prefix . ts('edit volunteer project relationships', ['domain' => 'org.civicrm.volunteer']),
+        ts('Override system-wide default project relationships for a particular volunteer project', ['domain' => 'org.civicrm.volunteer']),
+      ],
+      'edit volunteer registration profiles' => [
+        $prefix . ts('edit volunteer registration profiles', ['domain' => 'org.civicrm.volunteer']),
+        ts('Override system-wide default registration profiles for a particular volunteer project', ['domain' => 'org.civicrm.volunteer']),
+      ],
+    ];
   }
 
   /**
