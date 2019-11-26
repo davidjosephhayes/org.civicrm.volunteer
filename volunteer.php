@@ -44,7 +44,7 @@ function volunteer_civicrm_config(&$config) {
  * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_navigationMenu/
  */
 function volunteer_civicrm_navigationMenu(&$menu) {
-  _volunteer_civix_insert_navigation_menu($menu, NULL, array(
+  _volunteer_civix_insert_navigation_menu($menu, NULL, [
     'label' => E::ts('Volunteers'),
     'name' => 'volunteer_volunteers',
     'url' => NULL,
@@ -52,88 +52,88 @@ function volunteer_civicrm_navigationMenu(&$menu) {
     'operator' => NULL,
     'separator' => 0,
     'icon' => 'crm-i fa-users',
-  ));
+  ]);
 
-  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', array(
+  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
     'label' => E::ts('New Volunteer Project'),
     'name' => 'volunteer_new_project',
     'url' => 'civicrm/vol/#/volunteer/manage/0',
     'permission' => NULL,
     'operator' => NULL,
     'separator' => 0,
-  ));
+  ]);
 
-  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', array(
+  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
     'label' => E::ts('Manage Volunteer Projects'),
     'name' => 'volunteer_manage_projects',
     'url' => 'civicrm/vol/#/volunteer/manage',
     'permission' => NULL,
     'operator' => NULL,
     'separator' => 1,
-  ));
+  ]);
 
-  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', array(
+  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
     'label' => E::ts('Configure Roles'),
     'name' => 'volunteer_config_roles',
     'url' => 'civicrm/admin/options/volunteer_role?reset=1',
     'permission' => NULL,
     'operator' => NULL,
     'separator' => 0,
-  ));
+  ]);
 
-  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', array(
+  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
     'label' => E::ts('Configure Project Relationships'),
     'name' => 'volunteer_config_projrel',
     'url' => 'civicrm/admin/options/volunteer_project_relationship?reset=1',
     'permission' => NULL,
     'operator' => NULL,
     'separator' => 0,
-  ));
+  ]);
 
-  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', array(
+  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
     'label' => E::ts('Configure Volunteer Settings'),
     'name' => 'volunteer_config_settings',
     'url' => 'civicrm/admin/volunteer/settings',
     'permission' => NULL,
     'operator' => NULL,
     'separator' => 1,
-  ));
+  ]);
 
-  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', array(
+  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
     'label' => E::ts('Volunteer Interest Form'),
     'name' => 'volunteer_join',
     'url' => 'civicrm/volunteer/join',
     'permission' => NULL,
     'operator' => NULL,
     'separator' => 0,
-  ));
+  ]);
 
-  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', array(
+  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
     'label' => E::ts('Search for Volunteer Shifts'),
     'name' => 'volunteer_opp_search',
     'url' => 'civicrm/vol/#/volunteer/opportunities',
     'permission' => NULL,
     'operator' => NULL,
     'separator' => 0,
-  ));
+  ]);
 
-  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', array(
+  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
     'label' => E::ts('Search for Volunteer Opportunities'),
     'name' => 'volunteer_appeal_search',
     'url' => 'civicrm/vol/#/volunteer/appeals',
     'permission' => NULL,
     'operator' => NULL,
     'separator' => 0,
-  ));
+  ]);
 
-  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', array(
+  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
       'label' => E::ts('Log Your Own Hours'),
       'name' => 'volunteer_log_own_hours',
       'url' => 'civicrm/vol/#/volunteer/log?',
       'permission' => NULL,
       'operator' => NULL,
       'separator' => 0,
-  ));
+  ]);
 
   _volunteer_civix_navigationMenu($menu);
 }
@@ -181,25 +181,25 @@ function volunteer_civicrm_tabset($tabsetName, &$tabs, $context) {
       $url = CRM_Utils_System::url( 'civicrm/event/manage/volunteer',
         "reset=1&snippet=5&force=1&id=$eventId&action=update&component=event");
 
-      $tab['volunteer'] = array(
-        'title' => ts('Volunteers', array('domain' => 'org.civicrm.volunteer')),
+      $tab['volunteer'] = [
+        'title' => ts('Volunteers', ['domain' => 'org.civicrm.volunteer']),
         'link' => $url,
         'valid' => TRUE,
         'active' => TRUE,
         'class' => 'livePage',
         'current' => false,
-      );
+      ];
 
       if (!CRM_Volunteer_BAO_Project::isActive($eventId, CRM_Event_DAO_Event::$_tableName)) {
         $tab['volunteer']['valid'] = FALSE;
       }
     }
     else {
-      $tab['volunteer'] = array(
-        'title' => ts('Volunteers', array('domain' => 'org.civicrm.volunteer')),
+      $tab['volunteer'] = [
+        'title' => ts('Volunteers', ['domain' => 'org.civicrm.volunteer']),
         'url'   => 'civicrm/event/manage/volunteer',
         'field' => 'is_volunteer',
-      );
+      ];
     }
     // Insert this tab into position 4
     $tabs = array_merge(
@@ -247,12 +247,12 @@ function volunteer_civicrm_enable() {
   $role_url = CRM_Utils_System::url('civicrm/admin/options/volunteer_role', 'group=volunteer_role&reset=1');
   $events_url = CRM_Utils_System::url('civicrm/event/manage', 'reset=1');
   $message = "<p>" . ts("Getting Started:") . "<p><ul>
-    <li>" . ts('Read <a href="%1" target="_blank">documentation</a>', array(1 => $doc_url, 'domain' => 'org.civicrm.volunteer')) . "</li>
-    <li>" . ts('Ask questions on the <a href="%1" target="_blank">forum</a>', array(1 => $forum_url, 'domain' => 'org.civicrm.volunteer')) . "</li>
-    <li>" . ts('Configure <a href="%1" target="_blank">volunteer roles</a>', array(1 => $role_url, 'domain' => 'org.civicrm.volunteer')) . "</li>
-    <li>" . ts('Enable volunteer management for one or more <a href="%1" target="_blank">events</a>', array(1 => $events_url, 'domain' => 'org.civicrm.volunteer')) . "</li></ul>";
+    <li>" . ts('Read <a href="%1" target="_blank">documentation</a>', [1 => $doc_url, 'domain' => 'org.civicrm.volunteer']) . "</li>
+    <li>" . ts('Ask questions on the <a href="%1" target="_blank">forum</a>', [1 => $forum_url, 'domain' => 'org.civicrm.volunteer']) . "</li>
+    <li>" . ts('Configure <a href="%1" target="_blank">volunteer roles</a>', [1 => $role_url, 'domain' => 'org.civicrm.volunteer']) . "</li>
+    <li>" . ts('Enable volunteer management for one or more <a href="%1" target="_blank">events</a>', [1 => $events_url, 'domain' => 'org.civicrm.volunteer']) . "</li></ul>";
   // As long as the message contains a link, the pop-up will not automatically close
-  CRM_Core_Session::setStatus($message, ts('CiviVolunteer Installed', array('domain' => 'org.civicrm.volunteer')), 'success');
+  CRM_Core_Session::setStatus($message, ts('CiviVolunteer Installed', ['domain' => 'org.civicrm.volunteer']), 'success');
   return _volunteer_civix_civicrm_enable();
 }
 
@@ -300,28 +300,28 @@ function volunteer_civicrm_entityTypes(&$entityTypes) {
  * @return array
  */
 function _volunteer_get_entityTypes() {
-  return array(
-    'VolunteerNeed' => array(
+  return [
+    'VolunteerNeed' => [
       'name' => 'VolunteerNeed',
       'class' => 'CRM_Volunteer_DAO_Need',
       'table' => 'civicrm_volunteer_need',
-    ),
-    'VolunteerProject' => array(
+    ],
+    'VolunteerProject' => [
       'name' => 'VolunteerProject',
       'class' => 'CRM_Volunteer_DAO_Project',
       'table' => 'civicrm_volunteer_project',
-    ),
-    'VolunteerProjectContact' => array(
+    ],
+    'VolunteerProjectContact' => [
       'name' => 'VolunteerProjectContact',
       'class' => 'CRM_Volunteer_DAO_ProjectContact',
       'table' => 'civicrm_volunteer_project_contact',
-    ),
-	'VolunteerAppeal' => array(
+    ],
+	  'VolunteerAppeal' => [
       'name' => 'VolunteerAppeal',
       'class' => 'CRM_Volunteer_DAO_VolunteerAppeal',
       'table' => 'civicrm_volunteer_appeal',
-    ),
-  );
+    ],
+  ];
 }
 
 /**
@@ -381,11 +381,11 @@ function volunteer_civicrm_postProcess($formName, &$form) {
  * with the event.
  */
 function _volunteer_civicrm_pageRun_CRM_Event_Page_EventInfo(&$page) {
-  $params = array(
+  $params = [
     'entity_id' => $page->_id,
     'entity_table' => 'civicrm_event',
     'is_active' => 1,
-  );
+  ];
   $projects = CRM_Volunteer_BAO_Project::retrieve($params);
 
   // show volunteer button only if user has CiviVolunteer: register to volunteer AND this event has an active project
@@ -393,10 +393,10 @@ function _volunteer_civicrm_pageRun_CRM_Event_Page_EventInfo(&$page) {
     $project = current($projects);
 
     //VOL-189: Do not show the volunteer now button if there are not open needs.
-    $openNeeds = civicrm_api3('VolunteerNeed', 'getsearchresult', array(
+    $openNeeds = civicrm_api3('VolunteerNeed', 'getsearchresult', [
       'project' => $project->id,
       'sequential' => 1
-    ));
+    ]);
     if($openNeeds['count'] > 0) {
       //VOL-191: Skip "shopping cart" if only one need
       if ($openNeeds['count'] == 1) {
@@ -415,15 +415,15 @@ function _volunteer_civicrm_pageRun_CRM_Event_Page_EventInfo(&$page) {
       }
 
 
-      $button_text = ts('Volunteer Now', array('domain' => 'org.civicrm.volunteer'));
+      $button_text = ts('Volunteer Now', ['domain' => 'org.civicrm.volunteer']);
 
-      $snippet = array(
+      $snippet = [
         'template' => 'CRM/Event/Page/volunteer-button.tpl',
         'button_text' => $button_text,
         'position' => 'top',
         'url' => $url,
         'weight' => -10,
-      );
+      ];
       CRM_Core_Region::instance('event-page-eventinfo-actionlinks-top')->add($snippet);
 
       $snippet['position'] = 'bottom';
@@ -464,12 +464,12 @@ function volunteer_civicrm_buildForm($formName, &$form) {
  */
 function _isVolunteerActivity($activityTypeId) {
   if ($activityTypeId) {
-    $activitiyType = civicrm_api3("OptionValue", 'get', array(
+    $activitiyType = civicrm_api3("OptionValue", 'get', [
       "option_group_id.name" => 'activity_type',
-      "name"                 => array('IN' => array('Volunteer', 'volunteer_commendation')),
+      "name"                 => ['IN' => ['Volunteer', 'volunteer_commendation']],
       "value"                => $activityTypeId,
       "sequential"     => 1,
-    ));
+    ]);
     if ($activitiyType["count"] > 0) {
       return TRUE;
     }
@@ -491,10 +491,10 @@ function _volunteer_civicrm_buildForm_CRM_Activity_Form_Activity($formName, &$fo
   $field_id = $custom_fields['volunteer_need_id']['id'];
 
   // element name varies depending on context
-  $possible_element_names = array(
+  $possible_element_names = [
     'custom_' . $field_id . '_1',
     'custom_' . $field_id . '_-1',
-  );
+  ];
   $element_name = NULL;
   foreach ($possible_element_names as $name) {
     if ($form->elementExists($name)) {
@@ -511,13 +511,13 @@ function _volunteer_civicrm_buildForm_CRM_Activity_Form_Activity($formName, &$fo
     // If need_id isn't set, do not re-add need_id field as a dropdown.
     // See http://issues.civicrm.org/jira/browse/VOL-24?focusedCommentId=53836#comment-53836
     if (($need_id = $field->_attributes['value'])) {
-      $need = civicrm_api3('VolunteerNeed', 'getsingle', array(
+      $need = civicrm_api3('VolunteerNeed', 'getsingle', [
         'id' => $need_id,
         'return' => 'project_id'
-      ));
+      ]);
       $Project = CRM_Volunteer_BAO_Project::retrieveByID($need['project_id']);
 
-      $needs = array();
+      $needs = [];
       foreach ($Project->needs as $key => $value) {
         $needs[$key] = $value['role_label'] . ': ' . $value['display_time'];
       }
@@ -539,7 +539,7 @@ function _volunteer_civicrm_buildForm_CRM_Activity_Form_Activity($formName, &$fo
       $index = key($custom[$group_id]);
       if (!empty($custom[$group_id][$index]['fields'][$field_id]['field_value'])) {
         $value =& $custom[$group_id][$index]['fields'][$field_id]['field_value'];
-        $need = civicrm_api3('VolunteerNeed', 'getsingle', array('id' => $value));
+        $need = civicrm_api3('VolunteerNeed', 'getsingle', ['id' => $value]);
         $value = $need['role_label'] . ': ' . $need['display_time'];
         $form->assign('viewCustomData', $custom);
       }
@@ -569,42 +569,42 @@ function volunteer_civicrm_alterAPIPermissions($entity, $action, &$params, &$per
     // Normalize the activity type to machine name.
     $activityTypeId = CRM_Utils_Array::value('activity_type_id', $params);
     if (CRM_Utils_Type::validate($activityTypeId, 'Int', FALSE)) {
-      $activityTypeId = civicrm_api3('OptionValue', 'getvalue', array(
+      $activityTypeId = civicrm_api3('OptionValue', 'getvalue', [
         'check_permissions' => FALSE,
         'value' => $activityTypeId,
         'option_group_id' => "activity_type",
         'return' => "name",
-      ));
+      ]);
     }
 
     if ($activityTypeId === 'Volunteer') {
-      $permissions['activity'][$action] = array('log own hours');
+      $permissions['activity'][$action] = ['log own hours'];
     }
   }
-  $permissions['volunteer_need']['default'] = array('create volunteer projects');
-  $permissions['volunteer_need']['getsearchresult'] = array('register to volunteer');
-  $permissions['volunteer_need']['getvalue'] = array('log own hours');
-  $permissions['volunteer_assignment']['default'] = array(
+  $permissions['volunteer_need']['default'] = ['create volunteer projects'];
+  $permissions['volunteer_need']['getsearchresult'] = ['register to volunteer'];
+  $permissions['volunteer_need']['getvalue'] = ['log own hours'];
+  $permissions['volunteer_assignment']['default'] = [
     // This totally insane syntax means either permission is sufficient to grant API access.
-    array('edit own volunteer projects', 'log own hours'),
-  );
-  $permissions['volunteer_commendation']['default'] = array('edit own volunteer projects');
-  $permissions['volunteer_project']['default'] = array('create volunteer projects');
-  $permissions['volunteer_project']['get'] = array('register to volunteer');
+    ['edit own volunteer projects', 'log own hours'],
+  ];
+  $permissions['volunteer_commendation']['default'] = ['edit own volunteer projects'];
+  $permissions['volunteer_project']['default'] = ['create volunteer projects'];
+  $permissions['volunteer_project']['get'] = ['register to volunteer'];
   // This totally insane syntax means either permission is sufficient to grant API access.
-  $permissions['volunteer_project']['getlocblockdata'] = array(
-    array('edit own volunteer projects', 'log own hours')
-  );
-  $permissions['volunteer_util']['default'] = array('edit own volunteer projects');
-  $permissions['volunteer_appeal']['default'] = array('register to volunteer');
-  $permissions['volunteer_project_contact']['default'] = array('edit own volunteer projects');
+  $permissions['volunteer_project']['getlocblockdata'] = [
+    ['edit own volunteer projects', 'log own hours'],
+  ];
+  $permissions['volunteer_util']['default'] = ['edit own volunteer projects'];
+  $permissions['volunteer_appeal']['default'] = ['register to volunteer'];
+  $permissions['volunteer_project_contact']['default'] = ['edit own volunteer projects'];
 
   // Enables use of volunteer role in entityRef widgets
   $isVolRoleGetList = ($entity === 'option_value' && $action === 'getlist' && isset($params['params']) && CRM_Utils_Array::value('option_group_id', $params['params']) === 'volunteer_role');
   $isVolRoleGet = ($entity === 'option_value' && $action === 'get' && CRM_Utils_Array::value('option_group_id', $params) === 'volunteer_role');
   if ($isVolRoleGetList || $isVolRoleGet) {
-    $permissions['option_value']['get'] = array('log own hours');
-    $permissions['option_value']['getlist'] = array('log own hours');
+    $permissions['option_value']['get'] = ['log own hours'];
+    $permissions['option_value']['getlist'] = ['log own hours'];
   }
 
   // allow fairly liberal access to the volunteer opp listing UI, which uses lots of API calls
@@ -628,7 +628,7 @@ function volunteer_civicrm_alterAPIPermissions($entity, $action, &$params, &$per
  *   True if the API call is of the type that the vol opps UI depends on.
  */
 function _volunteer_isVolListingApiCall($entity, $action) {
-  $actions = array(
+  $actions = [
     'get',
     'getcountries',
     'getlist',
@@ -636,8 +636,8 @@ function _volunteer_isVolListingApiCall($entity, $action) {
     'getsupportingdata',
     'getperms',
     'getsearchresult'
-  );
-  $entities = array('volunteer_project_contact', 'volunteer_need', 'volunteer_project', 'volunteer_util', 'volunteer_appeal');
+  ];
+  $entities = ['volunteer_project_contact', 'volunteer_need', 'volunteer_project', 'volunteer_util', 'volunteer_appeal'];
 
   return (in_array($entity, $entities) && in_array($action, $actions));
 }
@@ -723,9 +723,9 @@ function volunteer_civicrm_angularModules(&$angularModules) {
     // extend Civi\Angular\Page\Main, there doesn't appear to be a better
     // alternative. This provides access to the current contact id on the
     // client side.
-    ->addVars('org.civicrm.volunteer', array(
+    ->addVars('org.civicrm.volunteer', [
       'currentContactId' => CRM_Core_Session::singleton()->getLoggedInContactID()
-    ));
+    ]);
 }
 
 /**
