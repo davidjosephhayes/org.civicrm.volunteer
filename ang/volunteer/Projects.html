@@ -89,9 +89,8 @@
         <td class="crm-vol-manage-location">
           <crm-vol-loc-block
             data="{
-              address: project['api.LocBlock.getsingle'].id && 
-                       project['api.LocBlock.getsingle']['api.Address.getsingle'].id && 
-                       project['api.LocBlock.getsingle']['api.Address.getsingle']
+              address: project['api.VolunteerProject.getlocblockdata'].id && 
+                       project['api.VolunteerProject.getlocblockdata'].values[0].address
             }"
           />
         </td>
