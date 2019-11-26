@@ -683,7 +683,7 @@ function volunteer_civicrm_angularModules(&$angularModules) {
       'ang/modules/calendar.js',
     ],
     'requires' => [
-      // 'volunteer.modal',
+      'volunteer.modal',
     ],
   ];
   $angularModules['volunteer'] = [
@@ -696,7 +696,7 @@ function volunteer_civicrm_angularModules(&$angularModules) {
       'crmUtil',
       'ngRoute',
       'ngSanitize',
-      // 'volunteer.modal',
+      'volunteer.modal',
       'volunteer.calendar',
     ],
     'js' => [
