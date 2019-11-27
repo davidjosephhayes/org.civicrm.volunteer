@@ -96,10 +96,10 @@ class CRM_Volunteer_BAO_Need extends CRM_Volunteer_DAO_Need {
     // method and hence we must use SQL
     if (!empty($params['created'])) {
       $sql = 'UPDATE civicrm_volunteer_need SET created = %1 WHERE id = %2';
-      $need->executeQuery($sql, array(
-        1 => array($params['created'], 'Timestamp'),
-        2 => array($need->id, 'Integer'),
-      ));
+      $need->executeQuery($sql, [
+        1 => [$params['created'], 'Timestamp'],
+        2 => [$need->id, 'Integer'],
+      ]);
     }
 
     return $need;
@@ -136,7 +136,7 @@ class CRM_Volunteer_BAO_Need extends CRM_Volunteer_DAO_Need {
    * @return string
    */
   static function getFlexibleRoleLabel() {
-    return ts("Any", array('domain' => 'org.civicrm.volunteer'));
+    return ts("Any", ['domain' => 'org.civicrm.volunteer']);
   }
 
   /**
@@ -148,7 +148,7 @@ class CRM_Volunteer_BAO_Need extends CRM_Volunteer_DAO_Need {
    * @return string
    */
   static function getFlexibleDisplayTime() {
-    return ts("Any", array('domain' => 'org.civicrm.volunteer'));
+    return ts("Any", ['domain' => 'org.civicrm.volunteer']);
   }
 
   /**
@@ -198,7 +198,7 @@ class CRM_Volunteer_BAO_Need extends CRM_Volunteer_DAO_Need {
    * @return bool
    */
   static function del($id) {
-    $need = civicrm_api3('volunteer_need', 'getsingle', array('id' => $id));
+    $need = civicrm_api3('volunteer_need', 'getsingle', ['id' => $id]);
 
     // TODO: What do we do with associated activities when deleting a flexible need?
     if (empty($need['is_flexible'])) {
@@ -206,15 +206,15 @@ class CRM_Volunteer_BAO_Need extends CRM_Volunteer_DAO_Need {
       $flexibleNeedId = CRM_Volunteer_BAO_Project::getFlexibleNeedID($need['project_id']);
 
       // Reassign any activities back to the flexible need
-      $acts = civicrm_api3('volunteer_assignment', 'get', array('volunteer_need_id' => $id));
+      $acts = civicrm_api3('volunteer_assignment', 'get', ['volunteer_need_id' => $id]);
       $status = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'status_id', 'Available');
       foreach ($acts['values'] as $act) {
-        civicrm_api3('volunteer_assignment', 'create', array(
+        civicrm_api3('volunteer_assignment', 'create', [
           'id' => $act['id'],
           'volunteer_need_id' => $flexibleNeedId,
           'status_id' => $status,
           'time_scheduled_minutes' => 0,
-        ));
+        ]);
       }
     }
 
