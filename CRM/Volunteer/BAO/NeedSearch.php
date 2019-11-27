@@ -6,19 +6,19 @@ class CRM_Volunteer_BAO_NeedSearch {
    * @var array
    *   Holds project data for the Needs matched by the search. Keyed by project ID.
    */
-  private $projects = array();
+  private $projects = [];
 
   /**
    * @var array
    *   See  getDefaultSearchParams() for format.
    */
-  private $searchParams = array();
+  private $searchParams = [];
 
   /**
    * @var array
    *   An array of needs. The results of the search, which will ultimately be returned.
    */
-  private $searchResults = array();
+  private $searchResults = [];
 
   /**
    * @param array $userSearchParams
@@ -48,14 +48,20 @@ class CRM_Volunteer_BAO_NeedSearch {
    *   Used as the starting point for $this->searchParams.
    */
   private function getDefaultSearchParams() {
-    return array(
-      'project' => array(
+    return [
+      'project' => [
         'is_active' => 1,
-      ),
-      'need' => array(
-        'role_id' => array(),
-      ),
-    );
+      ],
+      'need' => [
+        'role_id' => [],
+      ],
+      'options' => [
+        'order' => 'project.id',
+        'dir' => 'asc',
+        'offset' => 0,
+        'limit' => 0,
+      ],
+    ];
   }
 
   /**
@@ -153,35 +159,29 @@ class CRM_Volunteer_BAO_NeedSearch {
     }
     // If Project Id is passed from URL- Query String.
     if(isset($this->searchParams['project']) && !empty($this->searchParams['project'])) {
+
       if(isset($this->searchParams['project']['is_active']) && isset($this->searchParams['project']['id'])) {
         $where .= " And project.id=".$this->searchParams['project']['id'];
       }
-    }
-    // Order by Logic.
-    $orderByColumn = "project.id";
-    $order = "ASC";
-    $orderby = " group by need.id ORDER BY " . $orderByColumn . " " . $order;
 
-    // Pagination Logic.
-    $no_of_records_per_page = 10;
-    if(isset($params['page_no']) && !empty($params['page_no'])) {
-      $page_no = $params['page_no'];
-    } else {
-      $page_no = 1;
+      
     }
-    $offset = ($page_no-1) * $no_of_records_per_page;
-    $limit = " LIMIT ".$offset.", ".$no_of_records_per_page;
+
+    // Order and limit by Logic.
+    $orderby = " group by need.id ORDER BY " . CRM_Core_DAO::escapeString($this->searchParams['options']['order'] . " " . $this->searchParams['options']['dir']);
+    $limit = $this->searchParams['options']['limit'] === 0 ?  "" : " LIMIT " . (int)$this->searchParams['options']['offset'] . ", " . (int)$this->searchParams['options']['limit'];
+    
     // Prepare whole sql query dynamic.
-    //$sql = $select . $from . $join . $where . $orderby . $limit;
-    $sql = $select . $from . $join . $where . $orderby;
+    $sql = $select . $from . $join . $where . $orderby . $limit;
     $dao = new CRM_Core_DAO();
     $dao->query($sql);
+    
+    // Prepare array for need of projects.
     $project_opportunities = [];
-    $i=0;
+    $i = 0;
     $config = CRM_Core_Config::singleton();
     $timeFormat = $config->dateformatDatetime;
     $contact_id = CRM_Core_Session::getLoggedInContactID();
-    // Prepare array for need of projects.
     while ($dao->fetch()) {
       $project_opportunities[$i]['id'] = $dao->need_id;
       $project_opportunities[$i]['project_id'] = $dao->id;
@@ -219,22 +219,22 @@ class CRM_Volunteer_BAO_NeedSearch {
       $project_opportunities[$i]['project']['id'] =  $dao->id;
       $project_opportunities[$i]['project']['title'] =  $dao->title;
       $project_opportunities[$i]['project']['campaign_title'] = $dao->campaign_title;
-      $project_opportunities[$i]['project']['location'] =  array(
+      $project_opportunities[$i]['project']['location'] =  [
         "city" => $dao->city,
         "country" => $dao->country,
         "postal_code" => $dao->postal_code,
         "state_province" => $dao->state_province,
         "street_address" => $dao->street_address,
         "name" => $dao->address_name,
-      );
+      ];
       $beneficiary_display_name = explode(',', $dao->beneficiary_display_name);
       if(isset($beneficiary_display_name) && !empty($beneficiary_display_name) && is_array($beneficiary_display_name)) {
         $beneficiary_id_array = explode(',', $dao->beneficiary_id);
         foreach ($beneficiary_display_name as $key => $display_name) {
-          $project_opportunities[$i]['project']['beneficiaries'][$key] = array(
+          $project_opportunities[$i]['project']['beneficiaries'][$key] = [
             "id" => $beneficiary_id_array[$key],
             "display_name" => $display_name
-          );
+          ];
         }
       } else {
         $project_opportunities[$i]['project']['beneficiaries'] = $dao->beneficiary_display_name;
@@ -314,6 +314,7 @@ class CRM_Volunteer_BAO_NeedSearch {
   /**
    * @param array $userSearchParams
    *   Supported parameters:
+   *     - search: string - search role label and project name
    *     - beneficiary: mixed - an int-like string, a comma-separated list
    *         thereof, or an array representing one or more contact IDs
    *     - project: int-like string representing project ID
@@ -336,6 +337,12 @@ class CRM_Volunteer_BAO_NeedSearch {
       $this->searchParams['project']['id'] = $projectId;
     }
 
+    
+    $currentUserAssignment = CRM_Utils_Array::value('project', $userSearchParams);
+    if (CRM_Utils_Type::validate($currentUserAssignment, 'Boolean', FALSE)) {
+      $this->searchParams['project']['current_user_assignment'] = $currentUserAssignment;
+    }
+
     $proximity = CRM_Utils_Array::value('proximity', $userSearchParams);
     if (is_array($proximity)) {
       $this->searchParams['project']['proximity'] = $proximity;
@@ -344,7 +351,7 @@ class CRM_Volunteer_BAO_NeedSearch {
     $beneficiary = CRM_Utils_Array::value('beneficiary', $userSearchParams);
     if ($beneficiary) {
       if (!array_key_exists('project_contacts', $this->searchParams['project'])) {
-        $this->searchParams['project']['project_contacts'] = array();
+        $this->searchParams['project']['project_contacts'] = [];
       }
       $beneficiary = is_array($beneficiary) ? $beneficiary : explode(',', $beneficiary);
       $this->searchParams['project']['project_contacts']['volunteer_beneficiary'] = $beneficiary;
@@ -353,6 +360,26 @@ class CRM_Volunteer_BAO_NeedSearch {
     $role = CRM_Utils_Array::value('role_id', $userSearchParams);
     if ($role) {
       $this->searchParams['need']['role_id'] = is_array($role) ? $role : explode(',', $role);
+    }
+
+    $options = CRM_Utils_Array::value('options', $userSearchParams);
+    if ($options) {
+      $order = CRM_Utils_Array::value('order', $options);
+      if ($order) {
+        $this->searchParams['options']['order'] = $order;
+      }
+      $dir = CRM_Utils_Array::value('dir', $options);
+      if ($dir) {
+        $this->searchParams['options']['dir'] = $dir;
+      }
+      $offset = (int)CRM_Utils_Array::value('offset', $options);
+      if ($offset) {
+        $this->searchParams['options']['offset'] = $offset;
+      }
+      $limit = (int)CRM_Utils_Array::value('limit', $options);
+      if ($limit) {
+        $this->searchParams['options']['limit'] = $limit;
+      }
     }
   }
 
@@ -377,22 +404,22 @@ class CRM_Volunteer_BAO_NeedSearch {
   private function getSearchResultsProjectData() {
     // api.VolunteerProject.get does not support the 'IN' operator, so we loop
     foreach ($this->projects as $id => &$project) {
-      $api = civicrm_api3('VolunteerProject', 'getsingle', array(
+      $api = civicrm_api3('VolunteerProject', 'getsingle', [
         'id' => $id,
-        'api.Campaign.getvalue' => array(
+        'api.Campaign.getvalue' => [
           'return' => 'title',
-        ),
-        'api.LocBlock.getsingle' => array(
-          'api.Address.getsingle' => array(),
-        ),
-        'api.VolunteerProjectContact.get' => array(
-          'options' => array('limit' => 0),
+        ],
+        'api.LocBlock.getsingle' => [
+          'api.Address.getsingle' => [],
+        ],
+        'api.VolunteerProjectContact.get' => [
+          'options' => ['limit' => 0],
           'relationship_type_id' => 'volunteer_beneficiary',
-          'api.Contact.get' => array(
-            'options' => array('limit' => 0),
-          ),
-        ),
-      ));
+          'api.Contact.get' => [
+            'options' => ['limit' => 0],
+          ],
+        ],
+      ]);
 
       $project['description'] = $api['description'];
       $project['id'] = $api['id'];
@@ -405,14 +432,14 @@ class CRM_Volunteer_BAO_NeedSearch {
 
       // CRM-17327
       if (empty($api['loc_block_id']) || empty($api['api.LocBlock.getsingle']['address_id'])) {
-        $project['location'] = array(
+        $project['location'] = [
           'name' => NULL,
           'city' => NULL,
           'country' => NULL,
           'postal_code' => NULL,
           'state_provice' => NULL,
           'street_address' => NULL,
-        );
+        ];
       } else {
         $countryId = $api['api.LocBlock.getsingle']['api.Address.getsingle']['country_id'];
         $country = $countryId ? CRM_Core_PseudoConstant::country($countryId) : NULL;
@@ -420,25 +447,25 @@ class CRM_Volunteer_BAO_NeedSearch {
         $stateProvinceId = $api['api.LocBlock.getsingle']['api.Address.getsingle']['state_province_id'];
         $stateProvince = $stateProvinceId ? CRM_Core_PseudoConstant::stateProvince($stateProvinceId) : NULL;
 
-        $project['location'] = array(
+        $project['location'] = [
           'name' => $api['api.LocBlock.getsingle']['api.Address.getsingle']['name'],
           'city' => $api['api.LocBlock.getsingle']['api.Address.getsingle']['city'],
           'country' => $country,
           'postal_code' => $api['api.LocBlock.getsingle']['api.Address.getsingle']['postal_code'],
           'state_province' => $stateProvince,
           'street_address' => $api['api.LocBlock.getsingle']['api.Address.getsingle']['street_address'],
-        );
+        ];
       }
 
       foreach ($api['api.VolunteerProjectContact.get']['values'] as $projectContact) {
         if (!array_key_exists('beneficiaries', $project)) {
-          $project['beneficiaries'] = array();
+          $project['beneficiaries'] = [];
         }
 
-        $project['beneficiaries'][] = array(
+        $project['beneficiaries'][] = [
           'id' => $projectContact['contact_id'],
           'display_name' => $projectContact['api.Contact.get']['values'][0]['display_name'],
-        );
+        ];
       }
     }
 

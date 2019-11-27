@@ -1,0 +1,28 @@
+<div class="crm-container">
+  <div class="crm-vol-opp-search">
+    <div class="crm-block ui-tabs ui-widget ui-widget-content ui-corner-all">
+      <div class="crm-group">
+        <div class="pull-left search-box m-5">
+          <input type="text" name="searchAppeal" ng-model="search" placeholder="{{ ts('Search') }}" ng-model-options='{ debounce: 1000 }'
+             ng-change='searchRes()'/>
+          <i class="fa fa-search"></i>
+        </div>
+        <div class="pull-left search-buttons m-5">
+          <div class="volunteer_appeal_result_count_message">{{totalRec}} {{ ts('Commitments') }}</div>
+          <div class="reset_filter">
+              <button ng-click="resetSearch()"> {{ts('Reset Search')}}</button>
+          </div>
+        </div>
+        <div class="pull-right search-display m-5">
+          <button class="grid_view_button" ng-click="changeView('list')" ng-class="{'grid_active': $view==='list'}"><i class="fa fa-bars"></i></button>
+          <button class="grid_view_button" ng-click="changeView('calendar')" ng-class="{'grid_active': $view==='calendar'}"><i class="fa fa-calendar"></i></button>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Results -->
+<ng-include ng-if="template" src="template" />
+<ng-include src="'~/volunteer/OpportunityModal.html'" />
+<div class="clear"></div>
