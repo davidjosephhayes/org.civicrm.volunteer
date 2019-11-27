@@ -1,7 +1,7 @@
-<div volunteer-modal id="crm-vol-event-info">
+<div volunteer-modal id="crm-vol-opportunity-info">
   <div class="modal">
     <div class="modal-body">
-      <h2>{{currentEvent.title}}</h2>
+      <!-- <h2>{{currentEvent.title}}</h2> -->
       <div ng-if="currentEventStatus" class="crm-vol-event-status messages status no-popup" ng-class="{'crm-ok': currentEventStatus==='registered'}">
         <div class="icon inform-icon"></div>
         <span ng-if="currentEventStatus==='registered'">
@@ -14,13 +14,30 @@
             <strong>{{ts("Oh no!")}}</strong> {{ts('Unfortunately this opportunity is unavailable currently.')}}
         </span>
       </div>
+      <h3>Timeframe</h3>
+      <div ng-switch="currentEvent.need.schedule_type">
+        <div ng-switch-when="open">
+          <p>This opportunity is available at a variety of times or on an ongoing basis. Check the project description for more details.</p>
+        </div>
+        <div ng-switch-when="shift">
+          <p>This opportunity requires a shift at {{currentEvent.need.display_time}}.</p>
+        </div>
+        <div ng-switch-when="flexible">
+          <p>This opportunity requires a {{currentEvent.need.duration}} minutes between {{currentEvent.need.display_time}}.</p>
+        </div>
+        <div ng-switch-default>
+          <p>Please contact us to learn more about this opportunity availablity.
+        </div>
+      </div>
+      <h3>Role - {{currentEvent.need.role_label}}</h3>
       <div ng-bind-html="currentEvent.need.role_description"></div>
+      <h3>Project - {{currentEvent.need.project.title}}</h3>
       <div ng-bind-html="currentEvent.need.project.description"></div>
       <crm-vol-loc-block data="{address: currentEvent.need.project.location}" heading="'Location'" />
       <hr />
       <div class="crm-submit-buttons">
-        <button ng-if="!currentEventStatus" ng-click="volSignupCurrentEvent()" class="crm-button crm-vol-event-info-register">{{ts('Register Now!')}}</button>
-        <button ng-click="closeModal('crm-vol-event-info')" class="crm-button crm-vol-event-info-close">{{ts('Close')}}</button>
+        <button ng-if="!currentEventStatus" ng-click="volSignupCurrentEvent()" class="crm-button crm-vol-opportunity-info-register">{{ts('Register Now!')}}</button>
+        <button ng-click="closeModal('crm-vol-opportunity-info')" class="crm-button crm-vol-opportunity-info-close">{{ts('Close')}}</button>
       </div>
     </div>
   </div>

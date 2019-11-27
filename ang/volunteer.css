@@ -480,6 +480,11 @@ body {font-family: "Lato", sans-serif;}
   background-color: #27ae60;
   color: #fff;
 }
+.crm-container .fc-event.fc-completed,
+.crm-container .fc-event.fc-registered.fc-completed {
+  background: #e67e22;
+  color: #fff;
+}
 .crm-container .fc-event.fc-full:hover,
 .crm-container .fc-event.fc-registered:hover {
   text-decoration: none;

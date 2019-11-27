@@ -73,7 +73,7 @@
               $scope.currentEventStatus = 'other-unavailable';
             }
           }
-          $scope.openModal('crm-vol-event-info');
+          $scope.openModal('crm-vol-opportunity-info');
           // $scope.volSignup(calEvent.id);
         },
         viewRender: function(currentView){
@@ -196,7 +196,7 @@
           });
 
           // $scope.totalRec = events.length;
-          
+          console.log(events)
           callback(events);
           CRM.$('#crm-main-content-wrapper').unblock();
 

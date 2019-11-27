@@ -14,8 +14,8 @@
           </div>
         </div>
         <div class="pull-right search-display m-5">
-          <button class="grid_view_button" ng-click="changeView('list')" ng-class="{'grid_active': $view==='list'}"><i class="fa fa-bars"></i></button>
-          <button class="grid_view_button" ng-click="changeView('calendar')" ng-class="{'grid_active': $view==='calendar'}"><i class="fa fa-calendar"></i></button>
+          <button class="grid_view_button" ng-click="changeView('list')" ng-class="{'grid_active': view==='list'}"><i class="fa fa-bars"></i></button>
+          <button class="grid_view_button" ng-click="changeView('calendar')" ng-class="{'grid_active': view==='calendar'}"><i class="fa fa-calendar"></i></button>
         </div>
         <div class="clearfix"></div>
       </div>
@@ -24,5 +24,5 @@
 </div>
 <!-- Results -->
 <ng-include ng-if="template" src="template" />
-<ng-include src="'~/volunteer/OpportunityModal.html'" />
+<ng-include src="'~/volunteer/AssignmentModal.html'" />
 <div class="clear"></div>

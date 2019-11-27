@@ -1,0 +1,41 @@
+<div volunteer-modal id="crm-vol-assignment-info">
+  <div class="modal">
+    <div class="modal-body">
+      <!-- <h2>{{currentEvent.title}}</h2> -->
+      <div ng-if="currentEventStatus" class="crm-vol-event-status messages status no-popup" ng-class="{'crm-ok': currentEventStatus==='completed'}">
+        <div class="icon inform-icon"></div>
+        <span ng-if="currentEventStatus==='registered'">
+            <strong>{{ts("Heads up!")}}</strong> {{ts('This commitment is upcoming. Hope to see you soon!')}}
+        </span>
+        <span ng-if="currentEventStatus==='completed'">
+            <strong>{{ts("Thanks!")}}</strong> {{ts('This commitment is complete. We appreciate your efforts!')}}
+        </span>
+      </div>
+      <h3>Timeframe</h3>
+      <div ng-switch="currentEvent.assignment.schedule_type">
+        <div ng-switch-when="open">
+          <p>This opportunity is available at a variety of times or on an ongoing basis. Check the project description for more details.</p>
+        </div>
+        <div ng-switch-when="shift">
+          <p>This opportunity requires a shift at {{currentEvent.assignment.display_time}}.</p>
+        </div>
+        <div ng-switch-when="flexible">
+          <p>This opportunity requires a {{currentEvent.assignment.duration}} minutes between {{currentEvent.assignment.display_time}}.</p>
+        </div>
+        <div ng-switch-default>
+          <p>Please contact us to learn more about this opportunity availablity.
+        </div>
+      </div>
+      <h3>Role - {{currentEvent.assignment.role_label}}</h3>
+      <div ng-bind-html="currentEvent.assignment.role_description"></div>
+      <h3>Project - {{currentEvent.assignment.project.title}}</h3>
+      <div ng-bind-html="currentEvent.assignment.project.description"></div>
+      <crm-vol-loc-block data="{address: currentEvent.assignment.project.location}" heading="'Location'" />
+      <hr />
+      <div class="crm-submit-buttons">
+        <button ng-click="closeModal('crm-vol-assignment-info')" class="crm-button crm-vol-assignment-info-close">{{ts('Close')}}</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-background"></div>
+</div>
