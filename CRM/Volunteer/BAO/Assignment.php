@@ -39,8 +39,8 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
   const CUSTOM_GROUP_NAME = 'CiviVolunteer';
   const ROLE_OPTION_GROUP = 'volunteer_role';
 
-  protected static $customGroup = array();
-  protected static $customFields = array();
+  protected static $customGroup = [];
+  protected static $customFields = [];
 
   public $volunteer_need_id;
   public $time_scheduled;
@@ -62,11 +62,11 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
     $activity_fields = CRM_Activity_DAO_Activity::fields();
     $contact_fields = CRM_Contact_DAO_Contact::fields();
     $custom_fields = self::getCustomFields();
-    $foreign_fields = array(
+    $foreign_fields = [
       'project_id',
       'target_contact_id',
       'assignee_contact_id',
-    );
+    ];
 
     // This is the "real" id
     $activity_fields['id'] = $activity_fields['activity_id'];
@@ -99,16 +99,16 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
     $available =  CRM_Utils_Array::key('Available', $volunteerStatus);
     $scheduled =  CRM_Utils_Array::key('Scheduled', $volunteerStatus);
 
-    $placeholders = array(
-      1 => array($assigneeID, 'Integer'),
-      2 => array(self::getActivityTypeId(), 'Integer'),
-      3 => array($scheduled, 'Integer'),
-      4 => array($available, 'Integer'),
-      5 => array($targetID, 'Integer'),
-    );
+    $placeholders = [
+      1 => [$assigneeID, 'Integer'],
+      2 => [self::getActivityTypeId(), 'Integer'],
+      3 => [$scheduled, 'Integer'],
+      4 => [$available, 'Integer'],
+      5 => [$targetID, 'Integer'],
+    ];
 
     $i = count($placeholders) + 1;
-    $where = array();
+    $where = [];
     $whereClause = NULL;
     foreach ($filtered_params as $key => $value) {
 
@@ -205,7 +205,7 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
     ";
 
     $dao = CRM_Core_DAO::executeQuery($query, $placeholders);
-    $rows = array();
+    $rows = [];
     while ($dao->fetch()) {
       $rows[$dao->id] = $dao->toArray();
     }
@@ -241,12 +241,12 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
    */
 
   private static function setActivityDefaults(array $params) {
-    $defaults = array();
+    $defaults = [];
     $op = empty($params['id']) ? CRM_Core_Action::ADD : CRM_Core_Action::UPDATE;
 
-    $need = civicrm_api3('volunteer_need', 'getsingle', array(
+    $need = civicrm_api3('volunteer_need', 'getsingle', [
       'id' => $params['volunteer_need_id'],
-    ));
+    ]);
     $project = CRM_Volunteer_BAO_Project::retrieveByID($need['project_id']);
 
     $defaults['campaign_id'] = $project ? $project->campaign_id : '';
@@ -298,10 +298,10 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
     $params['activity_type_id'] = self::getActivityTypeId();
 
     if (empty($params['volunteer_need_id'])) {
-      $params['volunteer_need_id'] = civicrm_api3('VolunteerAssignment', 'getvalue', array(
+      $params['volunteer_need_id'] = civicrm_api3('VolunteerAssignment', 'getvalue', [
         'id' => $params['id'],
         'return' => "volunteer_need_id",
-      ));
+      ]);
     }
 
     $defaults = self::setActivityDefaults($params);
