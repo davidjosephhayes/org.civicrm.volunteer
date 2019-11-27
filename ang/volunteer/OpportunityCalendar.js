@@ -1,7 +1,7 @@
 (function (angular, $, _) {
 
   angular.module('volunteer').config(function ($routeProvider) {
-    $routeProvider.when('/volunteer/opportunitycalendar', {
+    $routeProvider.when('/volunteer/opportunities/calendar', {
       controller: 'OpportunityCalendar',
       // update the search params in the URL without reloading the route     
       templateUrl: '~/volunteer/OpportunityCalendar.html',

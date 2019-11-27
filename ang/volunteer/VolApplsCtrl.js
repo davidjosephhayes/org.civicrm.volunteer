@@ -70,7 +70,7 @@
     $scope.appeals = [];
 
     $scope.goToCalendar=function() {
-      $location.path("/volunteer/opportunitycalendar");
+      $location.path("/volunteer/opportunities/calendar");
     };
     // Clear checkbox selection in Date and Location Filter.
     $scope.clear = function clear() {
