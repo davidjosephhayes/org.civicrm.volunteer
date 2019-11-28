@@ -11,7 +11,7 @@
             <strong>{{ts("Thanks!")}}</strong> {{ts('This commitment is complete. We appreciate your efforts!')}}
         </span>
       </div>
-      <h3>Timeframe</h3>
+      <h2 class="m-t-0">Timeframe</h2>
       <div ng-switch="currentEvent.assignment.schedule_type">
         <div ng-switch-when="open">
           <p>This opportunity is available at a variety of times or on an ongoing basis. Check the project description for more details.</p>
@@ -26,11 +26,23 @@
           <p>Please contact us to learn more about this opportunity availablity.
         </div>
       </div>
-      <h3>Role - {{currentEvent.assignment.role_label}}</h3>
+      <h2 class="m-t-0">Role - {{currentEvent.assignment.role_label}}</h2>
       <div ng-bind-html="currentEvent.assignment.role_description"></div>
-      <h3>Project - {{currentEvent.assignment.project.title}}</h3>
+      <h2 class="m-t-0">Project - {{currentEvent.assignment.project.title}}</h2>
       <div ng-bind-html="currentEvent.assignment.project.description"></div>
       <crm-vol-loc-block data="{address: currentEvent.assignment.project.location}" heading="'Location'" />
+      <div class="beneficiary-details" ng-repeat="beneficiary in currentEvent.assignment.project.beneficiaries">
+        <div ng-if="beneficiary.image_URL" class="beneficiary-details__image">
+           <img ng-src={{beneficiary.image_URL}}>
+        </div>
+        <div class="beneficiary-details__info">
+           <div class="beneficiary-details__info-detail">
+              <strong>{{beneficiary.display_name}}</strong>
+              <p>{{beneficiary.email}}</p>
+           </div>
+           <!-- <a href="#">link</a> -->
+        </div>
+     </div>
       <hr />
       <div class="crm-submit-buttons">
         <button ng-click="closeModal('crm-vol-assignment-info')" class="crm-button crm-vol-assignment-info-close">{{ts('Close')}}</button>

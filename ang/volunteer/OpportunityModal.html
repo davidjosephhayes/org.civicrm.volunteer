@@ -14,7 +14,7 @@
             <strong>{{ts("Oh no!")}}</strong> {{ts('Unfortunately this opportunity is unavailable currently.')}}
         </span>
       </div>
-      <h3>Timeframe</h3>
+      <h2 class="m-t-0">Timeframe</h2>
       <div ng-switch="currentEvent.need.schedule_type">
         <div ng-switch-when="open">
           <p>This opportunity is available at a variety of times or on an ongoing basis. Check the project description for more details.</p>
@@ -29,9 +29,9 @@
           <p>Please contact us to learn more about this opportunity availablity.
         </div>
       </div>
-      <h3>Role - {{currentEvent.need.role_label}}</h3>
+      <h2 class="m-t-0">Role - {{currentEvent.need.role_label}}</h2>
       <div ng-bind-html="currentEvent.need.role_description"></div>
-      <h3>Project - {{currentEvent.need.project.title}}</h3>
+      <h2 class="m-t-0">Project - {{currentEvent.need.project.title}}</h2>
       <div ng-bind-html="currentEvent.need.project.description"></div>
       <crm-vol-loc-block data="{address: currentEvent.need.project.location}" heading="'Location'" />
       <hr />
