@@ -44,7 +44,7 @@
                   <div class="loc">
                      <crm-vol-loc-block
                         ng-if="!locAny"
-                        header="Location"
+                        heading="'Location'"
                         data="{
                           address: appeal['api.LocBlock.getsingle'].id && 
                                   appeal['api.LocBlock.getsingle']['api.Address.getsingle'].id && 
@@ -68,7 +68,7 @@
                   <div class="p-l-15">			   	  
                      <br /><br />
                      <div ng-if="appeal.project.description != 'null' && appeal.show_project_information == 1">
-                        <h2 class="m-t-0">{{appeal.project.title}}</h2>
+                        <h2 class="m-t-0">Project - {{appeal.project.title}}</h2>
                         <p  ng-bind-html="appeal.project.description"></p>
                      </div>
                      <div class="beneficiary-details" ng-repeat="beneficiary in appeal.project.beneficiaries">
