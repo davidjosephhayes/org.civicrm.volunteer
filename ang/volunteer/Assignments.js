@@ -112,10 +112,37 @@
           const project_ids = assignments.map(assignment => assignment.project_id);
           crmApi('VolunteerProject', 'get', {
             id: {'IN': project_ids},
+            'api.VolunteerProjectContact.get': {
+              relationship_type_id: "volunteer_beneficiary"
+            },
+            'api.VolunteerProject.getlocblockdata': {
+              id: '$value.loc_block_id',
+              options: {limit: 0},
+              return: 'all',
+              sequential: 1
+            },
           })
           .then(data => {
+            const projects = Object.keys(data.values)
+            .map(project_id => {
+              const project = data.values[project_id];
+              project.location = null;
+              if (!project['api.VolunteerProject.getlocblockdata'].is_error && project['api.VolunteerProject.getlocblockdata'].values.length>0) {
+                project.location = project['api.VolunteerProject.getlocblockdata'].values[0].address;
+              }
+              delete project['api.VolunteerProject.getlocblockdata'];
+              project.beneficiaries = [];
+              if (!project['api.VolunteerProjectContact.get'].is_error && project['api.VolunteerProjectContact.get'].values.length>0) {
+                project.beneficiaries = roject['api.VolunteerProjectContact.get'].values;
+              }
+              delete project['api.VolunteerProjectContact.get'];
+              return project;
+            })
+            return projects;
+          })
+          .then(projects => {
             return assignments.map(assignment => {
-              assignment.project = assignment.project_id in data.values ? data.values[assignment.project_id] : null;
+              assignment.project = assignment.project_id in projects ? projects[assignment.project_id] : null;
               return assignment
             });
           })
