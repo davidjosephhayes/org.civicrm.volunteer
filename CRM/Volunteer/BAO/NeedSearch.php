@@ -177,12 +177,14 @@ class CRM_Volunteer_BAO_NeedSearch {
       }, $this->searchParams['need']['role_id']));
       $where .= " AND need.role_id IN (".$role_id_string.")";
     }
-    // Add target_contact_id filter if passed in UI.
-    if(!empty($this->searchParams['need']['target_contact_id'])) {
+    // Add assignee_contact_id filter if passed in UI.
+    if(!empty($this->searchParams['need']['assignee_contact_id'])) {
       $assignmentCustomGroup = CRM_Volunteer_BAO_Assignment::getCustomGroup();
       $assignmentCustomFields = CRM_Volunteer_BAO_Assignment::getCustomFields();
       $assignmentCustomTableName = $assignmentCustomGroup['table_name'];
-      $assignmentQuery = CRM_Volunteer_BAO_Assignment::retrieveQuery([], [
+      $assignmentQuery = CRM_Volunteer_BAO_Assignment::retrieveQuery([
+        'assignee_contact_id' => $this->searchParams['need']['assignee_contact_id'],
+      ], [
         "{$assignmentCustomTableName}.{$assignmentCustomFields['volunteer_need_id']['column_name']} = need.id"
       ]);
       $where .= " AND EXISTS (". $assignmentQuery .")";
@@ -213,7 +215,6 @@ class CRM_Volunteer_BAO_NeedSearch {
     
     // Prepare whole sql query dynamic.
     $sql = $select . $from . $join . $where . $orderby . $limit;
-    echo $sql; exit;
     $dao = new CRM_Core_DAO();
     $dao->query($sql);
     
@@ -403,9 +404,9 @@ class CRM_Volunteer_BAO_NeedSearch {
       $this->searchParams['need']['role_id'] = is_array($role) ? $role : explode(',', $role);
     }
 
-    $targetContactId = CRM_Utils_Array::value('target_contact_id', $userSearchParams);
+    $targetContactId = CRM_Utils_Array::value('assignee_contact_id', $userSearchParams);
     if (CRM_Utils_Type::validate($targetContactId, 'Positive', FALSE)) {
-      $this->searchParams['need']['target_contact_id'] = $targetContactId;
+      $this->searchParams['need']['assignee_contact_id'] = $targetContactId;
     }
 
     $options = CRM_Utils_Array::value('options', $userSearchParams);

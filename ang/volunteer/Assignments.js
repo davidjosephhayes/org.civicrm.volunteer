@@ -63,105 +63,40 @@
       method = method || 'get';
       if (!('sequential' in params))
         params['sequential'] = 1;
-      if (!('api.VolunteerNeed.getsingle' in params))
-        params['api.VolunteerNeed.getsingle'] = 1;
-      params['target_contact_id'] = CRM.vars['org.civicrm.volunteer'].currentContactId;
+      if (!('assignee_contact_id' in params))
+        params['assignee_contact_id'] = CRM.vars['org.civicrm.volunteer'].currentContactId;
 
-      return new Promise((resolve, reject) => {
-        crmApi('VolunteerAssignment', method, params)
-        .then(data => {
+      return crmApi('VolunteerNeed', 'getsearchresult', params)
+      .then(data => {
 
-          if (method === 'getcount')
-            resolve(data.result);
+        $scope.sourceAssignments = data.values;
 
-          return data.values
-          .map(assignment => {
-            // copy data from need just in case it was updated
-            assignment.need = assignment['api.VolunteerNeed.getsingle'];
-            delete assignment['api.VolunteerNeed.getsingle'];
-            assignment.project_id = assignment.need.project_id;
-            assignment.start_time = assignment.need.start_time;
-            assignment.end_time = assignment.need.end_time;
-            assignment.duration = assignment.need.duration;
-            assignment.display_time = assignment.need.display_time;
-            assignment.role_label = assignment.need.role_label;
-            assignment.role_description = assignment.need.role_description;
-            // add schedule type into object
-            assignment.schedule_type = 'unknown';
-            if (assignment.start_time) {
-              if (assignment.duration === '' || assignment.duration < 1) {
-                assignment.schedule_type = 'open';
-              } else if (!assignment.end_time) {
-                assignment.schedule_type = 'shift';
-              } else {
-                assignment.schedule_type = 'flexible';
-              }
+        const assignments = data.values
+        .map(need => {
+          // add schedule type into object
+          need.schedule_type = 'unknown';
+          if (need.start_time) {
+            if (need.duration === '' || need.duration < 1) {
+              need.schedule_type = 'open';
+            } else if (!need.end_time) {
+              need.schedule_type = 'shift';
             } else {
-              console.warn('Assignment ' + assignment.id + ' has invalid times'); 
+              need.schedule_type = 'flexible';
             }
-            return assignment;
-          });
-
-        })
-        .then(assignments => {
-          if (assignments.length<1) {
-            CRM.$('#crm-main-content-wrapper').unblock();
-            resolve(assignments);
-            return;
+          } else {
+            console.warn('Need ' + need.id + ' has invalid times'); 
           }
-          const project_ids = assignments.map(assignment => assignment.project_id);
-          crmApi('VolunteerProject', 'get', {
-            id: {'IN': project_ids},
-            'api.VolunteerProjectContact.get': {
-              relationship_type_id: "volunteer_beneficiary"
-            },
-            'api.VolunteerProject.getlocblockdata': {
-              id: '$value.loc_block_id',
-              options: {limit: 0},
-              return: 'all',
-              sequential: 1
-            },
-          })
-          .then(data => {
-            const projects = Object.keys(data.values)
-            .map(project_id => {
-              const project = data.values[project_id];
-              project.location = null;
-              if (!project['api.VolunteerProject.getlocblockdata'].is_error && project['api.VolunteerProject.getlocblockdata'].values.length>0) {
-                project.location = project['api.VolunteerProject.getlocblockdata'].values[0].address;
-              }
-              delete project['api.VolunteerProject.getlocblockdata'];
-              project.beneficiaries = [];
-              if (!project['api.VolunteerProjectContact.get'].is_error && project['api.VolunteerProjectContact.get'].values.length>0) {
-                project.beneficiaries = roject['api.VolunteerProjectContact.get'].values;
-              }
-              delete project['api.VolunteerProjectContact.get'];
-              return project;
-            })
-            return projects;
-          })
-          .then(projects => {
-            return assignments.map(assignment => {
-              assignment.project = assignment.project_id in projects ? projects[assignment.project_id] : null;
-              return assignment
-            });
-          })
-          .then(assignments => {
-            $scope.sourceAssignments = assignments;
-            CRM.$('#crm-main-content-wrapper').unblock();
-            resolve(assignments)
-          })
-          .catch(error => {
-            CRM.alert(error.is_error ? error.error_message : error, ts("Error"), "error");
-            CRM.$('#crm-main-content-wrapper').unblock();
-            reject();
-          });
-        })
-        .catch(error => {
-          CRM.alert(error.is_error ? error.error_message : error, ts("Error"), "error");
-          CRM.$('#crm-main-content-wrapper').unblock();
-          reject();
+          return need;
         });
+
+        CRM.$('#crm-main-content-wrapper').unblock();
+
+        return assignments;
+      })
+      .catch(error => {
+        CRM.alert(error.is_error ? error.error_message : error, ts("Error"), "error");
+        CRM.$('#crm-main-content-wrapper').unblock();
+        reject();
       });
     };
 
@@ -256,7 +191,7 @@
                 classNames.push('fc-completed');
               const eventSource = {
                 id: assignment.id,
-                title: assignment.role_label.trim() + ' - ' + assignment.subject.trim(),
+                title: assignment.role_label.trim() + ' - ' + assignment.project.title.trim(),
                 start: start,
                 className: classNames.join(' '),
                 assignment: assignment,

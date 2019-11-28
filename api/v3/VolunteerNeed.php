@@ -130,8 +130,8 @@ function _civicrm_api3_volunteer_need_getsearchresult_spec(&$params) {
     'description' => 'Volunteer Project ID',
     'type' => CRM_Utils_Type::T_INT,
   );
-  $params['target_contact_id'] = array(
-    'title' => 'Target Contact ID',
+  $params['assignee_contact_id'] = array(
+    'title' => 'Assigned Contact ID',
     'description' => 'A contact id of which has commited to the need.',
     'type' => CRM_Utils_Type::T_INT,
   );

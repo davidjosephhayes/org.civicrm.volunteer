@@ -71,6 +71,7 @@
                         <h2 class="m-t-0">Project - {{appeal.project.title}}</h2>
                         <p  ng-bind-html="appeal.project.description"></p>
                      </div>
+                     <h2 class="m-t-0">Beneficiaries</h2>
                      <div class="beneficiary-details" ng-repeat="beneficiary in appeal.project.beneficiaries">
                         <div ng-if="beneficiary.image_URL" class="beneficiary-details__image">
                            <img ng-src={{beneficiary.image_URL}}>

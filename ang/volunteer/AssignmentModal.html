@@ -31,6 +31,7 @@
       <h2 class="m-t-0">Project - {{currentEvent.assignment.project.title}}</h2>
       <div ng-bind-html="currentEvent.assignment.project.description"></div>
       <crm-vol-loc-block data="{address: currentEvent.assignment.project.location}" heading="'Location'" />
+      <h2 class="m-t-0">Beneficiaries</h2>
       <div class="beneficiary-details" ng-repeat="beneficiary in currentEvent.assignment.project.beneficiaries">
         <div ng-if="beneficiary.image_URL" class="beneficiary-details__image">
            <img ng-src={{beneficiary.image_URL}}>
