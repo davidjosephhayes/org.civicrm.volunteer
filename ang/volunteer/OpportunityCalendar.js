@@ -195,8 +195,6 @@
             return eventSource;
           });
 
-          // $scope.totalRec = events.length;
-          console.log(events)
           callback(events);
           CRM.$('#crm-main-content-wrapper').unblock();
 
