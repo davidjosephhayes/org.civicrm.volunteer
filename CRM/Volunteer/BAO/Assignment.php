@@ -59,6 +59,48 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
    * @return array of CRM_Volunteer_BAO_Project objects
    */
   public static function retrieve(array $params) {
+    
+    $query = self::retrieveQuery($params);
+
+    $dao = CRM_Core_DAO::executeQuery($query);
+    $rows = [];
+    while ($dao->fetch()) {
+      $rows[$dao->id] = $dao->toArray();
+    }
+
+    /*
+     * For clarity we want the fields associated with each contact prefixed with
+     * the contact type (e.g., target_phone). For backwards compatibility,
+     * however, we want the fields associated with each assignee contact to be
+     * accessible sans prefix. Eventually we should deprecate the non-prefixed
+     * field names.
+     */
+    foreach ($rows as $id => $fields) {
+      foreach ($fields as $key => $value) {
+        if (substr($key, 0, 9) == 'assignee_') {
+          $rows[$id][substr($key, 9)] = $value;
+        }
+      }
+    }
+
+    return $rows;
+  }
+
+  /**
+   * Get a query to retrieve Assignments matching the params, where each param key is:
+   *  1. the key of a field in civicrm_activity
+   *     except for activity_type_id and activity_duration
+   *  2. the key of a custom field on the activity
+   *     (volunteer_need_id, time_scheduled, time_completed)
+   *  3. the key of a field in civicrm_contact
+   *  4. project_id
+   *
+   * @param array $params
+   * @param array $where Array of extra where clauses
+   * @return string of SQL
+   */
+  public static function retrieveQuery(array $params, $where = []) {
+
     $activity_fields = CRM_Activity_DAO_Activity::fields();
     $contact_fields = CRM_Contact_DAO_Contact::fields();
     $custom_fields = self::getCustomFields();
@@ -108,7 +150,6 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
     ];
 
     $i = count($placeholders) + 1;
-    $where = [];
     $whereClause = NULL;
     foreach ($filtered_params as $key => $value) {
 
@@ -139,7 +180,7 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
       }
       $where[] = "{$tableName}.{$fieldName} = %{$i}";
 
-      $placeholders[$i] = array($value, $dataType);
+      $placeholders[$i] = [$value, $dataType];
       $i++;
     }
 
@@ -204,28 +245,7 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
       {$whereClause}
     ";
 
-    $dao = CRM_Core_DAO::executeQuery($query, $placeholders);
-    $rows = [];
-    while ($dao->fetch()) {
-      $rows[$dao->id] = $dao->toArray();
-    }
-
-    /*
-     * For clarity we want the fields associated with each contact prefixed with
-     * the contact type (e.g., target_phone). For backwards compatibility,
-     * however, we want the fields associated with each assignee contact to be
-     * accessible sans prefix. Eventually we should deprecate the non-prefixed
-     * field names.
-     */
-    foreach ($rows as $id => $fields) {
-      foreach ($fields as $key => $value) {
-        if (substr($key, 0, 9) == 'assignee_') {
-          $rows[$id][substr($key, 9)] = $value;
-        }
-      }
-    }
-
-    return $rows;
+    return CRM_Core_DAO::composeQuery($query, $placeholders);
   }
 
   /**

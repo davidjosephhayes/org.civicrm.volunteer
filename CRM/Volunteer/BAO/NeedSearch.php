@@ -81,17 +81,46 @@ class CRM_Volunteer_BAO_NeedSearch {
 
     // Prepare select query for preparing fetch opportunity.
     // Join relevant table of need.
-    $select = " SELECT project.id,project.title, project.description, project.is_active, project.loc_block_id, project.campaign_id, need.id as need_id, need.start_time, need.end_time, need.duration, need.quantity, need.is_flexible, need.visibility_id, need.is_active as need_active,need.created as need_created,need.last_updated as need_last_updated,need.role_id as role_id, addr.name as address_name, addr.street_address, addr.city, addr.postal_code, country.name as country, state.name as state_province, opt.label as role_label, opt.description as role_description, campaign.title as campaign_title ";
+    $select = " 
+      SELECT
+        project.id,
+        project.title,
+        project.description,
+        project.is_active,
+        project.loc_block_id,
+        project.campaign_id,
+        need.id as need_id,
+        need.start_time,
+        need.end_time,
+        need.duration,
+        need.quantity,
+        need.is_flexible,
+        need.visibility_id,
+        need.is_active as need_active,
+        need.created as need_created,
+        need.last_updated as need_last_updated,
+        need.role_id as role_id,
+        addr.name as address_name,
+        addr.street_address,
+        addr.city, addr.postal_code,
+        country.name as country,
+        state.name as state_province,
+        opt.label as role_label,
+        opt.description as role_description,
+        campaign.title as campaign_title
+    ";
     $from = " FROM civicrm_volunteer_project AS project";
-    $join = " LEFT JOIN civicrm_volunteer_need AS need ON (need.project_id = project.id) ";
-    $join .= " LEFT JOIN civicrm_loc_block AS loc ON (loc.id = project.loc_block_id) ";
-    $join .= " LEFT JOIN civicrm_address AS addr ON (addr.id = loc.address_id) ";
-    $join .= " LEFT JOIN civicrm_country AS country ON (country.id = addr.country_id) ";
-    $join .= " LEFT JOIN civicrm_state_province AS state ON (state.id = addr.state_province_id) ";
-    $join .= " LEFT JOIN civicrm_campaign AS campaign ON (campaign.id = project.campaign_id) ";
+    $join = "
+      LEFT JOIN civicrm_volunteer_need AS need ON (need.project_id = project.id)
+      LEFT JOIN civicrm_loc_block AS loc ON (loc.id = project.loc_block_id)
+      LEFT JOIN civicrm_address AS addr ON (addr.id = loc.address_id)
+      LEFT JOIN civicrm_country AS country ON (country.id = addr.country_id)
+      LEFT JOIN civicrm_state_province AS state ON (state.id = addr.state_province_id)
+      LEFT JOIN civicrm_campaign AS campaign ON (campaign.id = project.campaign_id) 
+    ";
+
     // Get beneficiary_rel_no for volunteer_project_relationship type.
     $beneficiary_rel_no = CRM_Core_PseudoConstant::getKey("CRM_Volunteer_BAO_ProjectContact", 'relationship_type_id', 'volunteer_beneficiary');
-
     // Join Project Contact table for benificiary for specific $beneficiary_rel_no.
     $join .= " LEFT JOIN civicrm_volunteer_project_contact AS pc ON (pc.project_id = project.id And pc.relationship_type_id='".$beneficiary_rel_no."') ";
     // Join civicrm_option_value table for role details of need.
@@ -142,29 +171,40 @@ class CRM_Volunteer_BAO_NeedSearch {
       }
     }
     // Add role filter if passed in UI.
-    if($this->searchParams['need']['role_id'] && is_array($this->searchParams['need']['role_id'])) {
-      $role_id_string = implode(",", $this->searchParams['need']['role_id']);
+    if(!empty($this->searchParams['need']['role_id'])) {
+      $role_id_string = implode(",", array_map(function($i){
+        return (int)$i;
+      }, $this->searchParams['need']['role_id']));
       $where .= " AND need.role_id IN (".$role_id_string.")";
     }
+    // Add target_contact_id filter if passed in UI.
+    if(!empty($this->searchParams['need']['target_contact_id'])) {
+      $assignmentCustomGroup = CRM_Volunteer_BAO_Assignment::getCustomGroup();
+      $assignmentCustomFields = CRM_Volunteer_BAO_Assignment::getCustomFields();
+      $assignmentCustomTableName = $assignmentCustomGroup['table_name'];
+      $assignmentQuery = CRM_Volunteer_BAO_Assignment::retrieveQuery([], [
+        "{$assignmentCustomTableName}.{$assignmentCustomFields['volunteer_need_id']['column_name']} = need.id"
+      ]);
+      $where .= " AND EXISTS (". $assignmentQuery .")";
+    }
     // Add with(benificiary) filter if passed in UI.
-    if($this->searchParams['project']['project_contacts']['volunteer_beneficiary']) {
-      $beneficiary_id_string = implode(",", $this->searchParams['project']['project_contacts']['volunteer_beneficiary']);
+    if(!empty($this->searchParams['project']['project_contacts']['volunteer_beneficiary'])) {
+      $beneficiary_id_string = implode(",", array_map(function($i){
+        return (int)$i;
+      }, $this->searchParams['project']['project_contacts']['volunteer_beneficiary']));
       $where .= " And pc.contact_id IN (".$beneficiary_id_string.")";
     }
     // Add Location filter if passed in UI.
-    if(isset($this->searchParams['project']["proximity"]) && !empty($this->searchParams['project']["proximity"])) {
+    if(!empty($this->searchParams['project']["proximity"])) {
       $proximityquery = CRM_Volunteer_BAO_Project::buildProximityWhere($this->searchParams['project']["proximity"]);
       $proximityquery = str_replace("civicrm_address", "addr", $proximityquery);
       $where .= " And ".$proximityquery;
     }
     // If Project Id is passed from URL- Query String.
-    if(isset($this->searchParams['project']) && !empty($this->searchParams['project'])) {
-
+    if(!empty($this->searchParams['project'])) {
       if(isset($this->searchParams['project']['is_active']) && isset($this->searchParams['project']['id'])) {
-        $where .= " And project.id=".$this->searchParams['project']['id'];
+        $where .= " And project.id=". (int)$this->searchParams['project']['id'];
       }
-
-      
     }
 
     // Order and limit by Logic.
@@ -173,6 +213,7 @@ class CRM_Volunteer_BAO_NeedSearch {
     
     // Prepare whole sql query dynamic.
     $sql = $select . $from . $join . $where . $orderby . $limit;
+    echo $sql; exit;
     $dao = new CRM_Core_DAO();
     $dao->query($sql);
     
@@ -360,6 +401,11 @@ class CRM_Volunteer_BAO_NeedSearch {
     $role = CRM_Utils_Array::value('role_id', $userSearchParams);
     if ($role) {
       $this->searchParams['need']['role_id'] = is_array($role) ? $role : explode(',', $role);
+    }
+
+    $targetContactId = CRM_Utils_Array::value('target_contact_id', $userSearchParams);
+    if (CRM_Utils_Type::validate($targetContactId, 'Positive', FALSE)) {
+      $this->searchParams['need']['target_contact_id'] = $targetContactId;
     }
 
     $options = CRM_Utils_Array::value('options', $userSearchParams);
