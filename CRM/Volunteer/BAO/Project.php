@@ -44,7 +44,7 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    * @see CRM_Volunteer_BAO_Project::getEntityAttributes()
    * @var array
    */
-  private $entityAttributes = array();
+  private $entityAttributes = [];
 
   /**
    * The ID of the flexible Need for this Project. Accessible via __get method.
@@ -58,7 +58,7 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    *
    * @var array
    */
-  private $needs = array();
+  private $needs = [];
 
   /**
    * Array of profile IDs associated with the project.
@@ -67,14 +67,14 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    *
    * @var array
    */
-  public $profileIds = array();
+  public $profileIds = [];
 
   /**
    * Array of associated Roles. Accessible via __get method.
    *
    * @var array Role labels keyed by IDs
    */
-  private $roles = array();
+  private $roles = [];
 
   /**
    * Array of open needs. Open means:
@@ -90,7 +90,7 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    *
    * @var array Keyed by Need ID, with a subarray keyed by 'label' and 'role_id'
    */
-  private $open_needs = array();
+  private $open_needs = [];
 
   /**
    * The start_date of the Project, inherited from its associated entity
@@ -155,12 +155,12 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    *   Array of contact IDs
    */
   public static function getContactsByRelationship($projectId, $relationshipType) {
-    $contactIds = array();
+    $contactIds = [];
 
-    $api = civicrm_api3('VolunteerProjectContact', 'get', array(
+    $api = civicrm_api3('VolunteerProjectContact', 'get', [
       'project_id' => $projectId,
       'relationship_type_id' => $relationshipType,
-    ));
+    ]);
     foreach ($api['values'] as $rel) {
       $contactIds[] = $rel['contact_id'];
     }
@@ -243,11 +243,11 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    * respectively.
    *
    * To associate Contacts with a Project:
-   *   $params['project_contacts'] = array(
+   *   $params['project_contacts'] = [
    *     $relationship_type_name_or_id => $arr_contact_ids,
-   *   );
+   *   ];
    * To associate Profiles with a Project:
-   *   $params['profiles'] = array($paramsToUFJoinCreate1, $paramsToUFJoinCreate2);
+   *   $params['profiles'] = [$paramsToUFJoinCreate1, $paramsToUFJoinCreate2];
    *
    * @param array $params
    *   an assoc array of name/value pairs
@@ -280,13 +280,13 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
 
     // VOL-269: create flexible need during project creation
     if ($op === CRM_Core_Action::ADD) {
-      CRM_Volunteer_BAO_Need::create(array(
+      CRM_Volunteer_BAO_Need::create([
         // Save an unnecessary lookup for a perms check that will always succeed.
         'check_permissions' => FALSE,
         'is_flexible' => TRUE,
         'project_id' => $project->id,
         'visibility_id' => 'admin',
-      ));
+      ]);
     }
 
     // If updating, treat profile and project contact relationship params as
@@ -294,38 +294,38 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
     $updateVPC = ($op === CRM_Core_Action::UPDATE) && array_key_exists('project_contacts', $params);
     $updateProfiles = ($op === CRM_Core_Action::UPDATE) && array_key_exists('profiles', $params);
     if ($updateVPC) {
-      civicrm_api3('VolunteerProjectContact', 'get', array(
-        'options' => array('limit' => 0),
+      civicrm_api3('VolunteerProjectContact', 'get', [
+        'options' => ['limit' => 0],
         'project_id' => $project->id,
-        'api.VolunteerProjectContact.delete' => array(),
-      ));
+        'api.VolunteerProjectContact.delete' => [],
+      ]);
     }
     if ($updateProfiles) {
-      civicrm_api3("UFJoin", "get", array(
+      civicrm_api3("UFJoin", "get", [
         'entity_id' => $project->id,
         'entity_table' => 'civicrm_volunteer_project',
-        'options' => array('limit' => 0),
+        'options' => ['limit' => 0],
         // CRM-17222: For compatibility with CiviCRM 4.6, we use our custom API.
         // When support for 4.6 is dropped, we can use core's api.UFJoin.delete.
-        // 'api.UFJoin.delete' => array(),
-        'api.VolunteerProject.removeprofile' => array(
+        // 'api.UFJoin.delete' => [],
+        'api.VolunteerProject.removeprofile' => [
           // For some reason, the ID param implicit in chained API calls is not
           // getting passed, so we specify it manually. Since the API is
           // deprecated, this short-term solution is good enough.
           'id' => '$value.id',
-        ),
-      ));
+        ],
+      ]);
     }
 
     if ($updateVPC || $op === CRM_Core_Action::ADD) {
       foreach ($params['project_contacts'] as $relationshipType => $contactIds) {
       $contactIds = array_unique(self::validateContactFormat($contactIds));
         foreach ($contactIds as $id) {
-          civicrm_api3('VolunteerProjectContact', 'create', array(
+          civicrm_api3('VolunteerProjectContact', 'create', [
             'contact_id' => $id,
             'project_id' => $project->id,
             'relationship_type_id' => $relationshipType,
-          ));
+          ]);
         }
       }
     }
@@ -363,14 +363,14 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    * @see CRM_Volunteer_BAO_Assignment::setActivityDefaults()
    */
   public function updateAssociatedActivities () {
-    $activities = CRM_Volunteer_BAO_Assignment::retrieve(array(
+    $activities = CRM_Volunteer_BAO_Assignment::retrieve([
       'project_id' => $this->id,
-    ));
+    ]);
 
     foreach ($activities as $activity) {
-      CRM_Volunteer_BAO_Assignment::createVolunteerActivity(array(
+      CRM_Volunteer_BAO_Assignment::createVolunteerActivity([
         'id' => $activity['id'],
-      ));
+      ]);
     }
   }
 
@@ -430,7 +430,7 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    * @return array of CRM_Volunteer_BAO_Project objects
    */
   public static function retrieve(array $params) {
-    $result = array();
+    $result = [];
 
     $projectId = CRM_Utils_Array::value('id', $params);
     $checkPerms = CRM_Utils_Array::value('check_permissions', $params);
@@ -484,10 +484,10 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
         } 
 
         // Use dynamic comparator based on passed parameter.
-        $query->where($sqlExpr, array(
+        $query->where($sqlExpr, [
           'column' => $fieldName,
           'value' => $project->$fieldName,
-        ));
+        ]);
       }
     }
 
@@ -516,7 +516,7 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    */
   private static function buildContactJoin(array $projectContacts) {
     $result = FALSE;
-    $onClauses = array();
+    $onClauses = [];
 
     $relTypes = CRM_Core_OptionGroup::values(
       CRM_Volunteer_BAO_ProjectContact::RELATIONSHIP_OPTION_GROUP,
@@ -570,10 +570,10 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
       if (!CRM_Utils_Rule::numeric($lat) || !CRM_Utils_Rule::numeric($lon)) {
         // try to supply a default country if none provided
         if (empty($country)) {
-          $settings = civicrm_api3('Setting', 'get', array(
-            "return" => array("defaultContactCountry"),
+          $settings = civicrm_api3('Setting', 'get', [
+            "return" => ["defaultContactCountry"],
             "sequential" => 1,
-          ));
+          ]);
           $country = $settings['values'][0]['defaultContactCountry'];
         }
       
@@ -584,10 +584,10 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
         // TODO: I think CRM_Utils_Geocode_*::format should be responsible for this
         // If/when CRM-17245 is closed, this if-block can be removed.
         if (CRM_Utils_Type::validate($country, 'Positive', FALSE)) {
-          $params['country'] = civicrm_api3('Country', 'getvalue', array(
+          $params['country'] = civicrm_api3('Country', 'getvalue', [
             'id' => $country,
             'return' => 'name',
-          ));
+          ]);
         }
 
         // TODO: support other geocoders
@@ -620,7 +620,7 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
   static function retrieveByID($id) {
     $id = (int) CRM_Utils_Type::validate($id, 'Integer');
 
-    $projects = self::retrieve(array('id' => $id));
+    $projects = self::retrieve(['id' => $id]);
 
     if (!array_key_exists($id, $projects)) {
       CRM_Core_Error::fatal("No project with ID $id exists.");
@@ -637,7 +637,7 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    * @access public
    */
   public static function isOff($value) {
-    if (in_array($value, array(FALSE, 0, '0'), TRUE)) {
+    if (in_array($value, [FALSE, 0, '0'], TRUE)) {
       return TRUE;
     } else {
       return FALSE;
@@ -675,16 +675,16 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    */
   public function getEntityAttributes() {
     if (!$this->entityAttributes) {
-      $arrayKeys = array('start_time', 'title');
+      $arrayKeys = ['start_time', 'title'];
       $this->entityAttributes = array_fill_keys($arrayKeys, NULL);
 
       if ($this->entity_table && $this->entity_id) {
         try {
           switch ($this->entity_table) {
             case 'civicrm_event' :
-              $result = civicrm_api3('Event', 'getsingle', array(
+              $result = civicrm_api3('Event', 'getsingle', [
                 'id' => $this->entity_id,
-              ));
+              ]);
               $this->entityAttributes['title'] = $result['title'];
               $this->entityAttributes['start_time'] = $result['start_date'];
               break;
@@ -711,13 +711,13 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
     $result = NULL;
 
     if (is_int($project_id) || ctype_digit($project_id)) {
-      $flexibleNeed = civicrm_api('volunteer_need', 'getvalue', array(
+      $flexibleNeed = civicrm_api('volunteer_need', 'getvalue', [
         'is_active' => 1,
         'is_flexible' => 1,
         'project_id' => $project_id,
         'return' => 'id',
         'version' => 3,
-      ));
+      ]);
       if (CRM_Utils_Array::value('is_error', $flexibleNeed) !== 1) {
         $result = (int) $flexibleNeed;
       }
@@ -739,7 +739,7 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
       $contacts = explode(",",$contacts);
     }
     if(!is_array($contacts)) {
-      $contacts = array($contacts);
+      $contacts = [$contacts];
     }
     return $contacts;
   }
@@ -753,34 +753,34 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    * @throws CiviCRM_API3_Exception
    */
   public static function composeDefaultSettingsArray() {
-    $defaults = array();
+    $defaults = [];
 
-    $defaults['is_active'] = civicrm_api3('Setting', 'getvalue', array(
+    $defaults['is_active'] = civicrm_api3('Setting', 'getvalue', [
       'name' => 'volunteer_project_default_is_active',
-    ));
-    $defaults['campaign_id'] = civicrm_api3('Setting', 'getvalue', array(
+    ]);
+    $defaults['campaign_id'] = civicrm_api3('Setting', 'getvalue', [
       'name' => 'volunteer_project_default_campaign',
-    ));
-    $defaults['loc_block_id'] = civicrm_api3('Setting', 'getvalue', array(
+    ]);
+    $defaults['loc_block_id'] = civicrm_api3('Setting', 'getvalue', [
       'name' => 'volunteer_project_default_locblock',
-    ));
+    ]);
 
-    $coreDefaultProfile = array(
+    $coreDefaultProfile = [
       "is_active" => "1",
       "module" => "CiviVolunteer",
       "entity_table" => "civicrm_volunteer_project",
       "weight" => 1,
-      "module_data" => array("audience" => "primary"),
-      "uf_group_id" => civicrm_api3('UFGroup', 'getvalue', array(
+      "module_data" => ["audience" => "primary"],
+      "uf_group_id" => civicrm_api3('UFGroup', 'getvalue', [
         "name" => "volunteer_sign_up",
         "return" => "id"
-      ))
-    );
+      ]),
+    ];
 
-    $profiles = array();
-    $profileByType = civicrm_api3('Setting', 'getvalue', array(
+    $profiles = [];
+    $profileByType = civicrm_api3('Setting', 'getvalue', [
       'name' => 'volunteer_project_default_profiles',
-    ));
+    ]);
 
     foreach($profileByType as $audience => $profileForType) {
       foreach ($profileForType as $profileId) {
@@ -807,11 +807,11 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    *   value of the option in the volunteer_project_relationship option group.
    */
   public static function getDefaultProjectContacts() {
-    $defaults = array();
+    $defaults = [];
     $optionMap = CRM_Core_OptionGroup::values("volunteer_project_relationship", TRUE, FALSE, FALSE, NULL, 'name');
-    $projectContactsSetting = civicrm_api3('Setting', 'getvalue', array(
+    $projectContactsSetting = civicrm_api3('Setting', 'getvalue', [
       'name' => 'volunteer_project_default_contacts',
-    ));
+    ]);
 
     // the array of settings is keyed by the name of the volunteer project relationship
     foreach ($projectContactsSetting as $optionName => $defaultConfig) {
@@ -822,21 +822,21 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
         case 'relationship':
           list($relationshipTypeId, $direction) = explode('_', $defaultConfig['value']);
           $reverseDirection = ($direction === 'a' ? 'b' : 'a');
-          $api = civicrm_api3('Relationship', 'get', array(
+          $api = civicrm_api3('Relationship', 'get', [
             "contact_id_{$direction}" => 'user_contact_id',
             'is_active' => 1,
-            'options' => array('limit' => 0),
+            'options' => ['limit' => 0],
             'relationship_type_id' => $relationshipTypeId,
-          ));
+          ]);
 
-          $contactIds = array();
+          $contactIds = [];
           foreach ($api['values'] as $r) {
             $contactIds[] = $r["contact_id_{$reverseDirection}"];
           }
 
           break;
         case 'acting_contact':
-          $contactIds = array(CRM_Core_Session::getLoggedInContactID());
+          $contactIds = [CRM_Core_Session::getLoggedInContactID()];
           break;
       }
 
@@ -854,23 +854,23 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    */
   public static function getProjectProfileAudienceTypes()
   {
-    return array(
-      "primary" => array(
+    return [
+      "primary" => [
         "type" => "primary",
-        "description" => ts("Profile(s) for Individual Registration", array('domain' => 'org.civicrm.volunteer')),
-        "label" => ts("Individual Registration", array('domain' => 'org.civicrm.volunteer'))
-      ),
-      "additional" => array(
+        "description" => ts("Profile(s) for Individual Registration", ['domain' => 'org.civicrm.volunteer']),
+        "label" => ts("Individual Registration", ['domain' => 'org.civicrm.volunteer'])
+      ],
+      "additional" => [
         "type" => "additional",
-        "description" => ts("Profile(s) for Group Registration", array('domain' => 'org.civicrm.volunteer')),
-        "label" => ts("Group Registration", array('domain' => 'org.civicrm.volunteer'))
-      ),
-      "both" => array(
+        "description" => ts("Profile(s) for Group Registration", ['domain' => 'org.civicrm.volunteer']),
+        "label" => ts("Group Registration", ['domain' => 'org.civicrm.volunteer'])
+      ],
+      "both" => [
         "type" => "both",
-        "description" => ts("Profile(s) for Both Individual and Group Registration", array('domain' => 'org.civicrm.volunteer')),
-        "label" => ts("Both", array('domain' => 'org.civicrm.volunteer'))
-      ),
-    );
+        "description" => ts("Profile(s) for Both Individual and Group Registration", ['domain' => 'org.civicrm.volunteer']),
+        "label" => ts("Both", ['domain' => 'org.civicrm.volunteer'])
+      ],
+    ];
   }
   /**
    * Sets and returns the start date of the entity associated with this Project
@@ -882,10 +882,10 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
       if ($this->entity_table && $this->entity_id) {
         switch ($this->entity_table) {
           case 'civicrm_event' :
-            $params = array(
+            $params = [
               'id' => $this->entity_id,
-              'return' => array('start_date'),
-            );
+              'return' => ['start_date'],
+            ];
             $result = civicrm_api3('Event', 'get', $params);
             $this->start_date = $result['values'][$this->entity_id]['start_date'];
             break;
@@ -905,10 +905,10 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
       if ($this->entity_table && $this->entity_id) {
         switch ($this->entity_table) {
           case 'civicrm_event' :
-            $params = array(
+            $params = [
               'id' => $this->entity_id,
-              'return' => array('end_date'),
-            );
+              'return' => ['end_date'],
+            ];
             $result = civicrm_api3('Event', 'get', $params);
             $this->end_date = CRM_Utils_Array::value('end_date', $result['values'][$this->entity_id]);
             break;
@@ -926,15 +926,15 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    */
   private function _get_needs() {
     if (empty($this->needs)) {
-      $result = civicrm_api3('VolunteerNeed', 'get', array(
+      $result = civicrm_api3('VolunteerNeed', 'get', [
         'is_active' => '1',
         'project_id' => $this->id,
         'visibility_id' => CRM_Volunteer_BAO_Project::getVisibilityId('name', "public"),
-        'options' => array(
+        'options' => [
           'sort' => 'start_time',
           'limit' => 0,
-        ),
-      ));
+        ],
+      ]);
       $this->needs = $result['values'];
       foreach (array_keys($this->needs) as $need_id) {
         $this->needs[$need_id]['quantity_assigned'] = CRM_Volunteer_BAO_Need::getAssignmentCount($need_id);
@@ -952,7 +952,7 @@ class CRM_Volunteer_BAO_Project extends CRM_Volunteer_DAO_Project {
    */
   private function _get_roles() {
     if (empty($this->roles)) {
-      $roles = array();
+      $roles = [];
 
       if (empty($this->needs)) {
         $this->_get_needs();
