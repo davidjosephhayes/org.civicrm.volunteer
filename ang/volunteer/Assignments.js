@@ -1,6 +1,6 @@
-(function (angular, $, _) {
+((angular, $, _) => {
 
-  angular.module('volunteer').config(function ($routeProvider) {
+  angular.module('volunteer').config( $routeProvider => {
     $routeProvider.when('/volunteer/assignments/:view?', {
       controller: 'Assignments',
       // update the search params in the URL without reloading the route     
@@ -10,7 +10,7 @@
     });
   });
 
-  angular.module('volunteer').controller('Assignments', function ($route, $routeParams, $scope, crmApi, $window, $location, volunteerCalendarConfig, volunteerModalService) {
+  angular.module('volunteer').controller('Assignments', ($route, $routeParams, $scope, crmApi, $window, $location, volunteerCalendarConfig, volunteerModalService)  => {
 
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
     
@@ -18,7 +18,7 @@
     $scope.totalRec;
 
     //Change reult view
-    $scope.changeView=function(view) {
+    $scope.changeView=  view => {
       view = view || 'list';
       $location.path("/volunteer/assignments/" + view);
     };
@@ -42,24 +42,18 @@
       $scope.search = "";
       $scope.searchRes();
     };
-    $scope.searchRes = function(){
-      volunteerCalendarConfig.calendars.assignments.fullCalendar('refetchEvents');
-    };
+    $scope.searchRes = () => volunteerCalendarConfig.calendars.assignments.fullCalendar('refetchEvents');
 
     // modal window setup
     $scope.currentEvent = null;
     $scope.currentEventStatus = '';
-    $scope.openModal = function(id) {
-      volunteerModalService.open(id);
-    };
-    $scope.closeModal = function(id) {
-      volunteerModalService.close(id);
-    };
+    $scope.openModal = id => volunteerModalService.open(id);
+    $scope.closeModal = id => volunteerModalService.close(id);
 
     $scope.sourceAssignments = [];
 
     // get assignments
-    let getAssignments = function(params, method) {
+    const getAssignments = (params, method) => {
 
       CRM.$('#crm-main-content-wrapper').block();
 
@@ -130,14 +124,14 @@
             center: 'title',
             right: 'today prev,next'
           },
-          eventClick: function(calEvent, jsEvent, view) {
+          eventClick: (calEvent, jsEvent, view) => {
             $scope.currentEvent = calEvent;
             $scope.currentEventStatus = 'registered';
             if (calEvent.className.includes('fc-completed'))
               $scope.currentEventStatus = 'completed';
             $scope.openModal('crm-vol-assignment-info');
           },
-          viewRender: function(currentView){
+          viewRender: currentView => {
             const minDate = moment();
             // maxDate = moment().add(2,'weeks');
             // Past
@@ -162,7 +156,7 @@
       // calendar setup
       $scope.calendarSources = [];
       $scope.calendarEvents = [
-        function(start, end, timezone, callback) {
+        (start, end, timezone, callback) => {
 
           const params = {
             date_start: start.format("YYYY-MM-DD HH:mm:ss"),
@@ -180,13 +174,11 @@
 
             const events = assignments
             // time / quantity constraints
-            .filter(function(assignment){
-              return (
-                // supported schedule types
-                (assignment.schedule_type === 'shift' || assignment.schedule_type === 'flexible')
-              );
-            })
-            .map(function(assignment){
+            .filter(assignment => (
+              // supported schedule types
+              (assignment.schedule_type === 'shift' || assignment.schedule_type === 'flexible')
+            ))
+            .map(assignment => {
               const now = moment();
               const start = moment(assignment.start_time);
               const classNames = ['fc-registered'];
