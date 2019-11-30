@@ -46,10 +46,10 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
     $result = civicrm_api3('Setting', 'getfields');
     $this->_settingsMetadata = ($result['count'] > 0) ? $result['values'] : [];
 
-    $currentDomainId = civicrm_api3('Domain', 'getvalue', array(
+    $currentDomainId = civicrm_api3('Domain', 'getvalue', [
       'return' => 'id',
       'current_domain' => 1,
-    ));
+    ]);
     $setting = civicrm_api3('Setting', 'get');
     $this->_settings = $setting['values'][$currentDomainId];
   }
@@ -62,7 +62,7 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
     $this->_fieldDescriptions = [];
     $this->_helpIcons = [];
 
-    $profiles = civicrm_api3('UFGroup', 'get', array("return" => "title", "sequential" => 1, 'options' => array('limit' => 0)));
+    $profiles = civicrm_api3('UFGroup', 'get', ["return" => "title", "sequential" => 1, 'options' => ['limit' => 0]]);
     $profileList = [];
     foreach ($profiles['values'] as $profile) {
       $profileList[$profile['id']] = $profile['title'];
@@ -75,12 +75,12 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
         $audience['description'],
         $profileList,
         false, // is required,
-        array(
+        [
           "placeholder" => ts("- none -", ['domain' => 'org.civicrm.volunteer']),
           "multiple" => "multiple",
           "class" => "crm-select2",
           "data-fieldgroup" => "Default Project Settings"
-        )
+        ]
       );
     }
 
@@ -95,7 +95,7 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
       ts('Campaign', ['domain' => 'org.civicrm.volunteer']),
       $campaignList,
       false, // is required,
-      array("placeholder" => true)
+      ["placeholder" => true]
     );
 
     $locBlocks = civicrm_api3('VolunteerProject', 'locations', []);
@@ -105,7 +105,7 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
       ts('Location', ['domain' => 'org.civicrm.volunteer']),
       $locBlocks['values'],
       false, // is required,
-      array("placeholder" => ts("- none -", ['domain' => 'org.civicrm.volunteer']))
+      ["placeholder" => ts("- none -", ['domain' => 'org.civicrm.volunteer'])]
     );
 
     $this->add(
@@ -123,18 +123,18 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
       'select',
       'volunteer_general_campaign_filter_type',
       ts('Campaign Filter Whitelist/Blacklist', ['domain' => 'org.civicrm.volunteer']),
-      array(
+      [
         "blacklist" => ts("Blacklist", ['domain' => 'org.civicrm.volunteer']),
         "whitelist" => ts("Whitelist", ['domain' => 'org.civicrm.volunteer']),
-      ),
+      ],
       true
     );
 
-    $results = civicrm_api3('OptionValue', 'get', array(
+    $results = civicrm_api3('OptionValue', 'get', [
       'sequential' => 1,
       'option_group_id' => "campaign_type",
       'return' => "value,label",
-    ));
+    ]);
     $campaignTypes = [];
     foreach ($results['values'] as $campaignType) {
       $campaignTypes[$campaignType['value']] = $campaignType['label'];
@@ -146,11 +146,11 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
       ts('Campaign Type(s)', ['domain' => 'org.civicrm.volunteer']),
       $campaignTypes,
       false, // is required,
-      array(
+      [
         "placeholder" => ts("- none -", ['domain' => 'org.civicrm.volunteer']),
         "multiple" => "multiple",
         "class" => "crm-select2"
-      )
+      ]
     );
 
 
@@ -161,13 +161,13 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
         []
     );
 
-    $this->addButtons(array(
-      array(
+    $this->addButtons([
+      [
         'type' => 'submit',
         'name' => ts('Save Volunteer Settings', ['domain' => 'org.civicrm.volunteer']),
         'isDefault' => TRUE,
-      ),
-    ));
+      ],
+    ]);
     // export form elements
     $this->assign('elementGroups', $this->getRenderableElementNames());
     $this->buildHelpText();
@@ -182,7 +182,7 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
         "volunteer_project_default_contacts_mode_$name",
         $data['label'],
         $this->getProjectRelationshipSettingModes(),
-        array("data-fieldgroup" => "Default Project Settings",),
+        ["data-fieldgroup" => "Default Project Settings",],
         NULL,
         TRUE
       );
@@ -194,20 +194,20 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
         ts('Default to Contact(s) Having this Relationship with the Acting Contact', ['domain' => 'org.civicrm.volunteer']),
         $this->getValidRelationshipTypes(),
         false, // is required,
-        array(
+        [
           'class' => 'crm-select2',
           'data-fieldgroup' => 'Default Project Settings',
           'placeholder' => TRUE,
-        )
+        ]
       );
 
       $this->addEntityRef(
         "volunteer_project_default_contacts_contact_$name",
         ts('Default to Selected Contact(s)', ['domain' => 'org.civicrm.volunteer']),
-        array(
+        [
           'multiple' => TRUE,
           'data-fieldgroup' => "Default Project Settings",
-        )
+        ]
       );
     }
   }
@@ -218,11 +218,11 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
   private function buildHelpText() {
     $newProjectUrl = CRM_Utils_System::url('civicrm/vol/', NULL, FALSE, 'volunteer/manage/0');
     $helpText = '<p>' . ts('The values set in this section will be used as defaults for volunteer projects in both the form and data layers.', ['domain' => 'org.civicrm.volunteer']) . '</p>';
-    $helpText .= '<p>' . ts('Streamline creation of new volunteer projects by selecting the options you choose most. The <a href="%1">New Project screen</a> will open with these settings already selected. These values will also be used for projects created through API unless other values are specified.', array(1 => $newProjectUrl, 'domain' => 'org.civicrm.volunteer')) . '</p>';
+    $helpText .= '<p>' . ts('Streamline creation of new volunteer projects by selecting the options you choose most. The <a href="%1">New Project screen</a> will open with these settings already selected. These values will also be used for projects created through API unless other values are specified.', [1 => $newProjectUrl, 'domain' => 'org.civicrm.volunteer']) . '</p>';
     $helpText .= '<p>' . ts('Note: Projects created by users who do not have the "edit volunteer project relationships" or "edit volunteer registration profiles" permissions will always use the defaults for those fields.', ['domain' => 'org.civicrm.volunteer']) . '</p>';
-    $this->assign('helpText', array(
+    $this->assign('helpText', [
       'Default Project Settings' => $helpText,
-    ));
+    ]);
   }
 
   private function buildFieldDescriptions() {
@@ -293,10 +293,10 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
       $fieldName = "volunteer_project_default_contacts_{$selectedMode}_{$name}";
       // unless 'acting_contact' is the mode, some other value needs to have been selected
       if ($selectedMode !== 'acting_contact' && empty($values[$fieldName])) {
-        $this->_errors[$fieldName] = ts("%1 is a required field.", array(
+        $this->_errors[$fieldName] = ts("%1 is a required field.", [
           1 => $relTypeData['label'],
           'domain' => 'org.civicrm.volunteer',
-        ));
+        ]);
       }
     }
 
@@ -313,34 +313,34 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
       $profiles[$audience['type']] = CRM_Utils_Array::value('volunteer_project_default_profiles_' . $audience['type'], $values);
     }
 
-    civicrm_api3('Setting', 'create', array(
+    civicrm_api3('Setting', 'create', [
       "volunteer_project_default_profiles" => $profiles,
-    ));
+    ]);
 
-    civicrm_api3('Setting', 'create', array(
+    civicrm_api3('Setting', 'create', [
       "volunteer_project_default_campaign" => CRM_Utils_Array::value('volunteer_project_default_campaign', $values)
-    ));
-    civicrm_api3('Setting', 'create', array(
+    ]);
+    civicrm_api3('Setting', 'create', [
       "volunteer_project_default_locblock" => CRM_Utils_Array::value('volunteer_project_default_locblock', $values)
-    ));
+    ]);
 
     Civi::settings()->set('volunteer_general_project_settings_help_text', CRM_Utils_Array::value('volunteer_general_project_settings_help_text', $values));
 
-    civicrm_api3('Setting', 'create', array(
+    civicrm_api3('Setting', 'create', [
       "volunteer_project_default_is_active" => CRM_Utils_Array::value('volunteer_project_default_is_active', $values, 0)
-    ));
+    ]);
 
-    civicrm_api3('Setting', 'create', array(
+    civicrm_api3('Setting', 'create', [
       'volunteer_project_default_contacts' => $this->formatDefaultContacts()
-    ));
+    ]);
 
     //Whitelist/Blacklist settings
-    civicrm_api3('Setting', 'create', array(
+    civicrm_api3('Setting', 'create', [
       "volunteer_general_campaign_filter_type" => CRM_Utils_Array::value('volunteer_general_campaign_filter_type', $values)
-    ));
-    civicrm_api3('Setting', 'create', array(
+    ]);
+    civicrm_api3('Setting', 'create', [
       "volunteer_general_campaign_filter_list" => CRM_Utils_Array::value('volunteer_general_campaign_filter_list', $values, [])
-    ));
+    ]);
 
     CRM_Core_Session::setStatus(ts("Changes Saved", ['domain' => 'org.civicrm.volunteer']), "Saved", "success");
     parent::postProcess();
@@ -424,13 +424,13 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
    */
   public function getProjectRelationshipTypes() {
     if (empty($this->projectRelationshipTypes)) {
-      $result = civicrm_api3('OptionValue', 'get', array(
+      $result = civicrm_api3('OptionValue', 'get', [
         'is_active' => 1,
         'option_group_id' => "volunteer_project_relationship",
-        'options' => array(
+        'options' => [
           'limit' => 0,
-        )
-      ));
+        ]
+      ]);
       $this->projectRelationshipTypes = $result['values'];
     }
 
@@ -443,11 +443,11 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
    * @return array
    */
   public function getProjectRelationshipSettingModes() {
-    return array(
+    return [
       'acting_contact' => ts('Acting Contact', ['domain' => 'org.civicrm.volunteer']),
       'relationship' => ts('Related Contact(s)', ['domain' => 'org.civicrm.volunteer']),
       'contact' => ts('Specific Contact(s)', ['domain' => 'org.civicrm.volunteer']),
-    );
+    ];
   }
 
   /**
@@ -458,22 +458,22 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
    */
   private function getValidRelationshipTypes() {
     if (empty($this->validRelationshipTypes)) {
-      $commonParams = array(
+      $commonParams = [
         'is_active' => 1,
-        'options' => array(
+        'options' => [
           'limit' => 0,
-        )
-      );
-      $apiContactA = civicrm_api3('RelationshipType', 'get', $commonParams + array(
+        ]
+      ];
+      $apiContactA = civicrm_api3('RelationshipType', 'get', $commonParams + [
         'contact_type_a' => "Individual",
-      ));
+      ]);
       foreach ($apiContactA['values'] as $id => $data) {
         $this->validRelationshipTypes["{$id}_a"] = $data['label_a_b'];
       }
 
-      $apiContactB = civicrm_api3('RelationshipType', 'get', $commonParams + array(
+      $apiContactB = civicrm_api3('RelationshipType', 'get', $commonParams + [
         'contact_type_b' => "Individual",
-      ));
+      ]);
       foreach ($apiContactB['values'] as $id => $data) {
         $this->validRelationshipTypes["{$id}_b"] = $data['label_b_a'];
       }
@@ -496,9 +496,9 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
       $name = $relTypeData['name'];
       $mode = $values["volunteer_project_default_contacts_mode_{$name}"];
 
-      $store[$name] = array(
+      $store[$name] = [
         'mode' => $mode,
-      );
+      ];
 
       if ($mode === 'acting_contact') {
         // For interface consistency we supply a 'value' key though it isn't strictly needed.
