@@ -1,21 +1,31 @@
-.crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+@media (max-width: 1000px) {
+  .crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .welcome-contact,
+  .crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .search-display {
+    margin-bottom: 10px;
+  }
 }
-.crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .welcome-contact,
-.crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .search-display {
-  flex: 1;
-}
-.crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .welcome-contact h2 {
-  margin: 0 10px;
-}
-.crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .search-display {
-  text-align: right;
+@media (min-width: 1001px) {
+  .crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  .crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .welcome-contact,
+  .crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .search-display {
+    flex: 1;
+  }
+  .crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .welcome-contact h2 {
+    margin: 0 10px;
+  }
+  .crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .search-display {
+    align-self: flex-end;
+    text-align: right;
+  }
 }
 .crm-volunteer-profile-form-block .crm-volunteer-profile-summary {
   margin-top: 20px;
   display: flex;
+  flex-wrap: wrap;
 }
 .crm-volunteer-profile-form-block .crm-volunteer-profile-summary > div {
   flex: 0 1 50%;
