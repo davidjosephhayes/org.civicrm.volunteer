@@ -338,7 +338,7 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
       $project['beneficiaries'][] = array(
         'id' => $projectContact['contact_id'],
         'display_name' => $projectContact['api.Contact.get']['values'][0]['display_name'],
-        'image_URL' => $projectContact['api.Contact.get']['values'][0]['image_URL'],
+        'image_URL' => html_entity_decode($projectContact['api.Contact.get']['values'][0]['image_URL']),
         'email' => $projectContact['api.Contact.get']['values'][0]['email'],
       );
     }
@@ -409,26 +409,52 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
     ";//,mdt.need_start_time
     $from = " FROM civicrm_volunteer_appeal AS appeal";
     $join = " 
-      LEFT JOIN civicrm_volunteer_project AS p ON (p.id = appeal.project_id)
-      LEFT JOIN civicrm_loc_block AS loc ON (loc.id = appeal.loc_block_id)
-      LEFT JOIN civicrm_address AS addr ON (addr.id = loc.address_id)
-      LEFT JOIN civicrm_volunteer_need AS need ON (need.project_id = p.id) And need.is_active = 1 And need.is_flexible = 1 And need.visibility_id = 1
+      LEFT JOIN civicrm_volunteer_project AS p
+        ON (p.id = appeal.project_id)
+      LEFT JOIN civicrm_loc_block AS loc
+        ON (loc.id = appeal.loc_block_id)
+      LEFT JOIN civicrm_address AS addr
+        ON (addr.id = loc.address_id)
+      LEFT JOIN civicrm_volunteer_need AS need
+        ON (need.project_id = p.id) AND need.is_active = 1 AND need.is_flexible = 1 AND need.visibility_id = 1
     ";
     if($show_beneficiary_at_front == 1) {
+      // Get beneficiary_rel_no for volunteer_project_relationship type.
       $beneficiary_rel_no = CRM_Core_PseudoConstant::getKey("CRM_Volunteer_BAO_ProjectContact", 'relationship_type_id', 'volunteer_beneficiary');
-      $select .= " , GROUP_CONCAT(DISTINCT cc.display_name ) as beneficiary_display_name, GROUP_CONCAT(DISTINCT cc.id ) as beneficiary_id";
+      // Join Project Contact table for benificiary for specific $beneficiary_rel_no.
+      // Join civicrm_contact table for contact details.
+      $select .= ", 
+        GROUP_CONCAT(IFNULL(cc.id, '') SEPARATOR '~|~') as beneficiary_id,
+        GROUP_CONCAT(IFNULL(cc.display_name, '') SEPARATOR '~|~') as beneficiary_display_name,
+        GROUP_CONCAT(IFNULL(ce.email, '') SEPARATOR '~|~') as beneficiary_email,
+        GROUP_CONCAT(IFNULL(cc.image_URL, '') SEPARATOR '~|~') as beneficiary_image_URL
+      ";
       $join .= "
-        LEFT JOIN civicrm_volunteer_project_contact AS pc ON (pc.project_id = p.id And pc.relationship_type_id='".$beneficiary_rel_no."')
-        LEFT JOIN civicrm_contact AS cc ON (cc.id = pc.contact_id)
+        LEFT JOIN civicrm_volunteer_project_contact AS pc
+          ON (pc.project_id = p.id And pc.relationship_type_id='".$beneficiary_rel_no."')
+        LEFT JOIN civicrm_contact AS cc 
+          ON (cc.id = pc.contact_id)
+        LEFT JOIN civicrm_email AS ce
+          ON ce.id = (
+            SELECT id
+            FROM civicrm_email AS ceq
+            WHERE ceq.contact_id = pc.contact_id AND ceq.is_primary=1
+            LIMIT 1
+          )
       ";
     }
     // Appeal should be active, Current Date between appeal date and related project should be active.
-    $where = " Where p.is_active = 1 And appeal.is_appeal_active = 1 And CURDATE() between appeal.active_fromdate and appeal.active_todate ";
+    $where = " WHERE 1
+      AND p.is_active = 1
+      AND appeal.is_appeal_active = 1
+      AND CURDATE() between appeal.active_fromdate
+      AND appeal.active_todate
+    ";
 
     if(isset($params['search_appeal'])) {
       $search_appeal = $params['search_appeal'];
       $search_appeal = trim($search_appeal);
-      $where .= " And (appeal.title Like '%".$search_appeal."%' OR appeal.appeal_description Like '%".$search_appeal."%' OR cc.display_name LIKE '%".$search_appeal."%')";
+      $where .= " AND(appeal.title Like '%".$search_appeal."%' OR appeal.appeal_description Like '%".$search_appeal."%' OR cc.display_name LIKE '%".$search_appeal."%')";
     }
     $having = "";
     // Handle beneficiary filter.

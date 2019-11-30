@@ -21,6 +21,12 @@ class CRM_Volunteer_BAO_NeedSearch {
   private $searchResults = [];
 
   /**
+   * @var integer
+   *   Count of search results w/o limt
+   */
+  private $total = null;
+
+  /**
    * @param array $userSearchParams
    *   See setSearchParams();
    */
@@ -40,7 +46,7 @@ class CRM_Volunteer_BAO_NeedSearch {
    */
   public static function doSearch ($userSearchParams) {
     $searcher = new self($userSearchParams);
-    return $searcher->search();
+    return [$searcher->search(), $searcher->total()];
   }
 
   /**
@@ -71,6 +77,7 @@ class CRM_Volunteer_BAO_NeedSearch {
    * @return array $this->searchResults
    */
   public function search() {
+
     // Get volunteer_role_option_group_id of volunteer_role".
     $result = civicrm_api3('OptionGroup', 'get', [
       'sequential' => 1,
@@ -81,7 +88,7 @@ class CRM_Volunteer_BAO_NeedSearch {
     // Prepare select query for preparing fetch opportunity.
     // Join relevant table of need.
     $select = " 
-      SELECT
+      SELECT SQL_CALC_FOUND_ROWS
         project.id,
         project.title,
         project.description,
@@ -110,23 +117,46 @@ class CRM_Volunteer_BAO_NeedSearch {
     ";
     $from = " FROM civicrm_volunteer_project AS project";
     $join = "
-      LEFT JOIN civicrm_volunteer_need AS need ON (need.project_id = project.id)
-      LEFT JOIN civicrm_loc_block AS loc ON (loc.id = project.loc_block_id)
-      LEFT JOIN civicrm_address AS addr ON (addr.id = loc.address_id)
-      LEFT JOIN civicrm_country AS country ON (country.id = addr.country_id)
-      LEFT JOIN civicrm_state_province AS state ON (state.id = addr.state_province_id)
-      LEFT JOIN civicrm_campaign AS campaign ON (campaign.id = project.campaign_id) 
+      LEFT JOIN civicrm_volunteer_need AS need
+        ON (need.project_id = project.id)
+      LEFT JOIN civicrm_loc_block AS loc
+        ON (loc.id = project.loc_block_id)
+      LEFT JOIN civicrm_address AS addr
+        ON (addr.id = loc.address_id)
+      LEFT JOIN civicrm_country AS country
+        ON (country.id = addr.country_id)
+      LEFT JOIN civicrm_state_province AS state
+        ON (state.id = addr.state_province_id)
+      LEFT JOIN civicrm_campaign AS campaign
+        ON (campaign.id = project.campaign_id) 
     ";
 
     // Get beneficiary_rel_no for volunteer_project_relationship type.
     $beneficiary_rel_no = CRM_Core_PseudoConstant::getKey("CRM_Volunteer_BAO_ProjectContact", 'relationship_type_id', 'volunteer_beneficiary');
     // Join Project Contact table for benificiary for specific $beneficiary_rel_no.
-    $join .= " LEFT JOIN civicrm_volunteer_project_contact AS pc ON (pc.project_id = project.id And pc.relationship_type_id='".$beneficiary_rel_no."') ";
     // Join civicrm_option_value table for role details of need.
-    $join .= " LEFT JOIN civicrm_option_value AS opt ON (opt.value = need.role_id And opt.option_group_id='".$volunteer_role_option_group_id."') ";
     // Join civicrm_contact table for contact details.
-    $join .= " LEFT JOIN civicrm_contact AS cc ON (cc.id = pc.contact_id) ";
-    $select .= ", GROUP_CONCAT( cc.id ) as beneficiary_id , GROUP_CONCAT( cc.display_name ) as beneficiary_display_name";
+    $select .= ", 
+      GROUP_CONCAT(IFNULL(cc.id, '') SEPARATOR '~|~') as beneficiary_id,
+      GROUP_CONCAT(IFNULL(cc.display_name, '') SEPARATOR '~|~') as beneficiary_display_name,
+      GROUP_CONCAT(IFNULL(ce.email, '') SEPARATOR '~|~') as beneficiary_email,
+      GROUP_CONCAT(IFNULL(cc.image_URL, '') SEPARATOR '~|~') as beneficiary_image_URL
+    ";
+    $join .= "
+      LEFT JOIN civicrm_volunteer_project_contact AS pc
+        ON (pc.project_id = project.id And pc.relationship_type_id='".$beneficiary_rel_no."')
+      LEFT JOIN civicrm_option_value AS opt
+        ON (opt.value = need.role_id And opt.option_group_id='".$volunteer_role_option_group_id."')
+      LEFT JOIN civicrm_contact AS cc 
+        ON (cc.id = pc.contact_id)
+      LEFT JOIN civicrm_email AS ce
+        ON ce.id = (
+          SELECT id
+          FROM civicrm_email AS ceq
+          WHERE ceq.contact_id = pc.contact_id AND ceq.is_primary=1
+          LIMIT 1
+        )
+    ";
 
     $visibility_id = CRM_Volunteer_BAO_Project::getVisibilityId('name', "public");
     $where = " Where project.is_active = 1 AND need.visibility_id = ".$visibility_id;
@@ -193,7 +223,7 @@ class CRM_Volunteer_BAO_NeedSearch {
       $beneficiary_id_string = implode(",", array_map(function($i){
         return (int)$i;
       }, $this->searchParams['project']['project_contacts']['volunteer_beneficiary']));
-      $where .= " And pc.contact_id IN (".$beneficiary_id_string.")";
+      $where .= " AND pc.contact_id IN (".$beneficiary_id_string.")";
     }
     // Add Location filter if passed in UI.
     if(!empty($this->searchParams['project']["proximity"])) {
@@ -209,14 +239,17 @@ class CRM_Volunteer_BAO_NeedSearch {
     }
 
     // Order and limit by Logic.
-    $orderby = " group by need.id ORDER BY " . CRM_Core_DAO::escapeString($this->searchParams['options']['sort']);
-    $limit = $this->searchParams['options']['limit'] === 0 ?  "" : " LIMIT " . (int)$this->searchParams['options']['offset'] . ", " . (int)$this->searchParams['options']['limit'];
+    $orderby = "
+      GROUP BY need.id
+      ORDER BY " . CRM_Core_DAO::escapeString($this->searchParams['options']['sort']);
+    $limit = $this->searchParams['options']['limit'] === 0 ?  "" : "
+      LIMIT " . (int)$this->searchParams['options']['offset'] . ", " . (int)$this->searchParams['options']['limit'];
     
     // Prepare whole sql query dynamic.
     $sql = $select . $from . $join . $where . $orderby . $limit;
-    $dao = new CRM_Core_DAO();
-    $dao->query($sql);
-    
+    $dao = CRM_Core_DAO::executeQuery($sql);
+    $this->total = (int)CRM_Core_DAO::singleValueQuery('SELECT FOUND_ROWS()');
+
     // Prepare array for need of projects.
     $project_opportunities = [];
     $i = 0;
@@ -268,13 +301,17 @@ class CRM_Volunteer_BAO_NeedSearch {
         "street_address" => $dao->street_address,
         "name" => $dao->address_name,
       ];
-      $beneficiary_display_name = explode(',', $dao->beneficiary_display_name);
-      if(isset($beneficiary_display_name) && !empty($beneficiary_display_name) && is_array($beneficiary_display_name)) {
-        $beneficiary_id_array = explode(',', $dao->beneficiary_id);
-        foreach ($beneficiary_display_name as $key => $display_name) {
+      $beneficiary_id_array = explode('~|~', $dao->beneficiary_id);
+      if(!empty($beneficiary_id_array)) {
+        $beneficiary_display_name_array = explode('~|~', $dao->beneficiary_display_name);
+        $beneficiary_image_URL_array = explode('~|~', $dao->beneficiary_image_URL);
+        $beneficiary_email_array = explode('~|~', $dao->beneficiary_email);
+        foreach ($beneficiary_id_array as $key => $beneficiary_id) {
           $project_opportunities[$i]['project']['beneficiaries'][$key] = [
-            "id" => $beneficiary_id_array[$key],
-            "display_name" => $display_name
+            "id" => $beneficiary_id,
+            "display_name" => $beneficiary_display_name_array[$key],
+            "image_URL" => html_entity_decode($beneficiary_image_URL_array[$key]),
+            "email" => $beneficiary_email_array[$key],
           ];
         }
       } else {
@@ -284,7 +321,17 @@ class CRM_Volunteer_BAO_NeedSearch {
       $i++;
     }
 
-    return $project_opportunities;
+    $this->searchResults = $project_opportunities;
+    return $this->searchResults;
+  }
+
+  /**
+   * Returns the count of the previous search
+   * 
+   * @return integer | null if no previous search
+   */
+  public function total(){
+    return $this->total;
   }
 
   /**
