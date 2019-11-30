@@ -84,9 +84,9 @@ function civicrm_api3_volunteer_appeal_getAppealData($params) {
  * @return array
  */
 function civicrm_api3_volunteer_appeal_getsearchresult($params) {
-  $result = CRM_Volunteer_BAO_VolunteerAppeal::doSearch($params);
-  
-  return civicrm_api3_create_success($result, $params, 'VolunteerAppeal', 'getsearchresult');
+  [$result, $total] = CRM_Volunteer_BAO_VolunteerAppeal::doSearch($params);
+  $dao = null;
+  return civicrm_api3_create_success($result, $params, 'VolunteerAppeal', 'getsearchresult', $dao, ['total' => $total]);
 }
 
 /**

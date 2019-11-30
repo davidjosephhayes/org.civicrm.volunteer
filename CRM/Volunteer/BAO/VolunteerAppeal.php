@@ -4,6 +4,18 @@ use CRM_Volunteer_ExtensionUtil as E;
 class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppeal {
 
   /**
+   * @var array
+   *   An array of needs. The results of the search, which will ultimately be returned.
+   */
+  private $searchResults = [];
+
+  /**
+   * @var integer
+   *   Count of search results w/o limt
+   */
+  private $total = null;
+
+  /**
    * Create a Volunteer Appeal for specific project
    *
    * Takes an associative array and creates a Appeal object. This method is
@@ -358,31 +370,57 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
     }
     return parent::copyValues($params, $serializeArrays);
   }
-  
+
   /**
+   * Convenience static method for searching without instantiating the class.
+   *
    * Invoked from the API layer.
    *
-   * Fetch appeal based on search parameter.
-   * @param array $params
-   * @return array $appeals
+   * @param array $userSearchParams
+   *   See setSearchParams();
+   * @return array $this->searchResults
    */
   public static function doSearch($params) {
+    $searcher = new self();
+    return [$searcher->search($params), $searcher->total()];
+  }
+  
+  /**
+   * Performs the search.
+   *
+   * Stashes the results in $this->searchResults.
+   *
+   * @return array $this->searchResults
+   */
+  public function search($params) {
     
     $show_beneficiary_at_front = 1;
     $seperator = CRM_CORE_DAO::VALUE_SEPARATOR;
 
-    $select = " SELECT (select id from civicrm_volunteer_need where civicrm_volunteer_need.is_flexible = 1 and civicrm_volunteer_need.project_id=p.id) as need_flexi_id, appeal.*, addr.name as address_name, addr.street_address, addr.city, addr.postal_code";
-    $select .= " , GROUP_CONCAT(DISTINCT need.id ) as need_id";//,mdt.need_start_time
+    $select = "
+      SELECT SQL_CALC_FOUND_ROWS
+        (select id from civicrm_volunteer_need where civicrm_volunteer_need.is_flexible = 1 and civicrm_volunteer_need.project_id=p.id) as need_flexi_id,
+        appeal.*,
+        addr.name as address_name,
+        addr.street_address,
+        addr.city,
+        addr.postal_code,
+        GROUP_CONCAT(DISTINCT need.id ) as need_id
+    ";//,mdt.need_start_time
     $from = " FROM civicrm_volunteer_appeal AS appeal";
-    $join = " LEFT JOIN civicrm_volunteer_project AS p ON (p.id = appeal.project_id) ";
-    $join .= " LEFT JOIN civicrm_loc_block AS loc ON (loc.id = appeal.loc_block_id) ";
-    $join .= " LEFT JOIN civicrm_address AS addr ON (addr.id = loc.address_id) ";
-    $join .= " LEFT JOIN civicrm_volunteer_need AS need ON (need.project_id = p.id) And need.is_active = 1 And need.is_flexible = 1 And need.visibility_id = 1";
+    $join = " 
+      LEFT JOIN civicrm_volunteer_project AS p ON (p.id = appeal.project_id)
+      LEFT JOIN civicrm_loc_block AS loc ON (loc.id = appeal.loc_block_id)
+      LEFT JOIN civicrm_address AS addr ON (addr.id = loc.address_id)
+      LEFT JOIN civicrm_volunteer_need AS need ON (need.project_id = p.id) And need.is_active = 1 And need.is_flexible = 1 And need.visibility_id = 1
+    ";
     if($show_beneficiary_at_front == 1) {
       $beneficiary_rel_no = CRM_Core_PseudoConstant::getKey("CRM_Volunteer_BAO_ProjectContact", 'relationship_type_id', 'volunteer_beneficiary');
-      $join .= " LEFT JOIN civicrm_volunteer_project_contact AS pc ON (pc.project_id = p.id And pc.relationship_type_id='".$beneficiary_rel_no."') ";
-      $join .= " LEFT JOIN civicrm_contact AS cc ON (cc.id = pc.contact_id) ";
       $select .= " , GROUP_CONCAT(DISTINCT cc.display_name ) as beneficiary_display_name, GROUP_CONCAT(DISTINCT cc.id ) as beneficiary_id";
+      $join .= "
+        LEFT JOIN civicrm_volunteer_project_contact AS pc ON (pc.project_id = p.id And pc.relationship_type_id='".$beneficiary_rel_no."')
+        LEFT JOIN civicrm_contact AS cc ON (cc.id = pc.contact_id)
+      ";
     }
     // Appeal should be active, Current Date between appeal date and related project should be active.
     $where = " Where p.is_active = 1 And appeal.is_appeal_active = 1 And CURDATE() between appeal.active_fromdate and appeal.active_todate ";
@@ -507,7 +545,9 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
       $order = $params["order"];
     }
     // prepare orderby query.
-    $orderby = " GROUP By appeal.id ".$having." ORDER BY " . $orderByColumn . " " . $order;
+    $orderby = "
+      GROUP By appeal.id ".$having."
+      ORDER BY " . $orderByColumn . " " . $order;
     
     // Pagination Logic.
     $no_of_records_per_page = 10;//2;
@@ -519,16 +559,8 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
     $offset = ($page_no-1) * $no_of_records_per_page;
     $limit = " LIMIT ".$offset.", ".$no_of_records_per_page;
     $sql = $select . $from . $join . $where . $orderby . $limit;
-    $dao = new CRM_Core_DAO();
-    $dao->query($sql);
-
-    $sql2 = $select . $from . $join . $where . $orderby;
-    $dao2 = new CRM_Core_DAO();   
-    $dao2->query($sql2);
-    $total_appeals = count($dao2->fetchAll());
-    $appeals = array();
-    $appeals['appeal'] = array();
-    $appeal = [];
+    $dao = CRM_Core_DAO::executeQuery($sql);
+    $this->total = (int)CRM_Core_DAO::singleValueQuery('SELECT FOUND_ROWS()');
 
     // Get the global configuration.
     $config = CRM_Core_Config::singleton();
@@ -537,8 +569,10 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
     $upload_appeal_thumb_directory = $config->imageUploadDir.'appeal/thumb/';
     $default_image_name = "appeal-default-logo-sq.png";
 
+    $appeals = [];
     // Prepare appeal details array with proper format.
     while ($dao->fetch()) {
+      $appeal = [];
       $appeal['id'] = $dao->id;
       $appeal['project_id'] = $dao->project_id;
       $appeal['title'] = $dao->title;
@@ -548,9 +582,9 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
           && file_exists($upload_appeal_medium_directory . $default_image_name)
           && file_exists($upload_appeal_thumb_directory . $default_image_name)
         ) {        
-          $fetchedAppeal->image = $default_image_name;
+          $dao->image = $default_image_name;
         } else {
-          $fetchedAppeal->image = null;
+          $dao->image = null;
         }
       }
       $appeal['image'] = $dao->image;
@@ -590,11 +624,21 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
         $address .= $dao->postal_code;
       }
       $appeal['location'] =  $address;
-      $appeals['appeal'][] = $appeal;
+      
+      $appeals[] = $appeal;
     }
-    $appeals['total_appeal'] = $total_appeals;
 
-    return $appeals;
+    $this->searchResults = $appeals;
+    return $this->searchResults;
+  }
+
+  /**
+   * Returns the count of the previous search
+   * 
+   * @return integer | null if no previous search
+   */
+  public function total(){
+    return $this->total;
   }
 
 }
