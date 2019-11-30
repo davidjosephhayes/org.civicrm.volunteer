@@ -43,6 +43,14 @@
     <is_public>true</is_public>
   </item>
   <item>
+    <path>civicrm/volunteer/profile</path>
+    <page_callback>CRM_Volunteer_Form_VolunteerProfile</page_callback>
+    <title>Volunteer Profile</title>
+    <access_callback>CRM_Volunteer_Permission::check</access_callback>
+    <access_arguments>register to volunteer</access_arguments>
+    <is_public>true</is_public>
+  </item>
+  <item>
     <path>civicrm/admin/options/volunteer_role</path>
     <title>Volunteer Roles</title>
     <desc>Roles available to volunteer projects.</desc>

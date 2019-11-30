@@ -45,8 +45,8 @@
     $scope.view = view;
     $scope.template = "~/volunteer/Assignments" + view.charAt(0).toUpperCase() + view.slice(1).toLowerCase() + ".html";
 
-    //Change reult view
-    $scope.goToProfile = () => $location.path('/volunteer/profile');
+    // Go to Profile Page
+    $scope.goToProfile = () => $window.location.href = CRM.url('/volunteer/profile');
 
     //reset page count and search data
     $scope.resetSearch = () => {

@@ -476,7 +476,7 @@ body {font-family: "Lato", sans-serif;}
 .crm-container .assignment-list tbody tr.registered.completed td,
 .crm-container .fc-event.fc-completed,
 .crm-container .fc-event.fc-registered.fc-completed {
-  background: #e67e22;
+  background: #e67e22 !important;
   color: #fff;
 }
 .crm-container .fc-event.fc-full:hover,

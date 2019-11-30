@@ -120,7 +120,7 @@ function volunteer_civicrm_navigationMenu(&$menu) {
   _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
     'label' => E::ts('Search for Volunteer Opportunities'),
     'name' => 'volunteer_appeal_search',
-    'url' => 'civicrm/vol/#/volunteer/appeals',
+    'url' => 'civicrm/vol/#/volunteer/appeals/grid',
     'permission' => NULL,
     'operator' => NULL,
     'separator' => 0,
@@ -128,8 +128,17 @@ function volunteer_civicrm_navigationMenu(&$menu) {
 
   _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
     'label' => E::ts('My Volunteer Commitments'),
+    'name' => 'volunteer_assignments',
+    'url' => 'civicrm/vol/#/volunteer/assignments/list',
+    'permission' => NULL,
+    'operator' => NULL,
+    'separator' => 0,
+  ]);
+
+  _volunteer_civix_insert_navigation_menu($menu, 'volunteer_volunteers', [
+    'label' => E::ts('My Volunteer Profile'),
     'name' => 'volunteer_profile',
-    'url' => 'civicrm/vol/#/volunteer/commitments',
+    'url' => 'civicrm/volunteer/profile',
     'permission' => NULL,
     'operator' => NULL,
     'separator' => 0,
