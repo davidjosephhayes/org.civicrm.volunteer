@@ -1,0 +1,19 @@
+
+.beneficiary-details {
+  display: flex;
+  flex-direction: coloumn;
+}
+
+.beneficiary-details dl dt {
+  font-weight: bold;
+}
+
+.beneficiary-details__image {
+  width: 120px;
+  margin-right: 20px;
+}
+
+.beneficiary-details__image img {
+  max-width: 100%;
+  height: auto;
+}

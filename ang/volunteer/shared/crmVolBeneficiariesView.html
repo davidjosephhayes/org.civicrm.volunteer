@@ -1,0 +1,13 @@
+<h3 class="crm-vol-beneficiary-block-heading" ng-if="heading">{{heading}}</h3>
+<div class="beneficiary-details" ng-repeat="beneficiary in beneficiaries">
+  <div ng-if="beneficiary.image_URL && showImage" class="beneficiary-details__image">
+    <img ng-src={{beneficiary.image_URL}}>
+  </div>
+  <div class="beneficiary-details__info">
+    <div class="beneficiary-details__info-detail">
+      <strong>{{beneficiary.display_name}}</strong>
+      <p>{{beneficiary.email}}</p>
+    </div>
+    <!-- <a href="#">link</a> -->
+  </div>
+</div>

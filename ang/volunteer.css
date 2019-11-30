@@ -242,25 +242,9 @@ span.crm-button-text {
  flex-basis: auto!important;
 }
 
-.beneficiary-details {
-  display: flex;
-  flex-direction: coloumn;
-
-}
-
-.beneficiary-details__image {
-  width: 120px;
-  margin-right: 20px;
-}
-
-.appeal-image img,
-.beneficiary-details__image img {
+.appeal-image img {
   max-width: 100%;
   height: auto;
-}
-
-.beneficiary-details__info-detail {
-  margin-bottom: 20px;
 }
 
 .search-box{
@@ -462,7 +446,7 @@ body {font-family: "Lato", sans-serif;}
 .crm-container .opportunity-calendar {
   padding-top: 15px;
 }
-.crm-container .fc-past{
+.crm-container .fc-past {
   background-color: #eee;
 }
 .crm-container .fc-event {
@@ -474,12 +458,22 @@ body {font-family: "Lato", sans-serif;}
   cursor: pointer;
   text-decoration: none;
 }
+.crm-container .assignment-list thead th.crm-vol-manage-role_description {
+  cursor: default;
+}
+.crm-container .assignment-list thead th.current-sort {
+  color: #000;
+}
+/* .crm-container .assignment-list tbody tr.registered td, */
 .crm-container .fc-event.fc-full,
 .crm-container .fc-event.fc-registered,
 .crm-container .fc-event.fc-registered.fc-full {
   background-color: #27ae60;
   color: #fff;
 }
+
+.crm-container .assignment-list tbody tr.completed td,
+.crm-container .assignment-list tbody tr.registered.completed td,
 .crm-container .fc-event.fc-completed,
 .crm-container .fc-event.fc-registered.fc-completed {
   background: #e67e22;
@@ -496,4 +490,6 @@ body {font-family: "Lato", sans-serif;}
 .crm-container .fc-event.fc-full:not(.fc-registered):hover {
   color: #000;
 }
-
+.crm-container .assignment-list tbody tr {
+  cursor: pointer;
+}

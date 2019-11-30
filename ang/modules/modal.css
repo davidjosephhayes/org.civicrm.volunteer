@@ -17,6 +17,8 @@
   padding: 20px;
   background: #fff;
   margin: 40px;
+  max-height: calc(100% - 80px);
+  overflow-y: auto;
 }
 .crm-vol-modal .modal-background {
   position: fixed;

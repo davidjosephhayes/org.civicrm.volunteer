@@ -217,14 +217,14 @@
       return crmApi('VolunteerAppeal', 'getsearchresult', params)
         .then(function (data) {
           
-          const appeals = data.values.appeal.map(function(appeal){
+          const appeals = data.values.map(function(appeal){
             appeal.hide_appeal_volunteer_button = parseInt(appeal.hide_appeal_volunteer_button);
             appeal.hide_appeal_volunteer_button = parseInt(appeal.display_volunteer_shift);
             return appeal;
           });
           $scope.appeals = appeals;
                     
-          $scope.totalRec = data.values.total_appeal;
+          $scope.totalRec = data.total;
           $scope.numberOfPages= Math.ceil($scope.totalRec/$scope.pageSize);
           $scope.closeModal('crm-vol-advanced-filters');
           CRM.$('#crm-main-content-wrapper').unblock();

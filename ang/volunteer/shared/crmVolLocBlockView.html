@@ -1,6 +1,6 @@
-<h2 class="m-t-0 crm-vol-loc-block-heading" ng-if="heading && cntAddressParts">{{heading}}</h2>
+<h3 class="crm-vol-loc-block-heading" ng-if="heading && cntAddressParts">{{heading}}</h3>
 <address ng-if="cntAddressParts">
-  {{loc_block.address.name}}<br ng-if="loc_block.address.name" />
+  <strong ng-if="loc_block.address.name">{{loc_block.address.name}}<br /></strong>
   {{loc_block.address.street_address}}<br ng-if="loc_block.address.street_address" />
   {{loc_block.address.city}}<span ng-if="loc_block.address.city">, </span>{{loc_block.address.state_province}} {{loc_block.address.postal_code}}<span ng-if="loc_block.address.postal_code_suffix">-{{loc_block.address.postal_code_suffix}}</span>
 </address>

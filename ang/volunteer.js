@@ -251,10 +251,28 @@
           }, true);
         }],
         scope: {
-          heading: '=',
+          heading: '=?',
           loc_block: '=data'
         },
         templateUrl: '~/volunteer/shared/crmVolLocBlockView.html'
+      };
+    })
+
+    // Example: <crm-vol-beneficiaries-block data="{beneficiaries: project.beneficiaries}" heading="'Beneficiaries'" />
+    // Display a beneficiaries block.
+    .directive('crmVolBeneficiariesBlock', function() {
+      return {
+        restrict: 'E',
+        controller: function($scope){
+          if ($scope.showImage === undefined)
+            $scope.showImage = true;
+        },
+        scope: {
+          heading: '=?',
+          beneficiaries: '=',
+          showImage: '=?',
+        },
+        templateUrl: '~/volunteer/shared/crmVolBeneficiariesView.html'
       };
     })
 

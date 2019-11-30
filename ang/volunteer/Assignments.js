@@ -19,10 +19,14 @@
     $scope.totalRec = 0;
     // only used for list view
     $scope.assignments = [];
-    $scope.start = 0;
+    $scope.offset = 0;
     $scope.limit = 10;
-    $scope.startPage = () => Math.floor($scope.start / $scope.limit) + 1;
-    $scope.totalPages = () => Math.ceil($cope.totalRec / $scope.limit);
+    $scope.order = 'start_time';
+    $scope.dir = 'desc';
+    $scope.calcCurrentPage = () => $scope.currentPage = Math.floor($scope.offset / $scope.limit) + 1;
+    $scope.calcTotalPages = () => $scope.totalPages = $scope.totalRec === 0 ? 1 : Math.ceil($scope.totalRec / $scope.limit);
+    $scope.currentPage = 1;
+    $scope.totalPages = 1;
 
     //Change reult view
     $scope.changeView=  view => {
@@ -45,12 +49,13 @@
     $scope.goToProfile = () => $location.path('/volunteer/profile');
 
     //reset page count and search data
-    $scope.resetSearch = function(){
+    $scope.resetSearch = () => {
       $scope.search = "";
       $scope.offset = 0;
       $scope.searchRes();
     };
     $scope.searchRes = () => {
+      $scope.offset = 0;
       if (view==='calendar')
         volunteerCalendarConfig.calendars.assignments.fullCalendar('refetchEvents');
       if (view==='list')
@@ -58,8 +63,8 @@
     }
 
     // modal window setup
-    $scope.currentEvent = null;
-    $scope.currentEventStatus = '';
+    $scope.currentAssignment = null;
+    $scope.currentAssignmentStatus = '';
     $scope.openModal = id => volunteerModalService.open(id);
     $scope.closeModal = id => volunteerModalService.close(id);
 
@@ -82,23 +87,32 @@
       .then(data => {
 
         $scope.sourceAssignments = data.values;
+        $scope.totalRec = data.total;
+        $scope.calcCurrentPage();
+        $scope.calcTotalPages();
 
         const assignments = data.values
-        .map(need => {
+        .map(assignment => {
+          // add if in past
+          const now = moment();
+          const start = moment(assignment.start_time);
+          assignment.status = 'registered';
+          if (start.isBefore(now))
+            assignment.status = 'completed';
           // add schedule type into object
-          need.schedule_type = 'unknown';
-          if (need.start_time) {
-            if (need.duration === '' || need.duration < 1) {
-              need.schedule_type = 'open';
-            } else if (!need.end_time) {
-              need.schedule_type = 'shift';
+          assignment.schedule_type = 'unknown';
+          if (assignment.start_time) {
+            if (assignment.duration === '' || assignment.duration < 1) {
+              assignment.schedule_type = 'open';
+            } else if (!assignment.end_time) {
+              assignment.schedule_type = 'shift';
             } else {
-              need.schedule_type = 'flexible';
+              assignment.schedule_type = 'flexible';
             }
           } else {
-            console.warn('Need ' + need.id + ' has invalid times'); 
+            console.warn('Assignment ' + assignment.id + ' has invalid times'); 
           }
-          return need;
+          return assignment;
         });
 
         $scope.loading = false;
@@ -116,14 +130,23 @@
 
     if (view === 'list') {
 
+      $scope.changeSort = col => {
+        if (col === $scope.order) {
+          $scope.dir = $scope.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+          $scope.order = col;
+        }
+        $scope.loadList();
+      };
+
       $scope.changePage = direction => {
-        let nextOffset = $scope.start + direction * $scope.limit;
-        if (nextOffset<0 && $scope.start === 0) {
+        let nextOffset = $scope.offset + direction * $scope.limit;
+        if (nextOffset<0 && $scope.offset === 0) {
           alert('This is the first page');
           return;
         }
         if (nextOffset>=$scope.totalRec) {
-          alert('This is the lst page');
+          alert('This is the last page');
           return;
         }
         $scope.offset = nextOffset;
@@ -138,7 +161,7 @@
           options: {
             offset: $scope.offset,
             limit: $scope.limit,
-            sort: 'start_time desc',
+            sort: $scope.order + ' ' + $scope.dir,
           },
         };
 
@@ -150,6 +173,11 @@
           $scope.assignments = assignments;
         });
       }
+
+      $scope.rowClick = assignment => {
+        $scope.currentAssignment = assignment;
+        $scope.openModal('crm-vol-assignment-info');
+      };
 
       $scope.loadList();
     }
@@ -165,10 +193,7 @@
             right: 'today prev,next'
           },
           eventClick: (calEvent, jsEvent, view) => {
-            $scope.currentEvent = calEvent;
-            $scope.currentEventStatus = 'registered';
-            if (calEvent.className.includes('fc-completed'))
-              $scope.currentEventStatus = 'completed';
+            $scope.currentAssignment = calEvent.assignment;
             $scope.openModal('crm-vol-assignment-info');
           },
           viewRender: currentView => {
@@ -219,10 +244,9 @@
               (assignment.schedule_type === 'shift' || assignment.schedule_type === 'flexible')
             ))
             .map(assignment => {
-              const now = moment();
               const start = moment(assignment.start_time);
               const classNames = ['fc-registered'];
-              if (start.isBefore(now))
+              if (assignment.status==='completed')
                 classNames.push('fc-completed');
               const eventSource = {
                 id: assignment.id,
