@@ -56,8 +56,7 @@ class CRM_Volunteer_BAO_NeedSearch {
         'role_id' => [],
       ],
       'options' => [
-        'order' => 'project.id',
-        'dir' => 'asc',
+        'sort' => 'project.id asc',
         'offset' => 0,
         'limit' => 0,
       ],
