@@ -1,7 +1,35 @@
-/** Keeps the help text/project description wrapper from screwing up the UI on signup **/
-
-.vol-project-description-wrapper,
-.vol-role-description-wrapper
- {
-  display: none;
+.crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .welcome-contact,
+.crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .search-display {
+  flex: 1;
+}
+.crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .welcome-contact h2 {
+  margin: 0 10px;
+}
+.crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .search-display {
+  text-align: right;
+}
+.crm-volunteer-profile-form-block .crm-volunteer-profile-summary {
+  margin-top: 20px;
+  display: flex;
+}
+.crm-volunteer-profile-form-block .crm-volunteer-profile-summary > div {
+  flex: 0 1 50%;
+}
+.crm-volunteer-profile-form-block .crm-volunteer-profile-summary .crm-volunteer-profile-image {
+  text-align: center;
+}
+.crm-volunteer-profile-form-block .crm-volunteer-profile-summary .crm-volunteer-profile-image img {
+  max-width: 100%;
+  height: auto;
+}
+.crm-volunteer-profile-form-block .crm-volunteer-profile-profiles {
+  margin-top: 20px;
+}
+.crm-volunteer-profile-form-block .crm-submit-buttons {
+  margin-top: 20px;
 }
