@@ -53,13 +53,6 @@ class CRM_Volunteer_Form_VolunteerProfile extends CRM_Core_Form {
   protected $_contact_profile_ids = [];
 
   /**
-   * The contact ID of the primary volunteer.
-   *
-   * @var int
-   */
-  protected $_contact_id;
-
-  /**
    * The contact infomrat.
    *
    * @var array
@@ -207,7 +200,7 @@ class CRM_Volunteer_Form_VolunteerProfile extends CRM_Core_Form {
     $activityValues = array_intersect_key($values, $activityFields);
     $contactValues = array_diff_key($values, $activityValues);
 
-    $this->_contact_id = $this->processContactProfileData($contactValues, $profileFields);
+    $this->processContactProfileData($contactValues, $profileFields);
 
     $statusMsg = ts('Awesome! We appreciate you keeping your profile up to date.', ['domain' => 'org.civicrm.volunteer']);
     CRM_Core_Session::setStatus($statusMsg, '', 'success');
