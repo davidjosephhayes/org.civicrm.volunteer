@@ -1,6 +1,6 @@
 ((angular, $, _) => {
 
-  angular.module('volunteer').config( $routeProvider => {
+  angular.module('volunteer').config($routeProvider => {
     $routeProvider.when('/volunteer/assignments/:view?', {
       controller: 'Assignments',
       // update the search params in the URL without reloading the route     
@@ -10,12 +10,19 @@
     });
   });
 
-  angular.module('volunteer').controller('Assignments', ($route, $routeParams, $scope, crmApi, $window, $location, volunteerCalendarConfig, volunteerModalService)  => {
+  angular.module('volunteer').controller('Assignments', function($route, $routeParams, $scope, crmApi, $window, $location, volunteerCalendarConfig, volunteerModalService){
 
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
     
+    $scope.loading = false;
     $scope.search = "";
-    $scope.totalRec;
+    $scope.totalRec = 0;
+    // only used for list view
+    $scope.assignments = [];
+    $scope.start = 0;
+    $scope.limit = 10;
+    $scope.startPage = () => Math.floor($scope.start / $scope.limit) + 1;
+    $scope.totalPages = () => Math.ceil($cope.totalRec / $scope.limit);
 
     //Change reult view
     $scope.changeView=  view => {
@@ -40,9 +47,15 @@
     //reset page count and search data
     $scope.resetSearch = function(){
       $scope.search = "";
+      $scope.offset = 0;
       $scope.searchRes();
     };
-    $scope.searchRes = () => volunteerCalendarConfig.calendars.assignments.fullCalendar('refetchEvents');
+    $scope.searchRes = () => {
+      if (view==='calendar')
+        volunteerCalendarConfig.calendars.assignments.fullCalendar('refetchEvents');
+      if (view==='list')
+        $scope.loadList();
+    }
 
     // modal window setup
     $scope.currentEvent = null;
@@ -50,11 +63,13 @@
     $scope.openModal = id => volunteerModalService.open(id);
     $scope.closeModal = id => volunteerModalService.close(id);
 
+    // just keeping track of what the api returned
     $scope.sourceAssignments = [];
 
     // get assignments
     const getAssignments = (params, method) => {
 
+      $scope.loading = true;
       CRM.$('#crm-main-content-wrapper').block();
 
       method = method || 'get';
@@ -86,12 +101,14 @@
           return need;
         });
 
+        $scope.loading = false;
         CRM.$('#crm-main-content-wrapper').unblock();
 
         return assignments;
       })
       .catch(error => {
         CRM.alert(error.is_error ? error.error_message : error, ts("Error"), "error");
+        $scope.loading = false;
         CRM.$('#crm-main-content-wrapper').unblock();
         reject();
       });
@@ -99,19 +116,42 @@
 
     if (view === 'list') {
 
-      const params = {
-        // date_start: start.format("YYYY-MM-DD HH:mm:ss"),
-        // date_end: end.format("YYYY-MM-DD HH:mm:ss"),
-        options: {
-          limit: 0,
-        },
-      };
+      $scope.changePage = direction => {
+        let nextOffset = $scope.start + direction * $scope.limit;
+        if (nextOffset<0 && $scope.start === 0) {
+          alert('This is the first page');
+          return;
+        }
+        if (nextOffset>=$scope.totalRec) {
+          alert('This is the lst page');
+          return;
+        }
+        $scope.offset = nextOffset;
+        $scope.loadList();
+      }
+      
+      $scope.loadList = () => {
+        
+        $scope.assignments = [];
+        
+        const params = {
+          options: {
+            offset: $scope.offset,
+            limit: $scope.limit,
+            sort: 'start_time desc',
+          },
+        };
 
-      if ($scope.search)
-        params.search = $scope.search;
+        if ($scope.search)
+          params.search = $scope.search;
 
-      getAssignments(params)
+        getAssignments(params)
+        .then(assignments => {
+          $scope.assignments = assignments;
+        });
+      }
 
+      $scope.loadList();
     }
 
     if (view === 'calendar') {

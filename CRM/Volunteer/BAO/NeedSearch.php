@@ -210,7 +210,7 @@ class CRM_Volunteer_BAO_NeedSearch {
     }
 
     // Order and limit by Logic.
-    $orderby = " group by need.id ORDER BY " . CRM_Core_DAO::escapeString($this->searchParams['options']['order'] . " " . $this->searchParams['options']['dir']);
+    $orderby = " group by need.id ORDER BY " . CRM_Core_DAO::escapeString($this->searchParams['options']['sort']);
     $limit = $this->searchParams['options']['limit'] === 0 ?  "" : " LIMIT " . (int)$this->searchParams['options']['offset'] . ", " . (int)$this->searchParams['options']['limit'];
     
     // Prepare whole sql query dynamic.
@@ -411,13 +411,9 @@ class CRM_Volunteer_BAO_NeedSearch {
 
     $options = CRM_Utils_Array::value('options', $userSearchParams);
     if ($options) {
-      $order = CRM_Utils_Array::value('order', $options);
-      if ($order) {
-        $this->searchParams['options']['order'] = $order;
-      }
-      $dir = CRM_Utils_Array::value('dir', $options);
-      if ($dir) {
-        $this->searchParams['options']['dir'] = $dir;
+      $sort = CRM_Utils_Array::value('sort', $options);
+      if ($sort) {
+        $this->searchParams['options']['sort'] = $sort;
       }
       $offset = (int)CRM_Utils_Array::value('offset', $options);
       if ($offset) {
