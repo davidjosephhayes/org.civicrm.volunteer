@@ -118,6 +118,20 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
 
     $this->addProjectRelationshipFields();
 
+    $this->add(
+      'select',
+      'volunteer_profile_default_profiles',
+      'Profile(s) for Volunteer Profile Page',
+      $profileList,
+      false, // is required,
+      [
+        "placeholder" => ts("- none -", ['domain' => 'org.civicrm.volunteer']),
+        "multiple" => "multiple",
+        "class" => "crm-select2",
+        "data-fieldgroup" => "CiviVolunteer Global Settings"
+      ]
+    );
+
     /*     * * Fields for Campaign Whitelist/Blacklist ** */
     $this->add(
       'select',
@@ -332,6 +346,10 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
 
     civicrm_api3('Setting', 'create', [
       'volunteer_project_default_contacts' => $this->formatDefaultContacts()
+    ]);
+
+    civicrm_api3('Setting', 'create', [
+      "volunteer_profile_default_profiles" => CRM_Utils_Array::value('volunteer_profile_default_profiles', $values),
     ]);
 
     //Whitelist/Blacklist settings

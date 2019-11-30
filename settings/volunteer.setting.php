@@ -83,6 +83,22 @@ return array(
     'description' => '',
     'help_text' => '',
   ),
+  'volunteer_profile_default_profiles' => array(
+    'group_name' => 'CiviVolunteer Global Settings',
+    'group' => 'org.civicrm.volunteer',
+    'name' => 'volunteer_profile_default_profiles',
+    'type' => 'Array',
+    'default' => array(
+      "primary" => array(civicrm_api3('UFGroup', 'getvalue', array(
+        "name" => "volunteer_sign_up",
+        "return" => "id"
+      )))),
+    'add' => '4.5',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'description' => 'Profile(s) for Volunteer Profile Page',
+    'help_text' => 'These profiles will be available for update on the volunteer profile page',
+  ),
   'volunteer_general_campaign_filter_type' => array(
     'group_name' => 'CiviVolunteer Global Settings',
     'group' => 'org.civicrm.volunteer',

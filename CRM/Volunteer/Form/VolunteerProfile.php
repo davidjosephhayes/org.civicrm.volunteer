@@ -134,21 +134,25 @@ class CRM_Volunteer_Form_VolunteerProfile extends CRM_Core_Form {
    *   UFGroup (Profile) Ids
    */
   function getContactProfileIds() {
-    // if (empty($this->_contact_profile_ids)) {
-    //   $profileIds = [];
-
-    //   foreach ($this->_projects as $project) {
-    //     foreach ($project['profiles'] as $profile) {
-    //       if ($this->getProfileAudience($profile) !== "additional") {
-    //         $profileIds[] = $profile['uf_group_id'];
-    //       }
-    //     }
-    //   }
-
-    //   $this->_contact_profile_ids = array_unique($profileIds);
-    // }
-
-    $this->_contact_profile_ids[] = 16;
+    if (empty($this->_contact_profile_ids)) {
+      
+      $coreDefaultProfile = [
+        "is_active" => "1",
+        "module" => "CiviVolunteer",
+        "entity_table" => "civicrm_volunteer_project",
+        "weight" => 1,
+        "module_data" => ["audience" => "primary"],
+        "uf_group_id" => civicrm_api3('UFGroup', 'getvalue', [
+          "name" => "volunteer_sign_up",
+          "return" => "id"
+        ]),
+      ];
+  
+      $this->_contact_profile_ids = civicrm_api3('Setting', 'getvalue', [
+        'name' => 'volunteer_profile_default_profiles',
+      ]);
+    }
+    
     return $this->_contact_profile_ids;
   }
 
