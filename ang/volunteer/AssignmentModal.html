@@ -1,7 +1,7 @@
 <div volunteer-modal id="crm-vol-assignment-info">
   <div class="modal">
     <div class="modal-body">
-      <!-- <h2>{{currentEvent.title}}</h2> -->
+      <!-- <h3>{{currentEvent.title}}</h3> -->
       <div ng-if="currentEventStatus" class="crm-vol-event-status messages status no-popup" ng-class="{'crm-ok': currentEventStatus==='completed'}">
         <div class="icon inform-icon"></div>
         <span ng-if="currentEventStatus==='registered'">
@@ -11,7 +11,7 @@
             <strong>{{ts("Thanks!")}}</strong> {{ts('This commitment is complete. We appreciate your efforts!')}}
         </span>
       </div>
-      <h2 class="m-t-0">Timeframe</h2>
+      <h3>Timeframe</h3>
       <div ng-switch="currentEvent.assignment.schedule_type">
         <div ng-switch-when="open">
           <p>This opportunity is available at a variety of times or on an ongoing basis. Check the project description for more details.</p>
@@ -26,12 +26,12 @@
           <p>Please contact us to learn more about this opportunity availablity.
         </div>
       </div>
-      <h2 class="m-t-0">Role - {{currentEvent.assignment.role_label}}</h2>
+      <h3>Role - {{currentEvent.assignment.role_label}}</h3>
       <div ng-bind-html="currentEvent.assignment.role_description"></div>
-      <h2 class="m-t-0">Project - {{currentEvent.assignment.project.title}}</h2>
+      <h3>Project - {{currentEvent.assignment.project.title}}</h3>
       <div ng-bind-html="currentEvent.assignment.project.description"></div>
       <crm-vol-loc-block data="{address: currentEvent.assignment.project.location}" heading="'Location'" />
-      <h2 class="m-t-0">Beneficiaries</h2>
+      <h3>Beneficiaries</h3>
       <div class="beneficiary-details" ng-repeat="beneficiary in currentEvent.assignment.project.beneficiaries">
         <div ng-if="beneficiary.image_URL" class="beneficiary-details__image">
            <img ng-src={{beneficiary.image_URL}}>
