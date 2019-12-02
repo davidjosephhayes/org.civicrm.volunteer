@@ -142,7 +142,7 @@ class CRM_Volunteer_Form_VolunteerProfile extends CRM_Core_Form {
       ];
   
       $this->_contact_profile_ids = civicrm_api3('Setting', 'getvalue', [
-        'name' => 'volunteer_profile_default_profiles',
+        'name' => 'volunteer_general_profile_profiles',
       ]);
     }
     

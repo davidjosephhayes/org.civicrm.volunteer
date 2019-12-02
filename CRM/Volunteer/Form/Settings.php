@@ -120,7 +120,7 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
 
     $this->add(
       'select',
-      'volunteer_profile_default_profiles',
+      'volunteer_general_profile_profiles',
       'Profile(s) for Volunteer Profile Page',
       $profileList,
       false, // is required,
@@ -276,6 +276,7 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
     }
 
     // General Settings
+    $defaults['volunteer_general_profile_profiles'] = CRM_Utils_Array::value('volunteer_general_profile_profiles', $this->_settings);
     $defaults['volunteer_general_campaign_filter_type'] = CRM_Utils_Array::value('volunteer_general_campaign_filter_type', $this->_settings);
     $defaults['volunteer_general_campaign_filter_list'] = CRM_Utils_Array::value('volunteer_general_campaign_filter_list', $this->_settings);
     $defaults['volunteer_general_project_settings_help_text'] = CRM_Utils_Array::value('volunteer_general_project_settings_help_text', $this->_settings);
@@ -349,7 +350,7 @@ class CRM_Volunteer_Form_Settings extends CRM_Core_Form {
     ]);
 
     civicrm_api3('Setting', 'create', [
-      "volunteer_profile_default_profiles" => CRM_Utils_Array::value('volunteer_profile_default_profiles', $values),
+      "volunteer_general_profile_profiles" => CRM_Utils_Array::value('volunteer_general_profile_profiles', $values),
     ]);
 
     //Whitelist/Blacklist settings
