@@ -10,29 +10,29 @@
  * https://civicrm.org/blogs/totten/api-and-art-installation).
  */
 
-return array(
-  array(
+return [
+  [
     'module' => 'org.civicrm.volunteer',
     'name' => 'CiviVolunteer - Volunteer Project Extensibility Registration',
     'entity' => 'OptionValue',
-    'params' => array(
+    'params' => [
       'version' => 3,
       'option_group_id' => 'cg_extend_objects',
       'label' => 'Volunteer Project',
       'value' => 'VolunteerProject',
       'name' => 'civicrm_volunteer_project',
-    ),
-  ),
-  array(
+    ],
+  ],
+  [
     'module' => 'org.civicrm.volunteer',
     'name' => 'CiviVolunteer - Volunteer Project Appeal Extensibility',
     'entity' => 'OptionValue',
-    'params' => array(
+    'params' => [
       'version' => 3,
       'option_group_id' => 'cg_extend_objects',
       'label' => ts('Volunteer Appeal'),
       'value' => 'VolunteerAppeal',
       'name' => 'civicrm_volunteer_appeal',
-    ),
-  ),
-);
+    ],
+  ],
+];
