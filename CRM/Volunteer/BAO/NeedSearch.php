@@ -42,7 +42,7 @@ class CRM_Volunteer_BAO_NeedSearch {
    *
    * @param array $userSearchParams
    *   See setSearchParams();
-   * @return array $this->searchResults
+   * @return array [$this->searchResults, $this->total]
    */
   public static function doSearch ($userSearchParams) {
     $searcher = new self($userSearchParams);
