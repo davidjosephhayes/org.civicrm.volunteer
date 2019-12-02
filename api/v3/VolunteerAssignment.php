@@ -108,3 +108,17 @@ function civicrm_api3_volunteer_assignment_delete($params) {
   return _civicrm_api3_basic_delete('CRM_Activity_BAO_Activity', $params);
 }
 
+/**
+ * Returns statistics on assignments.
+ *
+ * This API is used with the volunteer opportunities search UI. Same paramaters as get.
+ *
+ * @param array $params
+ *   See CRM_Volunteer_BAO_Assignment::stats().
+ *
+ * @return array
+ */
+function civicrm_api3_volunteer_assignment_getstats($params) {
+  $result = CRM_Volunteer_BAO_Assignment::stats($params);
+  return civicrm_api3_create_success($result, $params, 'Assignment', 'stats');
+}

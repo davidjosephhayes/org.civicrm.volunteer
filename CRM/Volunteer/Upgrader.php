@@ -910,4 +910,28 @@ class CRM_Volunteer_Upgrader extends CRM_Volunteer_Upgrader_Base {
     $this->executeSqlFile('sql/volunteer_upgrade_with_appeal_2.1.sql');
   }
 
+   /**
+   * CiviVolunteer 2303 update adds a weight to Volunteer Assignments for stats, badge tracking
+   *
+   * @return boolean TRUE on success
+   */
+  public function upgrade_2303() {
+    $this->ctx->log->info('Applying update 2303 - CiviVolunteer Volunteer Assignment Weight');
+    $this->createPossibleDuplicateRecord('CustomField', [
+      'custom_group_id' => "CiviVolunteer",
+      'name' => "Time_Completed_Weight",
+      'label' => "Time Completed Weight",
+      'data_type' => "Float",
+      'default_value' => 1,
+      'html_type' => "Text",
+      'is_required' => 0,
+      'is_searchable' => 0,
+      'is_search_range' => 0,
+      'weight' => 4,
+      'is_active' => 1,
+      'is_view' => 0,
+    ]);
+
+    return TRUE;
+  }
 }

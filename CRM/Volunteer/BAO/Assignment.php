@@ -99,7 +99,7 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
    * @param array $where Array of extra where clauses
    * @return string of SQL
    */
-  public static function retrieveQuery(array $params, $where = []) {
+  public static function retrieveQuery(array $params, array $where = []) {
 
     $activity_fields = CRM_Activity_DAO_Activity::fields();
     $contact_fields = CRM_Contact_DAO_Contact::fields();
@@ -246,6 +246,61 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
     ";
 
     return CRM_Core_DAO::composeQuery($query, $placeholders);
+  }
+
+  public function stats(array $params) {
+
+    $query = self::retrieveQuery($params);
+
+    $allTime = CRM_Core_DAO::executeQuery("
+      SELECT
+        SUM(time_completed_minutes) AS sum,
+        SUM(time_completed_minutes * time_completed_weight) AS weighted
+      FROM ($query) AS mainquery
+    ;");
+    $allTime->fetch();
+
+    $yearToDate = CRM_Core_DAO::executeQuery("
+      SELECT
+        SUM(time_completed_minutes) AS sum,
+        SUM(time_completed_minutes * time_completed_weight) AS weighted
+      FROM ($query) AS mainquery
+      WHERE 1
+        AND
+        start_time>=(LAST_DAY(NOW() - INTERVAL 1 YEAR) + INTERVAL 1 DAY)
+    ;");
+    $yearToDate->fetch();
+
+    $monthToDate = CRM_Core_DAO::executeQuery("
+      SELECT
+        SUM(time_completed_minutes) AS sum,
+        SUM(time_completed_minutes * time_completed_weight) AS weighted
+      FROM ($query) AS mainquery
+      WHERE start_time>=(LAST_DAY(NOW() - INTERVAL 1 MONTH) + INTERVAL 1 DAY)
+    ;");
+    $monthToDate->fetch();
+
+    $weekToDate = CRM_Core_DAO::executeQuery("
+      SELECT
+        SUM(time_completed_minutes) AS sum,
+        SUM(time_completed_minutes * time_completed_weight) AS weighted
+      FROM ($query) AS mainquery
+      WHERE start_time>=(CURDATE() - INTERVAL MOD(WEEKDAY(NOW()) + 1, 7) DAY)
+    ;");
+    $weekToDate->fetch();
+
+    return [
+      // raw stats
+      'all_time' => (int)$allTime->sum,
+      'year_to_date' => (int)$yearToDate->sum,
+      'month_to_date' => (int)$monthToDate->sum,
+      'week_to_date' => (int)$weekToDate->sum,
+      // weighted stats
+      'weighted_all_time' => (int)$allTime->weighted,
+      'weighted_year_to_date' => (int)$yearToDate->weighted,
+      'weighted_month_to_date' => (int)$monthToDate->weighted,
+      'weighted_week_to_date' => (int)$weekToDate->weighted,
+    ];
   }
 
   /**
