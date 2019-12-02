@@ -1,7 +1,7 @@
 <?php
 
-return array(
-  'slider_widget_fields' => array(
+return [
+  'slider_widget_fields' => [
     'group_name' => 'CiviVolunteer Configurations',
     'group' => 'org.civicrm.volunteer',
     'name' => 'slider_widget_fields',
@@ -12,26 +12,25 @@ return array(
     'is_contact' => 0,
     'description' => 'Fields which are configured to use the slider widget',
     'help_text' => 'Which fields should use the slider widget?',
-  ),
-
-  'volunteer_project_default_profiles' => array(
+  ],
+  'volunteer_project_default_profiles' => [
     'group_name' => 'Default Project Settings',
     'group' => 'org.civicrm.volunteer',
     'name' => 'volunteer_project_default_profiles',
     'type' => 'Array',
-    'default' => array(
-      "primary" => array(civicrm_api3('UFGroup', 'getvalue', array(
+    'default' => [
+      "primary" => [civicrm_api3('UFGroup', 'getvalue', [
         "name" => "volunteer_sign_up",
         "return" => "id"
-      )))),
+      ])]],
     'add' => '4.5',
     'is_domain' => 1,
     'is_contact' => 0,
     'description' => 'Profiles for new Volunteer Projects',
     'help_text' => '',
-  ),
+  ],
 
-  'volunteer_project_default_campaign' => array(
+  'volunteer_project_default_campaign' => [
     'group_name' => 'Default Project Settings',
     'group' => 'org.civicrm.volunteer',
     'name' => 'volunteer_project_default_campaign',
@@ -42,8 +41,8 @@ return array(
     'is_contact' => 0,
     'description' => 'Campaign for new Volunteer Projects',
     'help_text' => '',
-  ),
-  'volunteer_project_default_locblock' => array(
+  ],
+  'volunteer_project_default_locblock' => [
     'group_name' => 'Default Project Settings',
     'group' => 'org.civicrm.volunteer',
     'name' => 'volunteer_project_default_locblock',
@@ -54,8 +53,8 @@ return array(
     'is_contact' => 0,
     'description' => 'Location for new Volunteer Projects',
     'help_text' => '',
-  ),
-  'volunteer_project_default_is_active' => array(
+  ],
+  'volunteer_project_default_is_active' => [
     'group_name' => 'Default Project Settings',
     'group' => 'org.civicrm.volunteer',
     'name' => 'volunteer_project_default_is_active',
@@ -66,40 +65,40 @@ return array(
     'is_contact' => 0,
     'description' => 'Active status for new Volunteer Projects',
     'help_text' => 'Should new Projects default to being active?',
-  ),
-  'volunteer_project_default_contacts' => array(
+  ],
+  'volunteer_project_default_contacts' => [
     'group_name' => 'Default Project Settings',
     'group' => 'org.civicrm.volunteer',
     'name' => 'volunteer_project_default_contacts',
     'type' => 'Array',
-    'default' => array(
-      "volunteer_owner" => array("mode" => "acting_contact", "value" => "1"),
-      "volunteer_manager" => array("mode" => "acting_contact", "value" => "1"),
-      "volunteer_beneficiary" => array("mode" => "relationship", "value" => "5_a"),
-    ),
+    'default' => [
+      "volunteer_owner" => ["mode" => "acting_contact", "value" => "1"],
+      "volunteer_manager" => ["mode" => "acting_contact", "value" => "1"],
+      "volunteer_beneficiary" => ["mode" => "relationship", "value" => "5_a"],
+    ],
     'add' => '4.5',
     'is_domain' => 1,
     'is_contact' => 0,
     'description' => '',
     'help_text' => '',
-  ),
-  'volunteer_profile_default_profiles' => array(
+  ],
+  'volunteer_general_profile_profiles' => [
     'group_name' => 'CiviVolunteer Global Settings',
     'group' => 'org.civicrm.volunteer',
-    'name' => 'volunteer_profile_default_profiles',
+    'name' => 'volunteer_general_profile_profiles',
     'type' => 'Array',
-    'default' => array(
-      "primary" => array(civicrm_api3('UFGroup', 'getvalue', array(
+    'default' => [
+      "primary" => [civicrm_api3('UFGroup', 'getvalue', [
         "name" => "volunteer_sign_up",
         "return" => "id"
-      )))),
+      ])]],
     'add' => '4.5',
     'is_domain' => 1,
     'is_contact' => 0,
     'description' => 'Profile(s) for Volunteer Profile Page',
     'help_text' => 'These profiles will be available for update on the volunteer profile page',
-  ),
-  'volunteer_general_campaign_filter_type' => array(
+  ],
+  'volunteer_general_campaign_filter_type' => [
     'group_name' => 'CiviVolunteer Global Settings',
     'group' => 'org.civicrm.volunteer',
     'name' => 'volunteer_general_campaign_filter_type',
@@ -110,20 +109,20 @@ return array(
     'is_contact' => 0,
     'description' => 'Campaign Filter Whitelist/Blacklist',
     'help_text' => 'Whether Volunteer should use the campaign type list as a Blacklist or a Whitelist',
-  ),
-  'volunteer_general_campaign_filter_list' => array(
+  ],
+  'volunteer_general_campaign_filter_list' => [
     'group_name' => 'CiviVolunteer Global Settings',
     'group' => 'org.civicrm.volunteer',
     'name' => 'volunteer_general_campaign_filter_list',
     'type' => 'Array',
-    'default' => array(),
+    'default' => [],
     'add' => '4.5',
     'is_domain' => 1,
     'is_contact' => 0,
     'description' => 'Campaign Type(s)',
     'help_text' => 'Depending on the value of the Campaign Filter Whitelist/Blacklist setting, the campaign types in this list will either be shown or hidden from CiviVolunteer screens.',
-  ),
-  'volunteer_general_project_settings_help_text' => array(
+  ],
+  'volunteer_general_project_settings_help_text' => [
     'group_name' => 'CiviVolunteer Global Settings',
     'group' => 'org.civicrm.volunteer',
     'name' => 'volunteer_general_project_settings_help_text',
@@ -142,6 +141,5 @@ return array(
     'is_domain' => 1,
     'is_contact' => 0,
     'description' => 'Help Text for the Project Settings Screen',
-  ),
-
-);
+  ],
+];
