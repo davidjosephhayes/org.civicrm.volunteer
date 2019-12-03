@@ -4,7 +4,7 @@
     <div class="crm-block ui-tabs ui-widget ui-widget-content ui-corner-all">
       <div class="crm-group">
         <div class="welcome-contact">
-          <h2>Welcome {$contact.first_name}!</h2>
+          <h2>{ts}Welcome{/ts} {$contact.first_name}!</h2>
         </div>
         <div class="search-display">
           <a class="grid_view_button grid_active button"><i class="fa fa-user"></i></a>
@@ -22,6 +22,46 @@
 			{else}
 				-- no image --
 			{/if}
+    </div>
+    <div class="crm-volunteer-profile-stats">
+      <table>
+        <caption>{ts}My Contributions{/ts}</caption>
+        <thead>
+          <th></th>
+          <th scope="col">{ts}This Week{/ts}</th>
+          <th scope="col">{ts}This Month{/ts}</th>
+          <th scope="col">{ts}This Year{/ts}</th>
+          <th scope="col">{ts}All Time{/ts}</th>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Hours</th>
+            <td>
+              {assign var="week_to_date" value=$stats.week_to_date/60}
+              {$week_to_date|number_format:1}
+            </td>
+            <td>
+              {assign var="month_to_date" value=$stats.month_to_date/60}
+              {$month_to_date|number_format:1}
+            </td>
+            <td>
+              {assign var="year_to_date" value=$stats.year_to_date/60}
+              {$year_to_date|number_format:1}
+            </td>
+            <td>
+              {assign var="all_time" value=$stats.all_time/60}
+              {$all_time|number_format:1}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Points Earned</th>
+            <td>{$stats.weighted_week_to_date|number_format:0}</td>
+            <td>{$stats.weighted_month_to_date|number_format:0}</td>
+            <td>{$stats.weighted_year_to_date|number_format:0}</td>
+            <td>{$stats.weighted_all_time|number_format:0}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 

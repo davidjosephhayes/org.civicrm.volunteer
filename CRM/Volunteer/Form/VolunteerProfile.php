@@ -160,7 +160,15 @@ class CRM_Volunteer_Form_VolunteerProfile extends CRM_Core_Form {
 
     $contact = $this->getContact();    
     $this->assign('contact', $contact);
-    
+
+    $volunteerStatus = CRM_Activity_BAO_Activity::buildOptions('status_id', 'validate');
+    $completed =  CRM_Utils_Array::key('Completed', $volunteerStatus);
+    $statsResult = civicrm_api3('VolunteerAssignment', 'getstats', [
+      'assignee_contact_id' => $contact['id'],
+      'activity_status_id' => $completed,
+    ]);
+    $this->assign('stats', $statsResult['values']);
+
     $profiles = $this->buildCustom($this->getContactProfileIds());
     $this->assign('customProfiles', $profiles);
 

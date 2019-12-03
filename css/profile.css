@@ -3,6 +3,11 @@
   .crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group .search-display {
     margin-bottom: 10px;
   }
+  .crm-volunteer-profile-form-block .crm-vol-opp-search,
+  .crm-volunteer-profile-form-block .crm-volunteer-profile-summary .crm-volunteer-profile-image,
+  .crm-volunteer-profile-form-block .crm-volunteer-profile-summary .crm-volunteer-profile-stats {
+    margin-bottom: 15px;
+  }
 }
 @media (min-width: 1001px) {
   .crm-volunteer-profile-form-block .crm-vol-opp-search .crm-group {
@@ -21,14 +26,20 @@
     align-self: flex-end;
     text-align: right;
   }
-}
-.crm-volunteer-profile-form-block .crm-volunteer-profile-summary {
-  margin-top: 20px;
-  display: flex;
-  flex-wrap: wrap;
-}
-.crm-volunteer-profile-form-block .crm-volunteer-profile-summary > div {
-  flex: 0 1 50%;
+  .crm-volunteer-profile-form-block .crm-volunteer-profile-summary {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .crm-volunteer-profile-form-block .crm-volunteer-profile-summary > div {
+    flex: 0 1 50%;
+  }
+  .crm-volunteer-profile-form-block .crm-volunteer-profile-summary .crm-volunteer-profile-image {
+    padding: 0 10px 0 0;
+  }
+  .crm-volunteer-profile-form-block .crm-volunteer-profile-summary .crm-volunteer-profile-stats {
+    padding: 0 0 0 10px;
+  }
 }
 .crm-volunteer-profile-form-block .crm-volunteer-profile-summary .crm-volunteer-profile-image {
   text-align: center;
@@ -36,6 +47,18 @@
 .crm-volunteer-profile-form-block .crm-volunteer-profile-summary .crm-volunteer-profile-image img {
   max-width: 100%;
   height: auto;
+}
+
+.crm-volunteer-profile-form-block .crm-volunteer-profile-summary .crm-volunteer-profile-stats thead th,
+.crm-volunteer-profile-form-block .crm-volunteer-profile-summary .crm-volunteer-profile-stats tbody td {
+  text-align: center;
+}
+.crm-volunteer-profile-form-block .crm-volunteer-profile-summary .crm-volunteer-profile-stats th {
+  color: #3E3E3E;
+}
+.crm-volunteer-profile-form-block .crm-volunteer-profile-summary .crm-volunteer-profile-stats caption {
+  font-size: 24px;
+  font-weight: 700;
 }
 .crm-volunteer-profile-form-block .crm-volunteer-profile-profiles {
   margin-top: 20px;

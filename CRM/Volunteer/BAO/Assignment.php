@@ -144,10 +144,15 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
     $placeholders = [
       1 => [$assigneeID, 'Integer'],
       2 => [self::getActivityTypeId(), 'Integer'],
-      3 => [$scheduled, 'Integer'],
-      4 => [$available, 'Integer'],
-      5 => [$targetID, 'Integer'],
+      3 => [$targetID, 'Integer'],
     ];
+    
+    // allow status id to be passed as a filter, but default to scheduled and available
+    if (empty($params['activity_status_id'])) {
+      $placeholders[4] = [$scheduled, 'Integer'];
+      $placeholders[5] = [$available, 'Integer'];
+      $where[] = 'civicrm_activity.status_id IN (%4, %5)';
+    }
 
     $i = count($placeholders) + 1;
     $whereClause = NULL;
@@ -177,9 +182,18 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
         $dataType = 'Int';
         $fieldName = 'contact_id';
         $tableName = 'assignee'; // this is an alias for civicrm_activity_contact
+      } else {
+        // not supported?
+        continue;
       }
-      $where[] = "{$tableName}.{$fieldName} = %{$i}";
 
+      // support array values
+      if (is_array($value)) {
+        $where[] = "{$tableName}.{$fieldName} IN (" . CRM_Core_DAO::escapeStrings($value) . ")";
+        continue;
+      }
+
+      $where[] = "{$tableName}.{$fieldName} = %{$i}";
       $placeholders[$i] = [$value, $dataType];
       $i++;
     }
@@ -225,7 +239,7 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
       LEFT JOIN civicrm_activity_contact tgt
         ON (
           tgt.activity_id = civicrm_activity.id
-          AND tgt.record_type_id = %5
+          AND tgt.record_type_id = %3
         )
       LEFT JOIN civicrm_contact tgt_contact
         ON tgt.contact_id = tgt_contact.id
@@ -240,9 +254,9 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
         ON (civicrm_volunteer_need.id = {$customTableName}.{$custom_fields['volunteer_need_id']['column_name']})
       INNER JOIN civicrm_volunteer_project
         ON (civicrm_volunteer_project.id = civicrm_volunteer_need.project_id)
-      WHERE civicrm_activity.activity_type_id = %2
-      AND civicrm_activity.status_id IN (%3, %4)
-      {$whereClause}
+      WHERE 1
+        AND civicrm_activity.activity_type_id = %2        
+        {$whereClause}
     ";
 
     return CRM_Core_DAO::composeQuery($query, $placeholders);
@@ -252,55 +266,56 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
 
     $query = self::retrieveQuery($params);
 
-    $allTime = CRM_Core_DAO::executeQuery("
-      SELECT
-        SUM(IFNULL(time_completed_minutes,0)) AS sum,
-        SUM(IFNULL(time_completed_minutes,0) * IFNULL(time_completed_weight,1)) AS weighted
-      FROM ($query) AS mainquery
+    $stats = CRM_Core_DAO::executeQuery("
+      (
+        -- All time stats
+        SELECT
+          'all_time' AS type,
+          SUM(IFNULL(time_completed_minutes,0)) AS sum,
+          SUM(IFNULL(time_completed_minutes,0) * IFNULL(time_completed_weight,1)) AS weighted
+        FROM ($query) AS mainquery
+        WHERE 1
+          AND start_time<NOW()
+      ) UNION (
+        -- Year to date stats
+        SELECT
+          'year_to_date' AS type,
+          SUM(IFNULL(time_completed_minutes,0)) AS sum,
+          SUM(IFNULL(time_completed_minutes,0) * IFNULL(time_completed_weight,1)) AS weighted
+        FROM ($query) AS mainquery
+        WHERE 1
+          AND start_time<NOW()
+          AND start_time>=(LAST_DAY(NOW() - INTERVAL 1 YEAR) + INTERVAL 1 DAY)
+      ) UNION (
+        -- Month to date stats
+        SELECT
+          'month_to_date' AS type,
+          SUM(IFNULL(time_completed_minutes,0)) AS sum,
+          SUM(IFNULL(time_completed_minutes,0) * IFNULL(time_completed_weight,1)) AS weighted
+        FROM ($query) AS mainquery
+        WHERE 1
+          AND start_time<NOW()
+          AND start_time>=(LAST_DAY(NOW() - INTERVAL 1 MONTH) + INTERVAL 1 DAY)
+      ) UNION (
+        -- Week to date
+        SELECT
+          'week_to_date' AS type,
+          SUM(IFNULL(time_completed_minutes,0)) AS sum,
+          SUM(IFNULL(time_completed_minutes,0) * IFNULL(time_completed_weight,1)) AS weighted
+        FROM ($query) AS mainquery
+        WHERE 1
+          AND start_time<NOW()
+          AND start_time>=(CURDATE() - INTERVAL MOD(WEEKDAY(NOW()) + 1, 7) DAY)
+      )
     ;");
-    $allTime->fetch();
+    
+    $return = [];
+    while ($stats->fetch()) {
+      $return[$stats->type] = (int)$stats->sum;
+      $return["weighted_$stats->type"] = (int)$stats->weighted;
+    }
 
-    $yearToDate = CRM_Core_DAO::executeQuery("
-      SELECT
-        SUM(IFNULL(time_completed_minutes,0)) AS sum,
-        SUM(IFNULL(time_completed_minutes,0) * IFNULL(time_completed_weight,1)) AS weighted
-      FROM ($query) AS mainquery
-      WHERE 1
-        AND
-        start_time>=(LAST_DAY(NOW() - INTERVAL 1 YEAR) + INTERVAL 1 DAY)
-    ;");
-    $yearToDate->fetch();
-
-    $monthToDate = CRM_Core_DAO::executeQuery("
-      SELECT
-        SUM(IFNULL(time_completed_minutes,0)) AS sum,
-        SUM(IFNULL(time_completed_minutes,0) * IFNULL(time_completed_weight,1)) AS weighted
-      FROM ($query) AS mainquery
-      WHERE start_time>=(LAST_DAY(NOW() - INTERVAL 1 MONTH) + INTERVAL 1 DAY)
-    ;");
-    $monthToDate->fetch();
-
-    $weekToDate = CRM_Core_DAO::executeQuery("
-      SELECT
-        SUM(IFNULL(time_completed_minutes,0)) AS sum,
-        SUM(IFNULL(time_completed_minutes,0) * IFNULL(time_completed_weight,1)) AS weighted
-      FROM ($query) AS mainquery
-      WHERE start_time>=(CURDATE() - INTERVAL MOD(WEEKDAY(NOW()) + 1, 7) DAY)
-    ;");
-    $weekToDate->fetch();
-
-    return [
-      // raw stats
-      'all_time' => (int)$allTime->sum,
-      'year_to_date' => (int)$yearToDate->sum,
-      'month_to_date' => (int)$monthToDate->sum,
-      'week_to_date' => (int)$weekToDate->sum,
-      // weighted stats
-      'weighted_all_time' => (int)$allTime->weighted,
-      'weighted_year_to_date' => (int)$yearToDate->weighted,
-      'weighted_month_to_date' => (int)$monthToDate->weighted,
-      'weighted_week_to_date' => (int)$weekToDate->weighted,
-    ];
+    return $return;
   }
 
   /**
