@@ -5,7 +5,7 @@
   <div crm-ui-debug="projects"></div>
   <div crm-ui-debug="searchParams"></div>
 
-  <div class="help" ng-if="!canAccessAllProjects && canRegister">
+  <div class="help" ng-show="!canAccessAllProjects && canRegister">
     <p>
       {{ts("This page displays only the volunteer projects which you have access to edit.")}}
       <!-- not translated because HTML tags in a ts() choke Angular -->
@@ -18,7 +18,7 @@
 
     <div class="crm-vol-manage-actions">
       <div class="crm-vol-buttons crm-vol-manage-buttons">
-        <div ng-if="canCreateProjects">
+        <div ng-show="canCreateProjects">
           <a href="#/volunteer/manage/0" class="button"><span><div class="icon ui-icon-plus"></div>{{ts('Add Project')}}</span></a>
           <br /><br />
         </div>
@@ -40,7 +40,7 @@
               <div class="crm-vol-field crm-vol-field-projects-search-title" crm-ui-field="{name: 'volProjectSearchForm.title', title: ts('Title')}">
                 <input crm-ui-id="volProjectSearchForm.title" ng-model="searchParams.title" />
               </div>
-              <div class="crm-vol-field crm-vol-field-projects-search-beneficiaries" crm-ui-field="{name: 'volProjectSearchForm.beneficiary', title: ts('Beneficiary')}" ng-if="canAccessAllProjects">
+              <div class="crm-vol-field crm-vol-field-projects-search-beneficiaries" crm-ui-field="{name: 'volProjectSearchForm.beneficiary', title: ts('Beneficiary')}" ng-show="canAccessAllProjects">
                 <!-- TODO for VOL-267: Replace this with an entityRef widget. -->
                 <select class="big crm-form-select crm-vol-beneficiary" crm-ui-select="{placeholder: ts('Filter by Beneficiary'), allowClear:true}"
                         ng-options="key as value.display_name for (key , value) in beneficiaries track by key" ng-model="searchParams.beneficiaries">
@@ -71,7 +71,7 @@
     <table id="crm-vol-project-list" class="display dataTable no-footer" role="grid">
       <thead>
         <tr role="row">
-          <th class="ui-state-default crm-vol-manage-toggle" ng-if="canEditOwnProjects"><input type="checkbox" ng-model="allSelected" ng-change="selectAll()" /></th>
+          <th class="ui-state-default crm-vol-manage-toggle" ng-show="canEditOwnProjects"><input type="checkbox" ng-model="allSelected" ng-change="selectAll()" /></th>
           <th class="ui-state-default crm-vol-manage-project">{{ ts('Volunteer Project') }}</th>
           <th class="ui-state-default crm-vol-manage-entity">{{ ts('Associated Entity') }}</th>
           <th class="ui-state-default crm-vol-manage-beneficiaries">{{ ts('Beneficiaries') }}</th>
@@ -82,7 +82,7 @@
       </thead>
       <tbody>
       <tr ng-repeat="project in projects | filter:searchParams" role="row">
-        <td class="crm-vol-manage-toggle" ng-if="canEditOwnProjects">
+        <td class="crm-vol-manage-toggle" ng-show="canEditOwnProjects">
           <input type="checkbox" ng-model="project.selected" ng-change="watchSelected()" />
         </td>
         <td class="crm-vol-manage-project">
@@ -90,8 +90,8 @@
           <span class="crm-vol-manage-project-id">{{ ts('(ID: %1)', {1: project.id}) }}</span>
         </td>
         <td class="crm-vol-manage-entity">
-          <a ng-if="canLinkToAssociatedEntity(project)" ng-click="linkToAssociatedEntity(project)">{{associatedEntityTitle(project)}}</a>
-          <span ng-if="!canLinkToAssociatedEntity(project)">{{associatedEntityTitle(project)}}</span>
+          <a ng-show="canLinkToAssociatedEntity(project)" ng-click="linkToAssociatedEntity(project)">{{associatedEntityTitle(project)}}</a>
+          <span ng-show="!canLinkToAssociatedEntity(project)">{{associatedEntityTitle(project)}}</span>
         </td>
         <td class="crm-vol-manage-beneficiaries" ng-bind-html="formatBeneficiaries(project)"></td>
         <td class="crm-vol-manage-location">
@@ -106,13 +106,13 @@
           {{ project.is_active == 1 ? ts("Yes") : ts("No") }}
         </td>
         <td class="crm-vol-manage-actionlinks right nowrap">
-          <div><a href="#/volunteer/manage/{{project.id}}" ng-if="canAccessAllProjects || canEditOwnProjects">{{ ts('Edit') }}</a></div>         
-          <div><a href="#/volunteer/project_appeals/{{project.id}}" ng-if="canAccessAllProjects || canEditOwnProjects">{{ ts('Manage Opportunities') }}</a></div>         
-          <div><a ng-click="backbonePopup(ts('Define Volunteer Shifts'), 'Define', project.id)" ng-if="canAccessAllProjects || canEditOwnProjects">{{ ts('Define Volunteer Shifts') }}</a></div>
-          <div><a ng-click="backbonePopup(ts('Assign Shifts'), 'Assign', project.id)" ng-if="canAccessAllProjects || canEditOwnProjects">{{ ts('Assign Shifts') }}</a></div>
-          <div><a ng-click="showRoster()" ng-if="canAccessAllProjects || canEditOwnProjects">{{ ts('View Volunteer Roster') }}</a></div>
-          <div><a ng-click="showLogHours()" ng-if="canAccessAllProjects || canEditOwnProjects">{{ ts('Log Hours') }}</a></div>
-          <div><a target="_blank" href="#/volunteer/opportunities?project={{project.id}}&amp;hideSearch=1" ng-if="canRegister">{{ ts('Public Signup') }}</a></div>
+          <div><a href="#/volunteer/manage/{{project.id}}" ng-show="canAccessAllProjects || canEditOwnProjects">{{ ts('Edit') }}</a></div>         
+          <div><a href="#/volunteer/project_appeals/{{project.id}}" ng-show="canAccessAllProjects || canEditOwnProjects">{{ ts('Manage Opportunities') }}</a></div>         
+          <div><a ng-click="backbonePopup(ts('Define Volunteer Shifts'), 'Define', project.id)" ng-show="canAccessAllProjects || canEditOwnProjects">{{ ts('Define Volunteer Shifts') }}</a></div>
+          <div><a ng-click="backbonePopup(ts('Assign Shifts'), 'Assign', project.id)" ng-show="canAccessAllProjects || canEditOwnProjects">{{ ts('Assign Shifts') }}</a></div>
+          <div><a ng-click="showRoster()" ng-show="canAccessAllProjects || canEditOwnProjects">{{ ts('View Volunteer Roster') }}</a></div>
+          <div><a ng-click="showLogHours()" ng-show="canAccessAllProjects || canEditOwnProjects">{{ ts('Log Hours') }}</a></div>
+          <div><a target="_blank" href="#/volunteer/opportunities?project={{project.id}}&amp;hideSearch=1" ng-show="canRegister">{{ ts('Public Signup') }}</a></div>
         </td>
       </tr>
       </tbody>

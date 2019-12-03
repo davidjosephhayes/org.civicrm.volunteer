@@ -113,8 +113,9 @@ class CRM_Volunteer_Permission {
         // used by other entities and a project id might be passed
         if (!empty($projectId)) {
           $projectOwners = CRM_Volunteer_BAO_Project::getContactsByRelationship($projectId, 'volunteer_owner');
+          $projectManagers = CRM_Volunteer_BAO_Project::getContactsByRelationship($projectId, 'volunteer_manager');
           if (self::check('edit own volunteer projects')
-            && in_array($contactId, $projectOwners)) {
+            && (in_array($contactId, $projectOwners) || in_array($contactId, $projectManagers))) {
             return TRUE;
           }
         }
@@ -126,8 +127,9 @@ class CRM_Volunteer_Permission {
         }
 
         $projectOwners = CRM_Volunteer_BAO_Project::getContactsByRelationship($projectId, 'volunteer_owner');
+        $projectManagers = CRM_Volunteer_BAO_Project::getContactsByRelationship($projectId, 'volunteer_manager');
         if (self::check('edit own volunteer projects')
-          && in_array($contactId, $projectOwners)) {
+          && (in_array($contactId, $projectOwners) || in_array($contactId, $projectManagers))) {
           return TRUE;
         }
         break;
