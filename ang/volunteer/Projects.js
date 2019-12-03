@@ -76,7 +76,12 @@
     $scope.needBase = CRM.url("civicrm/volunteer/need");
     $scope.assignBase = CRM.url("civicrm/volunteer/assign");
     $scope.urlPublicVolOppSearch = CRM.url('civicrm/vol/', '', 'front') + '#/volunteer/opportunities';
+
+    // permission sets
     $scope.canAccessAllProjects = CRM.checkPerm('edit all volunteer projects') || CRM.checkPerm('delete all volunteer projects');
+    $scope.canCreateProjects = CRM.checkPerm('create volunteer projects');
+    $scope.canEditOwnProjects = CRM.checkPerm('edit own volunteer projects');
+    $scope.canRegister = CRM.checkPerm('register to volunteer');
 
     $scope.associatedEntityTitle = function(project) {
       if (project.entity_attributes && project.entity_attributes.title) {
@@ -176,7 +181,9 @@
             });
         }
       },
-      "delete": {
+    };
+    if (CRM.checkPerm('delete all volunteer projects') || CRM.checkPerm('edit own volunteer projects')) {
+      $scope.batchActions.delete = {
         label: ts("Delete"),
         run: function() {
           CRM.confirm({message: ts("Are you sure you want to Delete the selected Projects?")})
@@ -190,8 +197,9 @@
               });
             });
         }
-      }
-    };
+      };
+    }
+
     $scope.runBatch = function() {
       if(Boolean($scope.batchAction)) {
         $scope.batchActions[$scope.batchAction].run();

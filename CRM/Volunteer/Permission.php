@@ -106,8 +106,20 @@ class CRM_Volunteer_Permission {
 
     switch ($op) {
       case CRM_Core_Action::ADD:
-        return self::check('create volunteer projects');
+        if (self::check('create volunteer projects')) {
+          return TRUE;
+        }
 
+        // used by other entities and a project id might be passed
+        if (!empty($projectId)) {
+          $projectOwners = CRM_Volunteer_BAO_Project::getContactsByRelationship($projectId, 'volunteer_owner');
+          if (self::check('edit own volunteer projects')
+            && in_array($contactId, $projectOwners)) {
+            return TRUE;
+          }
+        }
+
+        return FALSE;
       case CRM_Core_Action::UPDATE:
         if (self::check('edit all volunteer projects')) {
           return TRUE;
@@ -131,7 +143,7 @@ class CRM_Volunteer_Permission {
         }
         break;
       case CRM_Core_Action::VIEW:
-        if (self::check('register to volunteer') || self::check('edit all volunteer projects')) {
+        if (self::check('register to volunteer') || self::check('edit all volunteer projects') || self::check('edit own volunteer projects')) {
           return TRUE;
         }
         break;

@@ -30,6 +30,8 @@
 }
 
 @media (max-width: 1000px) {
+  .crm-vol-manage-actions .crm-vol-manage-buttons,
+  .crm-vol-manage-actions .crm-vol-manage-search,
   .crm-vol-opp-search .crm-group .search-box,
   .crm-vol-opp-search .crm-group .search-buttons,
   .crm-vol-opp-search .crm-group .search-display {
@@ -37,19 +39,26 @@
   }
 }
 @media (min-width: 1001px) {
-  /* vol-opp-search flex */
+  .crm-vol-manage-actions,
   .crm-vol-opp-search {
     margin-bottom: 20px;
   }
+  .crm-vol-manage-actions,
   .crm-vol-opp-search .crm-group {
     display: flex;
     justify-content: flex-start;
     align-items: center;
   }
+  .crm-vol-manage-actions .crm-vol-manage-buttons,
+  .crm-vol-manage-actions .crm-vol-manage-search,
   .crm-vol-opp-search .crm-group .search-box,
   .crm-vol-opp-search .crm-group .search-buttons,
   .crm-vol-opp-search .crm-group .search-display {
     flex: 1;
+  }
+  .crm-vol-manage-actions .crm-vol-manage-buttons,
+  .crm-vol-manage-actions .crm-vol-manage-search {
+    padding: 0 10px;
   }
   .crm-vol-opp-search .crm-group .search-box {
     flex: 0 1 25%;

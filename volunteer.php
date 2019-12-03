@@ -596,10 +596,14 @@ function volunteer_civicrm_alterAPIPermissions($entity, $action, &$params, &$per
     }
 
     if ($activityTypeId === 'Volunteer') {
-      $permissions['activity'][$action] = ['log own hours'];
+      $permissions['activity'][$action] = [
+        ['edit own volunteer projects', 'log own hours'],
+      ];
     }
   }
-  $permissions['volunteer_need']['default'] = ['create volunteer projects'];
+  $permissions['volunteer_need']['default'] = [
+    ['create volunteer projects', 'edit own volunteer projects']
+  ];
   $permissions['volunteer_need']['getsearchresult'] = ['register to volunteer'];
   $permissions['volunteer_need']['getvalue'] = ['log own hours'];
   $permissions['volunteer_assignment']['default'] = [
@@ -607,14 +611,20 @@ function volunteer_civicrm_alterAPIPermissions($entity, $action, &$params, &$per
     ['edit own volunteer projects', 'log own hours'],
   ];
   $permissions['volunteer_commendation']['default'] = ['edit own volunteer projects'];
-  $permissions['volunteer_project']['default'] = ['create volunteer projects'];
-  $permissions['volunteer_project']['get'] = ['register to volunteer'];
-  // This totally insane syntax means either permission is sufficient to grant API access.
+  $permissions['volunteer_project']['default'] = [
+    ['create volunteer projects', 'edit own volunteer projects']
+  ];
+  $permissions['volunteer_project']['get'] = [
+    ['register to volunteer', 'edit own volunteer projects']
+  ];
   $permissions['volunteer_project']['getlocblockdata'] = [
+    // This totally insane syntax means either permission is sufficient to grant API access.
     ['edit own volunteer projects', 'log own hours'],
   ];
   $permissions['volunteer_util']['default'] = ['edit own volunteer projects'];
-  $permissions['volunteer_appeal']['default'] = ['register to volunteer'];
+  $permissions['volunteer_appeal']['default'] = [
+    ['register to volunteer', 'edit own volunteer projects']
+  ];
   $permissions['volunteer_project_contact']['default'] = ['edit own volunteer projects'];
 
   // Enables use of volunteer role in entityRef widgets
