@@ -934,4 +934,24 @@ class CRM_Volunteer_Upgrader extends CRM_Volunteer_Upgrader_Base {
 
     return TRUE;
   }
+
+
+  /**
+   * CiviVolunteer 2304 add a default value to volunteer need to prepoulate time_completed_weight on assignments
+   *
+   * @return boolean TRUE on success
+   */
+  public function upgrade_2304() {
+    $this->ctx->log->info('Applying update 2304 - CiviVolunteer Need Time Weight');
+    $this->schemaUpgradeVolunteerNeedTimeWeight();
+
+    return TRUE;
+  }
+
+  /**
+   * Execute sql queries for relevant volunteer need time weight
+   */
+  public function schemaUpgradeVolunteerNeedTimeWeight() {
+    $this->executeSqlFile('sql/volunteer_need_time_weight.sql');
+  }
 }
