@@ -47,7 +47,7 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
   /**
    * Batch information
    */
-  protected $_batchInfo = array();
+  protected $_batchInfo = [];
 
   /**
    * build all the data structures needed to build the form
@@ -64,10 +64,10 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
 
     $this->_batchInfo['item_count'] = 50;
 
-    $params = array('project_id' => $this->_vid);
+    $params = ['project_id' => $this->_vid];
     $this->_volunteerData = CRM_Volunteer_BAO_Assignment::retrieve($params);
 
-    $projects = CRM_Volunteer_BAO_Project::retrieve(array('id' => $this->_vid));
+    $projects = CRM_Volunteer_BAO_Project::retrieve(['id' => $this->_vid]);
     $project = $projects[$this->_vid];
 
     $this->_entityID = $project->entity_id;
@@ -106,61 +106,61 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
    * @return void
    */
   function buildQuickForm() {
-    CRM_Utils_System::setTitle(ts('Log Volunteer Hours - %1', array(1 => $this->_title)));
+    CRM_Utils_System::setTitle(ts('Log Volunteer Hours - %1', [1 => $this->_title]));
 
-    $this->addFormRule(array('CRM_Volunteer_Form_Log', 'formRule'), $this);
-    $this->addButtons(array(
-      array(
+    $this->addFormRule(['CRM_Volunteer_Form_Log', 'formRule'], $this);
+    $this->addButtons([
+      [
         'type' => 'upload',
-        'name' => ts('Save', array('domain' => 'org.civicrm.volunteer')),
+        'name' => ts('Save', ['domain' => 'org.civicrm.volunteer']),
         'isDefault' => TRUE
-      ),
-      array(
+      ],
+      [
         'type' => 'cancel',
-        'name' => ts('Cancel', array('domain' => 'org.civicrm.volunteer')),
-      )
-    ));
+        'name' => ts('Cancel', ['domain' => 'org.civicrm.volunteer']),
+      ],
+    ]);
 
     $volunteerRole = CRM_Volunteer_BAO_Need::buildOptions('role_id', 'create');
     $volunteerStatus = CRM_Activity_BAO_Activity::buildOptions('status_id', 'create');
 
-    $attributes = array(
+    $attributes = [
       'size' => 6,
       'maxlength' => 14
-    );
+    ];
 
     $count = count($this->_volunteerData);
     for ($rowNumber = 1; $rowNumber <= $this->_batchInfo['item_count']; $rowNumber++) {
-      $extra = array();
-      $entityRefParams = array(
+      $extra = [];
+      $entityRefParams = [
         'create' => TRUE,
         'class' => 'big required',
-        'placeholder' => ts('- select -', array('domain' => 'org.civicrm.volunteer')),
-      );
+        'placeholder' => ts('- select -', ['domain' => 'org.civicrm.volunteer']),
+      ];
       $isRequired = FALSE;
       $contactField = $this->addEntityRef("field[$rowNumber][contact_id]", '', $entityRefParams, $isRequired);
 
-      $datePickerAttr = array('formatType' => 'activityDateTime');
+      $datePickerAttr = ['formatType' => 'activityDateTime'];
       if ($rowNumber <= $count) {
         // readonly for some fields
         $contactField->freeze();
-        $extra = array(
+        $extra = [
           'READONLY' => TRUE,
           'style' => "background-color:#EBECE4",
           'disabled' => 'disabled'
-        );
+        ];
         $datePickerAttr += $extra;
 
         $this->add('text', "field[$rowNumber][volunteer_role]", '', array_merge($attributes, $extra));
       }
       else {
-        $this->add('select', "field[$rowNumber][volunteer_role]", '', array('' => ts('-select-', array('domain' => 'org.civicrm.volunteer'))) + $volunteerRole);
+        $this->add('select', "field[$rowNumber][volunteer_role]", '', ['' => ts('-select-', ['domain' => 'org.civicrm.volunteer'])] + $volunteerRole);
       }
 
       $this->add('datepicker', "field[$rowNumber][start_date]", '', $datePickerAttr);
       $this->add('select', "field[$rowNumber][volunteer_status]", '', $volunteerStatus);
       $this->add('text', "field[$rowNumber][scheduled_duration]", '', array_merge($attributes, $extra));
-      $durationAttr = array_merge($attributes, array('class' => 'required'));
+      $durationAttr = array_merge($attributes, ['class' => 'required']);
       $this->add('text', "field[$rowNumber][actual_duration]", '', $durationAttr);
       $this->add('text', "field[$rowNumber][activity_id]");
     }
@@ -194,7 +194,7 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
    * @access public
    */
   static function formRule($params, $files, $self) {
-    $errors = array();
+    $errors = [];
 
     $rows = self::getCompletedRows($params['field']);
     foreach ($rows as $key => $value) {
@@ -202,10 +202,10 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
 
       if (!$duration) {
         $errors["field[$key][actual_duration]"] =
-          ts('Please enter the actual duration volunteered.', array('domain' => 'org.civicrm.volunteer'));
+          ts('Please enter the actual duration volunteered.', ['domain' => 'org.civicrm.volunteer']);
       } elseif (!ctype_digit($duration)) {
         $errors["field[$key][actual_duration]"] =
-          ts('Please enter duration as a number.', array('domain' => 'org.civicrm.volunteer'));
+          ts('Please enter duration as a number.', ['domain' => 'org.civicrm.volunteer']);
       }
     }
 
@@ -227,7 +227,7 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
    * @return None
    */
   function setDefaultValues() {
-    $defaults = array();
+    $defaults = [];
     $i = 1;
     $volunteerRole = CRM_Volunteer_BAO_Need::buildOptions('role_id', 'create');
     $volunteerStatus = CRM_Activity_BAO_Activity::buildOptions('status_id', 'validate');
@@ -270,17 +270,17 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
       if (!empty($value['activity_id'])) {
         // update the activity record
 
-        $volunteer = array(
+        $volunteer = [
           'status_id' => $value['volunteer_status'],
           'id' => $value['activity_id'],
           'time_completed_minutes' => CRM_Utils_Array::value('actual_duration', $value),
           'time_scheduled_minutes' => CRM_Utils_Array::value('scheduled_duration', $value),
-        );
+        ];
         CRM_Volunteer_BAO_Assignment::createVolunteerActivity($volunteer);
       } else {
         $flexibleNeedId = CRM_Volunteer_BAO_Project::getFlexibleNeedID($this->_vid);
         // create new Volunteer activity records
-        $volunteer = array(
+        $volunteer = [
           'assignee_contact_id' => $value['contact_id'],
           'status_id' => $value['volunteer_status'],
           'subject' => $this->_title . ' Volunteering',
@@ -288,7 +288,7 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
           'volunteer_role_id' => CRM_Utils_Array::value('volunteer_role', $value),
           'time_completed_minutes' => CRM_Utils_Array::value('actual_duration', $value),
           'time_scheduled_minutes' => CRM_Utils_Array::value('scheduled_duration', $value),
-        );
+        ];
         if (!empty($value['start_date'])) {
           $volunteer['activity_date_time'] = CRM_Utils_Date::processDate($value['start_date'], $value['start_date_time'], TRUE);
         }
@@ -298,8 +298,8 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
       $count++;
     }
 
-    $statusMsg = ts('Volunteer hours have been logged.', array('domain' => 'org.civicrm.volunteer'));
-    CRM_Core_Session::setStatus($statusMsg, ts('Saved', array('domain' => 'org.civicrm.volunteer')), 'success');
+    $statusMsg = ts('Volunteer hours have been logged.', ['domain' => 'org.civicrm.volunteer']);
+    CRM_Core_Session::setStatus($statusMsg, ts('Saved', ['domain' => 'org.civicrm.volunteer']), 'success');
 
   }
 
@@ -310,7 +310,7 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
    * @return array
    */
   static function getCompletedRows (array $rows) {
-    $completedRows = array();
+    $completedRows = [];
 
     foreach ($rows as $key => $row) {
       if (!empty($row['contact_id'])) {
