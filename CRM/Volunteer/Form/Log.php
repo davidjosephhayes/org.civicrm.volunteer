@@ -201,7 +201,7 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
     foreach ($rows as $key => $value) {
       
       // validate duration
-      if (empty($value['actual_duration'])) {
+      if (!isset($value['actual_duration'])) {
         $errors["field[$key][actual_duration]"] =
           ts('Please enter the actual duration volunteered.', ['domain' => 'org.civicrm.volunteer']);
       } elseif (!ctype_digit($value['actual_duration'])) {
@@ -210,7 +210,7 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
       }
 
       // validate weight
-      if (empty($value['time_weight'])) {
+      if (!isset($value['time_weight'])) {
         $errors["field[$key][time_weight]"] =
           ts('Please enter the time weight.', ['domain' => 'org.civicrm.volunteer']);
       } elseif (!is_numeric($value['time_weight'])) {
