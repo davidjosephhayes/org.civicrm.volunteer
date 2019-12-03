@@ -10,6 +10,7 @@ CRM.volunteerApp.module('Entities', function(Entities, volunteerApp, Backbone, M
       'is_active' : 1,
       'is_flexible': 0,
       'duration': 0,
+      'time_weight': 1,
       'role_id': null,
       'start_time': CRM.volunteer.default_date,
       'end_time': null,
@@ -28,6 +29,7 @@ CRM.volunteerApp.module('Entities', function(Entities, volunteerApp, Backbone, M
         project_id: volunteerApp.project_id,
         quantity: 1,
         start_time: CRM.volunteer.default_date,
+        time_weight: 1,
         visibility_id: CRM.pseudoConstant.volunteer_need_visibility.public
       }, params);
       formatDate(params);

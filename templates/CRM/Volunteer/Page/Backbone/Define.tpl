@@ -72,31 +72,32 @@
   <td><input type="text" class="crm-form-text" name="quantity" value="<%= quantity %>" size="4"></td>
   <td>
     <label>
-    {ts domain='org.civicrm.volunteer'}Schedule Type:{/ts}
+      {ts domain='org.civicrm.volunteer'}Schedule Type:{/ts}
       <select name="schedule_type">
         <option value="">
-    {ts domain='org.civicrm.volunteer'}- select one -{/ts}
+          {ts domain='org.civicrm.volunteer'}- select one -{/ts}
         </option>
         <option value="shift">
-    {ts domain='org.civicrm.volunteer'}Set shift{/ts}
+          {ts domain='org.civicrm.volunteer'}Set shift{/ts}
         </option>
         <option value="flexible">
-    {ts domain='org.civicrm.volunteer'}Flexible timeframe{/ts}
+          {ts domain='org.civicrm.volunteer'}Flexible timeframe{/ts}
         </option>
         <option value="open">
           {ts domain='org.civicrm.volunteer'}Open-Ended{/ts}
         </option>
       </select>
-          {help id="volunteer-define-schedule_type" file="CRM/Volunteer/Page/Backbone/Define.hlp"}
+      {help id="volunteer-define-schedule_type" file="CRM/Volunteer/Page/Backbone/Define.hlp"}
     </label>
     <table class="time_components">
       <thead>
         <tr>
           <th class="start_datetime">{ts domain='org.civicrm.volunteer'}Start Date/Time{/ts}</th>
           <th class="end_datetime">
-          {ts domain='org.civicrm.volunteer'}End Date/Time{/ts}
+            {ts domain='org.civicrm.volunteer'}End Date/Time{/ts}
           </th>
           <th class="duration">{ts domain='org.civicrm.volunteer'}Minutes{/ts}</th>
+          <th class="time_weight">{ts domain='org.civicrm.volunteer'}Default Points Ratio{/ts}</th>
         </tr>
       </thead>
       <tbody>
@@ -111,6 +112,9 @@
           </td>
           <td class="duration">
             <input type="text" class="crm-form-text" name="duration" value="<%= duration %>" size="6">
+          </td>
+          <td class="time_weight">
+            <input type="text" class="crm-form-text" name="time_weight" value="<%= time_weight %>" size="6">
           </td>
         </tr>
       </tbody>

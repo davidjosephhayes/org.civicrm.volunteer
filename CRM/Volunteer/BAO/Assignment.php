@@ -334,6 +334,7 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
     }
     if ($op === CRM_Core_Action::ADD) {
       $defaults['time_scheduled_minutes'] = CRM_Utils_Array::value('duration', $need);
+      $defaults['time_completed_weight'] = CRM_Utils_Array::value('time_weight', $need);
       $defaults['target_contact_id'] = CRM_Volunteer_BAO_Project::getContactsByRelationship($project->id, 'volunteer_beneficiary');
 
       // If the related entity doesn't provide a good default, use tomorrow.

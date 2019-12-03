@@ -53,6 +53,13 @@
     <add>4.4</add>
   </field>
   <field>
+    <name>time_ratio</name>
+    <title>Default Points Ratio</title>
+    <type>float</type>
+    <comment>Points ratio propgated to assignment for calculating points.</comment>
+    <add>4.4</add>
+  </field>
+  <field>
     <name>is_flexible</name>
     <title>Flexible</title>
     <type>boolean</type>
@@ -74,7 +81,7 @@
     <title>Visibility</title>
     <type>int unsigned</type>
     <default>NULL</default>
-    <comment> Indicates whether this need is offered on public volunteer signup forms. Implicit FK to option_value row in visibility option_group.</comment>
+    <comment>Indicates whether this need is offered on public volunteer signup forms. Implicit FK to option_value row in visibility option_group.</comment>
     <add>4.4</add>
     <pseudoconstant>
       <optionGroupName>visibility</optionGroupName>

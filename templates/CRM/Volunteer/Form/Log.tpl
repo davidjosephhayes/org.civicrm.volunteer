@@ -47,7 +47,7 @@
         <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
       </div>
       <div class="crm-grid-cell">
-        {ts}Points ratio?{/ts}
+        {ts}Points ratio{/ts}
         <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
       </div>
       <div class="crm-grid-cell"><img src="{$config->resourceBase}i/copy.png"

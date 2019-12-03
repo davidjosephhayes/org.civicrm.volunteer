@@ -195,6 +195,15 @@ class CRM_Volunteer_DAO_Need extends CRM_Core_DAO {
           'entity' => 'Need',
           'bao' => 'CRM_Volunteer_DAO_Need',
         ) ,
+        'time_weight' => array(
+          'name' => 'time_weight',
+          'type' => CRM_Utils_Type::T_FLOAT,
+          'title' => ts('Default Points Ratio', array('domain' => 'org.civicrm.volunteer')) ,
+          'description' => 'Points ratio propgated to assignment for calculating points.',
+          'table_name' => 'civicrm_volunteer_need',
+          'entity' => 'Need',
+          'bao' => 'CRM_Volunteer_DAO_Need',
+        ) ,
         'is_flexible' => array(
           'name' => 'is_flexible',
           'type' => CRM_Utils_Type::T_BOOLEAN,
