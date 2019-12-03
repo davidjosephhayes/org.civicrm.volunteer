@@ -46,6 +46,10 @@
         {ts}Actual Duration <br/> (in minutes){/ts}
         <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
       </div>
+      <div class="crm-grid-cell">
+        {ts}Points ratio?{/ts}
+        <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
+      </div>
       <div class="crm-grid-cell"><img src="{$config->resourceBase}i/copy.png"
                                       alt="{ts domain='org.civicrm.volunteer'}Click to copy Volunteer Status from row one to all rows.{/ts}"
                                       fname="volunteer_status" class="action-icon"
@@ -74,6 +78,9 @@
         </div>
         <div class="compressed crm-grid-cell">
           {$form.field.$rowNumber.actual_duration.html}
+        </div>
+        <div class="compressed crm-grid-cell">
+          {$form.field.$rowNumber.time_weight.html}
         </div>
         <div class="compressed crm-grid-cell">
           {$form.field.$rowNumber.volunteer_status.html}

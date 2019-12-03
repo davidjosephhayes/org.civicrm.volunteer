@@ -162,6 +162,7 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
       $this->add('text', "field[$rowNumber][scheduled_duration]", '', array_merge($attributes, $extra));
       $durationAttr = array_merge($attributes, ['class' => 'required']);
       $this->add('text', "field[$rowNumber][actual_duration]", '', $durationAttr);
+      $this->add('text', "field[$rowNumber][time_weight]", '', $durationAttr);
       $this->add('text', "field[$rowNumber][activity_id]");
     }
 
@@ -198,14 +199,23 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
 
     $rows = self::getCompletedRows($params['field']);
     foreach ($rows as $key => $value) {
-      $duration = $value['actual_duration'];
-
-      if (!$duration) {
+      
+      // validate duration
+      if (empty($value['actual_duration'])) {
         $errors["field[$key][actual_duration]"] =
           ts('Please enter the actual duration volunteered.', ['domain' => 'org.civicrm.volunteer']);
-      } elseif (!ctype_digit($duration)) {
+      } elseif (!ctype_digit($value['actual_duration'])) {
         $errors["field[$key][actual_duration]"] =
           ts('Please enter duration as a number.', ['domain' => 'org.civicrm.volunteer']);
+      }
+
+      // validate weight
+      if (empty($value['time_weight'])) {
+        $errors["field[$key][time_weight]"] =
+          ts('Please enter the time weight.', ['domain' => 'org.civicrm.volunteer']);
+      } elseif (!is_numeric($value['time_weight'])) {
+        $errors["field[$key][time_weight]"] =
+          ts('Please enter time weight as a number.', ['domain' => 'org.civicrm.volunteer']);
       }
     }
 
@@ -235,6 +245,7 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
     foreach ($this->_volunteerData as $data) {
       $defaults['field'][$i]['scheduled_duration'] = $data['time_scheduled_minutes'];
       $defaults['field'][$i]['actual_duration'] = $data['time_completed_minutes'];
+      $defaults['field'][$i]['time_weight'] = $data['time_completed_weight'];
       $defaults['field'][$i]['volunteer_role'] = CRM_Utils_Array::value($data['volunteer_role_id'], $volunteerRole);
       $defaults['field'][$i]['volunteer_status'] = $data['status_id'];
       $defaults['field'][$i]['activity_id'] = $data['id'];
@@ -274,6 +285,7 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
           'status_id' => $value['volunteer_status'],
           'id' => $value['activity_id'],
           'time_completed_minutes' => CRM_Utils_Array::value('actual_duration', $value),
+          'time_completed_weight' => CRM_Utils_Array::value('time_weight', $value),
           'time_scheduled_minutes' => CRM_Utils_Array::value('scheduled_duration', $value),
         ];
         CRM_Volunteer_BAO_Assignment::createVolunteerActivity($volunteer);
@@ -287,6 +299,7 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
           'volunteer_need_id' => $flexibleNeedId,
           'volunteer_role_id' => CRM_Utils_Array::value('volunteer_role', $value),
           'time_completed_minutes' => CRM_Utils_Array::value('actual_duration', $value),
+          'time_completed_weight' => CRM_Utils_Array::value('time_weight', $value),
           'time_scheduled_minutes' => CRM_Utils_Array::value('scheduled_duration', $value),
         ];
         if (!empty($value['start_date'])) {
