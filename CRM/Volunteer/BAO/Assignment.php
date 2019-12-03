@@ -241,7 +241,7 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
       INNER JOIN civicrm_volunteer_project
         ON (civicrm_volunteer_project.id = civicrm_volunteer_need.project_id)
       WHERE civicrm_activity.activity_type_id = %2
-      AND civicrm_activity.status_id IN (%3, %4 )
+      AND civicrm_activity.status_id IN (%3, %4)
       {$whereClause}
     ";
 
@@ -254,16 +254,16 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
 
     $allTime = CRM_Core_DAO::executeQuery("
       SELECT
-        SUM(time_completed_minutes) AS sum,
-        SUM(time_completed_minutes * time_completed_weight) AS weighted
+        SUM(IFNULL(time_completed_minutes,0)) AS sum,
+        SUM(IFNULL(time_completed_minutes,0) * IFNULL(time_completed_weight,1)) AS weighted
       FROM ($query) AS mainquery
     ;");
     $allTime->fetch();
 
     $yearToDate = CRM_Core_DAO::executeQuery("
       SELECT
-        SUM(time_completed_minutes) AS sum,
-        SUM(time_completed_minutes * time_completed_weight) AS weighted
+        SUM(IFNULL(time_completed_minutes,0)) AS sum,
+        SUM(IFNULL(time_completed_minutes,0) * IFNULL(time_completed_weight,1)) AS weighted
       FROM ($query) AS mainquery
       WHERE 1
         AND
@@ -273,8 +273,8 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
 
     $monthToDate = CRM_Core_DAO::executeQuery("
       SELECT
-        SUM(time_completed_minutes) AS sum,
-        SUM(time_completed_minutes * time_completed_weight) AS weighted
+        SUM(IFNULL(time_completed_minutes,0)) AS sum,
+        SUM(IFNULL(time_completed_minutes,0) * IFNULL(time_completed_weight,1)) AS weighted
       FROM ($query) AS mainquery
       WHERE start_time>=(LAST_DAY(NOW() - INTERVAL 1 MONTH) + INTERVAL 1 DAY)
     ;");
@@ -282,8 +282,8 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
 
     $weekToDate = CRM_Core_DAO::executeQuery("
       SELECT
-        SUM(time_completed_minutes) AS sum,
-        SUM(time_completed_minutes * time_completed_weight) AS weighted
+        SUM(IFNULL(time_completed_minutes,0)) AS sum,
+        SUM(IFNULL(time_completed_minutes,0) * IFNULL(time_completed_weight,1)) AS weighted
       FROM ($query) AS mainquery
       WHERE start_time>=(CURDATE() - INTERVAL MOD(WEEKDAY(NOW()) + 1, 7) DAY)
     ;");
