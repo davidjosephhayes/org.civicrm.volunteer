@@ -103,7 +103,7 @@ class CRM_Volunteer_Page_Roster extends CRM_Core_Page {
     if (!empty($assignment['end_time'])) {
       $endTime = new DateTime($assignment['end_time']);
     } elseif (!empty($assignment['duration'])) {
-      $endTime = date_add($assignment['start_time'], new DateInterval('PT' . $assignment['duration'] . 'M'));
+      $endTime = (new DateTime($assignment['start_time']))->add(new DateInterval('PT' . $assignment['duration'] . 'M'));
     }
 
     return $this->todaysDate > $endTime;
