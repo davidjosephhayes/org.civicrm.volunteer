@@ -149,30 +149,25 @@ Required vars: volOppData(), searchParams
         </thead>
         <tbody>
           <tr ng-repeat="need in shoppingCart" role="row" class="crm-vol-opp-cart-need-{{need.id}}">
-            <td class="crm-vol-opp-project">
-            {{need.project.title}}
-              <span
-                class="icon ui-icon-comment"
-                ng-show="need.project.description"
-                ng-click="showProjectDescription(need.project)">
+            <td ng-click="showNeed(need)" class="crm-vol-opp-project">
+              {{need.project.title}}
+            </td>
+            <td ng-click="showNeed(need)" class="crm-vol-opp-role">{{need.role_label}}
+                <span
+                  class="icon ui-icon-comment"
+                  ng-show="need.role_description"
+                  ng-click="showRoleDescription(need)">
+                </span>
+            </td>
+            <td ng-click="showNeed(need)" class="crm-vol-opp-time">{{need.display_time}}</td>
+            <td class="crm-vol-opp-toggle">
+                <span
+                  class="icon ui-icon-trash"
+                  ng-checked="need.inCart"
+                  ng-click="toggleSelection(need)">
               </span>
-          </td>
-          <td class="crm-vol-opp-role">{{need.role_label}}
-              <span
-                class="icon ui-icon-comment"
-                ng-show="need.role_description"
-                ng-click="showRoleDescription(need)">
-              </span>
-          </td>
-          <td class="crm-vol-opp-time">{{need.display_time}}</td>
-          <td class="crm-vol-opp-toggle">
-              <span
-                class="icon ui-icon-trash"
-                ng-checked="need.inCart"
-                ng-click="toggleSelection(need)">
-            </span>
-          </td>
-        </tr>
+            </td>
+          </tr>
         </tbody>
       </table>
 
@@ -229,36 +224,5 @@ Required vars: volOppData(), searchParams
   </div>
 </div>
 <!-- Results -->
-<div volunteer-modal id="crm-vol-opp-info">
-  <div class="modal">
-    <div class="modal-body">
-      <h2>{{currentNeed.role_label}} - {{currentNeed.project.title}}</h2>
-      <div ng-if="currentNeed.status || currentNeed.inCart" class="crm-vol-event-status messages status no-popup" ng-class="{'crm-ok': currentNeed.status==='registered' || currentNeed.inCart}">
-        <div class="icon inform-icon"></div>
-        <span ng-if="currentNeed.status==='registered'">
-            <strong>{{ts("Good news!")}}</strong> {{ts('You are already registered for this opportunity.')}}
-        </span>
-        <span ng-if="currentNeed.inCart">
-            <strong>{{ts("What do you know!")}}</strong> {{ts('This opportunity is in your cart.')}}
-        </span>
-        <span ng-if="currentNeed.status==='full'">
-            <strong>{{ts("Oh no!")}}</strong> {{ts('Unfortunately this opportunity is full.')}}
-        </span>
-        <span ng-if="currentNeed.status==='other-unavailable'">
-            <strong>{{ts("Oh no!")}}</strong> {{ts('Unfortunately this opportunity is unavailable currently.')}}
-        </span>
-      </div>
-      <div ng-bind-html="currentNeed.role_description"></div>
-      <div ng-bind-html="currentNeed.project.description"></div>
-      <crm-vol-loc-block data="{address: currentNeed.project.location}" heading="'Location'" />
-      <hr />
-      <div class="crm-submit-buttons">
-        <button ng-if="!currentNeed.status && !currentNeed.inCart" ng-click="toggleSelection(currentNeed)" class="crm-button crm-vol-opp-info-register">{{ts('Add to Commitments')}}</button>
-        <button ng-if="currentNeed.inCart" ng-click="toggleSelection(currentNeed)" class="crm-button crm-vol-opp-info-register">{{ts('Remove from Commitments')}}</button>
-        <button ng-click="closeModal('crm-vol-opp-info')" class="crm-button crm-vol-opp-info-close">{{ts('Close')}}</button>
-      </div>
-    </div>
-  </div>
-  <div class="modal-background"></div>
-</div>
+<ng-include src="'~/volunteer/VolOppsCtrlModal.html'" />
 <div class="clear"></div>
