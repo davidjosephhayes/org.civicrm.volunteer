@@ -648,12 +648,39 @@ function volunteer_civicrm_alterAPIPermissions($entity, $action, &$params, &$per
     $permissions['option_value']['getlist'] = ['log own hours'];
   }
 
+  // Enables use of Custom Field/Group api
+  if (in_array($entity, ['custom_field', 'custom_group']) && in_array($action, ['get', 'getsingle']) && !empty($params['id'])) {
+    try {
+      if ($entity === 'custom_field') {
+        $custom_field = civicrm_api3('CustomField', 'getsingle', [
+          'id' => $params['id'],
+        ]);
+        $custom_group_id = $custom_field['custom_group_id'];
+      } else {
+        $custom_group_id = $params['id'];
+      }
+      $custom_group = civicrm_api3('CustomGroup', 'getsingle', [
+        'id' => $custom_group_id,
+      ]);
+      if (!empty($custom_group['extends'])) {
+        if (
+          _volunteer_isVolListingApiCall($custom_group['extends'], $action) && 
+          CRM_Volunteer_Permission::checkProjectPerms(CRM_Core_Action::VIEW)
+        ) {
+          $permissions[$entity][$action] = [];
+        }
+      }
+    } catch(CiviCRM_API3_Exception $e) {
+      // couldn't find something
+    }
+  }
+
   // allow fairly liberal access to the volunteer opp listing UI, which uses lots of API calls
   if (_volunteer_isVolListingApiCall($entity, $action) && CRM_Volunteer_Permission::checkProjectPerms(CRM_Core_Action::VIEW)) {
     /**
      * As cool as this would be to work for chained api calls
      * \Civi\API\Subscriber::callNestedApi copies
-     * check_permissions from the original request
+     * check_permissions from the original request $params
      * not the one modified by this function
      * Also, ACL clauses seem to be added to contact gets
      * regardless if we clear it or not, however we can
