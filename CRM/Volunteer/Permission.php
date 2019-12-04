@@ -28,7 +28,11 @@ class CRM_Volunteer_Permission {
       ],
       'edit own volunteer projects' => [
         $prefix . ts('edit own volunteer projects', ['domain' => 'org.civicrm.volunteer']),
-        ts('Edit volunteer project records for which the user is specified as the Owner', ['domain' => 'org.civicrm.volunteer']),
+        ts('Edit volunteer project records for which the user is specified as the Owner / Manger', ['domain' => 'org.civicrm.volunteer']),
+      ],
+      'manage own volunteer projects' => [
+        $prefix . ts('manage own volunteer projects', ['domain' => 'org.civicrm.volunteer']),
+        ts('Mange volunteer project rosters and hours which the user is specified as the Owner / Manager', ['domain' => 'org.civicrm.volunteer']),
       ],
       'edit all volunteer projects' => [
         $prefix . ts('edit all volunteer projects', ['domain' => 'org.civicrm.volunteer']),
@@ -61,12 +65,14 @@ class CRM_Volunteer_Permission {
    * @return boolean
    */
   public static function check($permissions) {
+    
     $permissions = (array) $permissions;
 
     $permClass = CRM_Core_Config::singleton()->userPermissionClass;
     $skipCheck = !$permClass->isModulePermissionSupported() && !is_a($permClass, 'CRM_Core_Permission_UnitTests');
 
     array_walk_recursive($permissions, function(&$v, $k) use ($skipCheck) {
+
       // For VOL-71, if this is a permissions-challenged Joomla instance, don't
       // enforce CiviVolunteer-defined permissions.
       if ($skipCheck) {
@@ -79,10 +85,15 @@ class CRM_Volunteer_Permission {
       if ($v === 'edit own volunteer projects' && self::check('edit all volunteer projects')) {
         $v = CRM_Core_Permission::ALWAYS_ALLOW_PERMISSION;
       }
+
+      // Ensure that checks for "manage own" pass if user has "edit all" or "edit own"
+      if ($v === 'manage own volunteer projects' && (self::check('edit own volunteer projects') || self::check('edit all volunteer projects'))) {
+        $v = CRM_Core_Permission::ALWAYS_ALLOW_PERMISSION;
+      }
     });
 
-   // return parent::check($permissions);
-     return CRM_Core_Permission::check($permissions);
+    // return parent::check($permissions);
+    return CRM_Core_Permission::check($permissions);
   }
 
   /**
@@ -114,8 +125,11 @@ class CRM_Volunteer_Permission {
         if (!empty($projectId)) {
           $projectOwners = CRM_Volunteer_BAO_Project::getContactsByRelationship($projectId, 'volunteer_owner');
           $projectManagers = CRM_Volunteer_BAO_Project::getContactsByRelationship($projectId, 'volunteer_manager');
-          if (self::check('edit own volunteer projects')
-            && (in_array($contactId, $projectOwners) || in_array($contactId, $projectManagers))) {
+          if (
+            // TODO manage own projects is too permissive for Project entity type, but this method is used for associated data
+            (self::check('edit own volunteer projects') || self::check('manage own volunteer projects')) && 
+            (in_array($contactId, $projectOwners) || in_array($contactId, $projectManagers))
+          ) {
             return TRUE;
           }
         }
@@ -128,8 +142,11 @@ class CRM_Volunteer_Permission {
 
         $projectOwners = CRM_Volunteer_BAO_Project::getContactsByRelationship($projectId, 'volunteer_owner');
         $projectManagers = CRM_Volunteer_BAO_Project::getContactsByRelationship($projectId, 'volunteer_manager');
-        if (self::check('edit own volunteer projects')
-          && (in_array($contactId, $projectOwners) || in_array($contactId, $projectManagers))) {
+        if (
+          // TODO manage own projects is too permissive for Project entity type, but this method is used for associated data
+          (self::check('edit own volunteer projects') || self::check('manage own volunteer projects')) && 
+          (in_array($contactId, $projectOwners) || in_array($contactId, $projectManagers))
+        ) {
           return TRUE;
         }
         break;
@@ -145,7 +162,12 @@ class CRM_Volunteer_Permission {
         }
         break;
       case CRM_Core_Action::VIEW:
-        if (self::check('register to volunteer') || self::check('edit all volunteer projects') || self::check('edit own volunteer projects')) {
+        if (
+          self::check('register to volunteer') || 
+          self::check('edit all volunteer projects') || 
+          self::check('edit own volunteer projects') ||
+          self::check('manage own volunteer projects')
+        ) {
           return TRUE;
         }
         break;
@@ -154,8 +176,10 @@ class CRM_Volunteer_Permission {
           return TRUE;
         }
 
+        $projectOwners = CRM_Volunteer_BAO_Project::getContactsByRelationship($projectId, 'volunteer_owner');
         $projectManagers = CRM_Volunteer_BAO_Project::getContactsByRelationship($projectId, 'volunteer_manager');
-        if (in_array($contactId, $projectManagers)) {
+        if (self::check('manage own volunteer projects')
+          && (in_array($contactId, $projectOwners) || in_array($contactId, $projectManagers))) {
           return TRUE;
         }
         break;

@@ -74,14 +74,16 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
     $this->_entityTable = $project->entity_table;
     $this->_title = $project->title;
 
-    $this->_title .= ' ( ' . CRM_Utils_Date::customFormat($project->start_date);
     $this->_start_date = $project->start_date;
-
-    if ($project->end_date) {
-      $this->_title .= ' - ' . CRM_Utils_Date::customFormat($project->end_date) . ' )';
-    }
-    else {
-      $this->_title .= ' )';
+    
+    $start_date = CRM_Utils_Date::customFormat($project->start_date);
+    if (!empty($start_date)) {
+      $this->_title .= ' ( ' . $start_date;
+      if ($project->end_date) {
+        $this->_title .= ' - ' . CRM_Utils_Date::customFormat($project->end_date) . ' )';
+      } else {
+        $this->_title .= ' )';
+      }
     }
 
     CRM_Core_Resources::singleton()
@@ -147,7 +149,7 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
         $extra = [
           'READONLY' => TRUE,
           'style' => "background-color:#EBECE4",
-          'disabled' => 'disabled'
+          'disabled' => 'disabled',
         ];
         $datePickerAttr += $extra;
 

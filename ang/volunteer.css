@@ -32,6 +32,8 @@
 @media (max-width: 1000px) {
   .crm-vol-manage-actions .crm-vol-manage-buttons,
   .crm-vol-manage-actions .crm-vol-manage-search,
+  .crm-vol-opp-search .crm-group .back-to-projects,
+  .crm-vol-opp-search .crm-group .add-an-appeal,
   .crm-vol-opp-search .crm-group .search-box,
   .crm-vol-opp-search .crm-group .search-buttons,
   .crm-vol-opp-search .crm-group .search-display {
@@ -51,6 +53,8 @@
   }
   .crm-vol-manage-actions .crm-vol-manage-buttons,
   .crm-vol-manage-actions .crm-vol-manage-search,
+  .crm-vol-opp-search .crm-group .back-to-projects,
+  .crm-vol-opp-search .crm-group .add-an-appeal,
   .crm-vol-opp-search .crm-group .search-box,
   .crm-vol-opp-search .crm-group .search-buttons,
   .crm-vol-opp-search .crm-group .search-display {
@@ -281,6 +285,10 @@ span.crm-button-text {
 }
 .detail{
  flex-basis: auto!important;
+}
+
+.crm-vol-manage-appeal a {
+  cursor: pointer;
 }
 
 .appeal-image img {

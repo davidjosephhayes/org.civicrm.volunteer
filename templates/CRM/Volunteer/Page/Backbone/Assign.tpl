@@ -83,8 +83,10 @@
     </tr></thead>
     <tbody class="crm-vol-assignment-list"></tbody>
   </table>
-  <hr style="margin: 1em 1px;"/>
-  <input name="add-volunteer" class="crm-action-menu action-icon-plus" placeholder="{ts domain='org.civicrm.volunteer' escape='js'}Add Volunteer{/ts}..." style="width: 100%; max-width: 30em;" />
+  {if call_user_func(array('CRM_Volunteer_Permission','check'), 'edit own volunteer projects')}
+    <hr style="margin: 1em 1px;"/>
+    <input name="add-volunteer" class="crm-action-menu action-icon-plus" placeholder="{ts domain='org.civicrm.volunteer' escape='js'}Add Volunteer{/ts}..." style="width: 100%; max-width: 30em;" />
+  {/if}
 </script>
 
 <script type="text/template" id="crm-vol-menu-tpl">

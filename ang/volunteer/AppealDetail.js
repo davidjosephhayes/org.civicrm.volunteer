@@ -35,7 +35,17 @@
         + $window.location.hostname 
         + ($window.location.port ? ':' + $window.location.port : '');
     }
+    
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
+
+    // permission sets
+    $scope.canAccessAllProjects = CRM.checkPerm('edit all volunteer projects') || CRM.checkPerm('delete all volunteer projects');
+    $scope.canCreateProjects = CRM.checkPerm('create volunteer projects');
+    $scope.canEditProjects = CRM.checkPerm('edit all volunteer projects') || CRM.checkPerm('edit own volunteer projects');
+    $scope.canManageProjects = CRM.checkPerm('edit all volunteer projects') || CRM.checkPerm('edit own volunteer projects') || CRM.checkPerm('manage own volunteer projects');
+    $scope.canDeleteProjects = CRM.checkPerm('delete all volunteer projects') || CRM.checkPerm('delete own volunteer projects');
+    $scope.canRegister = CRM.checkPerm('register to volunteer');
+
     $scope.appeal = appeal;
     $scope.showShift = parseInt(appeal.display_volunteer_shift);
     $scope.locAny = parseInt(appeal.location_done_anywhere); 
@@ -47,9 +57,9 @@
     // Redirect Back to Search Appeal Page.
     $scope.backToSearchAppeal=function() {
       $location.path("/volunteer/appeals");
-    }
+    };
     $scope.volSignup= function(need_flexi_id,projectId) {
       $window.location.href = CRM.url("civicrm/volunteer/signup", "reset=1&needs[]="+need_flexi_id+"&dest=grid");
-    }
+    };
   });
 })(angular, CRM.$, CRM._);

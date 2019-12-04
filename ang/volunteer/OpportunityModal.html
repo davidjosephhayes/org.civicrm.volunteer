@@ -2,15 +2,15 @@
   <div class="modal">
     <div class="modal-body">
       <!-- <h3>{{currentEvent.title}}</h3> -->
-      <div ng-if="currentEventStatus" class="crm-vol-event-status messages status no-popup" ng-class="{'crm-ok': currentEventStatus==='registered'}">
+      <div ng-show="currentEventStatus" class="crm-vol-event-status messages status no-popup" ng-class="{'crm-ok': currentEventStatus==='registered'}">
         <div class="icon inform-icon"></div>
-        <span ng-if="currentEventStatus==='registered'">
+        <span ng-show="currentEventStatus==='registered'">
             <strong>{{ts("Good news!")}}</strong> {{ts('You are already registered for this opportunity.')}}
         </span>
-        <span ng-if="currentEventStatus==='full'">
+        <span ng-show="currentEventStatus==='full'">
             <strong>{{ts("Oh no!")}}</strong> {{ts('Unfortunately this opportunity is full.')}}
         </span>
-        <span ng-if="currentEventStatus==='other-unavailable'">
+        <span ng-show="currentEventStatus==='other-unavailable'">
             <strong>{{ts("Oh no!")}}</strong> {{ts('Unfortunately this opportunity is unavailable currently.')}}
         </span>
       </div>
@@ -37,7 +37,7 @@
       <crm-vol-beneficiaries-block beneficiaries="currentEvent.need.project.beneficiaries" heading="'Beneficiaries'" />
       <hr />
       <div class="crm-submit-buttons">
-        <button ng-if="!currentEventStatus" ng-click="volSignupCurrentEvent()" class="crm-button crm-vol-opportunity-info-register">{{ts('Register Now!')}}</button>
+        <button ng-show="canRegister && !currentEventStatus" ng-click="volSignupCurrentEvent()" class="crm-button crm-vol-opportunity-info-register">{{ts('Register Now!')}}</button>
         <button ng-click="closeModal('crm-vol-opportunity-info')" class="crm-button crm-vol-opportunity-info-close">{{ts('Close')}}</button>
       </div>
     </div>

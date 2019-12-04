@@ -3,12 +3,30 @@
   <div crm-ui-debug="campaigns"></div>
   <div crm-ui-debug="projects"></div>
   <div crm-ui-debug="searchParams"></div>
+  <h2>Manage Opportunities for "{{project.title}}"</h2>
   <div class="crm-form-block">
     <div class="crm-vol-widgets crm-vol-manage-widgets"></div>
     <div class="clear"></div>
-    <br />
-    <a href="#/volunteer/manage_appeal/{{projectId}}/0" class="button"><span><div class="icon ui-icon-plus"></div>{{ts('Add an Opportunity')}}</span></a><br /><br />
-    <span></span>
+    <div class="crm-vol-opp-search">
+      <div class="crm-group">
+        <div class="back-to-projects">
+          <a ng-click="manageProjects()" class="button">
+            <span>
+              <div class="icon ui-icon-caret-1-w"></div>
+              {{ts('Back To Projects')}}
+            </span>
+          </a>
+        </div>
+        <div ng-show="canEditProjects" class="add-an-appeal">
+          <a ng-click="editAppeal(0)" class="button">
+            <span>
+              <div class="icon ui-icon-plus"></div>
+              {{ts('Add an Opportunity')}}
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
     <div class="active_appeal_wrapper">
       <h3>{{ts("Active Opportunities")}}</h3>
       <table  class="display dataTable no-footer" role="grid">
@@ -23,7 +41,7 @@
             <th ng-click="sortBy('active_todate')" class="ui-state-default crm-vol-manage-beneficiaries">{{ts("End")}}
               <span class="sortorder" ng-show="propertyName === 'active_todate'" ng-class="{reverse: reverse}"></span>
             </th>
-            <th class="ui-state-default crm-vol-manage-location">{{ts("Enabled")}}</th>
+            <th ng-show="canEditProjects" class="ui-state-default crm-vol-manage-location">{{ts("Enabled")}}</th>
             <th class="ui-state-default crm-vol-manage-location">{{ts("Action")}}</th>
           </tr>
         </thead>
@@ -38,13 +56,13 @@
             <td class="crm-vol-manage-appeal">
               <span class="crm-vol-manage-appeal-todate">{{ appeal.active_todate }}</span>
             </td>
-            <td class="crm-vol-manage-appeal">
+            <td ng-show="canEditProjects" class="crm-vol-manage-appeal">
               <input ng-checked="appeal.is_appeal_active==1" class="is_appeal_active" type="checkbox"   ng-click="updateAppeal($event, appeal.id, projectId)" />
             </td>
             <td class="crm-vol-manage-appeal">
-              <a class="appeal_url" href="#/volunteer/appeal/{{ appeal.id }}">View</a>
-              <a class="edit_appeal" href="#/volunteer/manage_appeal/{{projectId}}/{{ appeal.id }}">Edit</a>
-              <a class="delete_appeal" ng-click="deleteAppeal(appeal.id)">Delete</a>
+              <a class="appeal_url" ng-click="viewAppeal(appeal.id)">View</a>
+              <a ng-show="canEditProjects" class="edit_appeal" ng-click="editAppeal(appeal.id)">Edit</a>
+              <a ng-show="canDeleteProjects" class="delete_appeal" ng-click="deleteAppeal(appeal.id)">Delete</a>
             </td>
           </tr>
         </tbody>
@@ -81,9 +99,9 @@
               <span class="crm-vol-manage-appeal-todate">{{ appeal.active_todate }}</span>
             </td>
             <td class="crm-vol-manage-appeal">
-              <a class="appeal_url" href="#/volunteer/appeal/{{ appeal.id }}">View</a>
-              <a class="edit_appeal" href="#/volunteer/manage_appeal/{{projectId}}/{{ appeal.id }}">Edit</a>
-              <a class="delete_appeal" ng-click="deleteAppeal(appeal.id)">Delete</a>
+              <a class="appeal_url" ng-click="viewAppeal(appeal.id)">View</a>
+              <a ng-show="canEditProjects" class="edit_appeal" ng-click="editAppeal(appeal.id)">Edit</a>
+              <a ng-show="canDeleteProjects" class="delete_appeal" ng-click="deleteAppeal(appeal.id)">Delete</a>
             </td>
           </tr>
         </tbody>

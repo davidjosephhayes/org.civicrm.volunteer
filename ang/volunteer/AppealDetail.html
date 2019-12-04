@@ -32,19 +32,21 @@
                   <div class="p-l-15">
                      <h2 class="m-t-0 appeal-title">{{ appeal.title }}</h2>
                      <div style="min-height: 40px;">
-                     <p ng-if="appeal.appeal_description != 'null'" ng-bind-html="appeal.appeal_description"></p>
+                     <p ng-show="appeal.appeal_description != 'null'" ng-bind-html="appeal.appeal_description"></p>
                      </div>
                   </div>
-                  <div class="p-l-15 appeal-detail-buttons" style="margin-right:15px">                
+                  <div ng-show="canRegister" class="p-l-15 appeal-detail-buttons" style="margin-right:15px">                
                      <button class="detail-btn appeal-volunteer" ng-hide="showVolunteer" ng-click="volSignup(appeal.project.flexibleNeed,appeal.project_id)">
                         <i class="fa fa-users" aria-hidden="true" ></i> {{ts('Volunteer!')}}
                      </button>
-                     <button ng-show="showShift && appeal.project.available_shifts" class="detail-btn appeal-search-shifts" ng-click="redirectTo(appeal.project_id)">{{ts('Search For Shifts!')}}</button>
+                     <button ng-show="showShift && appeal.project.available_shifts" class="detail-btn appeal-search-shifts" ng-click="redirectTo(appeal.project_id)">
+                        {{ts('Search For Shifts!')}}
+                     </button>
                   </div>
                   <div class="loc">
                      <h2 class="m-t-0">Location</h2>
                      <crm-vol-loc-block
-                        ng-if="!locAny"
+                        ng-show="!locAny"
                         data="{
                           address: appeal['api.LocBlock.getsingle'].id && 
                                   appeal['api.LocBlock.getsingle']['api.Address.getsingle'].id && 
@@ -56,18 +58,18 @@
                      <h2 class="m-t-0">Available Shifts</h2>
                      <ul>
                         <li ng-repeat="shift in appeal.project.available_shifts track by $index">
-                           <a ng-click="volSignup(shift.id)">{{shift.display_time}}</a>
+                           <a ng-show="canRegister" ng-click="volSignup(shift.id)">{{shift.display_time}}</a>
+                           <span ng-show="!canRegister">{{shift.display_time}}</span>
                         </li>
                      </ul> 
-                     <div class="appeal-available-shifts-buttons">
+                     <div ng-show="canRegister" class="appeal-available-shifts-buttons">
                         <button class="appeal-more-shifts" ng-click="redirectTo(appeal.project_id)">
                            <i class="fa fa-chevron-circle-right" aria-hidden="true"></i> {{ts('More Shifts')}}
                         </button>
                      </div>
                   </div>
                   <div class="p-l-15">			   	  
-                     <br /><br />
-                     <div ng-if="appeal.project.description != 'null' && appeal.show_project_information == 1">
+                     <div ng-show="appeal.project.description != 'null' && appeal.show_project_information == 1">
                         <h2 class="m-t-0">Project - {{appeal.project.title}}</h2>
                         <p  ng-bind-html="appeal.project.description"></p>
                      </div>

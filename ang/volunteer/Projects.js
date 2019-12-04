@@ -80,7 +80,9 @@
     // permission sets
     $scope.canAccessAllProjects = CRM.checkPerm('edit all volunteer projects') || CRM.checkPerm('delete all volunteer projects');
     $scope.canCreateProjects = CRM.checkPerm('create volunteer projects');
-    $scope.canEditOwnProjects = CRM.checkPerm('edit own volunteer projects');
+    $scope.canEditProjects = CRM.checkPerm('edit all volunteer projects') || CRM.checkPerm('edit own volunteer projects');
+    $scope.canManageProjects = CRM.checkPerm('edit all volunteer projects') || CRM.checkPerm('edit own volunteer projects') || CRM.checkPerm('manage own volunteer projects');
+    $scope.canDeleteProjects = CRM.checkPerm('delete all volunteer projects') || CRM.checkPerm('delete own volunteer projects');
     $scope.canRegister = CRM.checkPerm('register to volunteer');
 
     $scope.associatedEntityTitle = function(project) {
@@ -145,9 +147,8 @@
     };
 
     $scope.clearCampaign = function() {
-      if ($scope.searchParams.campaign_id == "") {
+      if ($scope.searchParams.campaign_id == "")
         delete $scope.searchParams.campaign_id;
-      }
     };
 
     $scope.batchActions = {
@@ -182,7 +183,7 @@
         }
       },
     };
-    if (CRM.checkPerm('delete all volunteer projects') || CRM.checkPerm('edit own volunteer projects')) {
+    if (CRM.checkPerm('delete all volunteer projects') || CRM.checkPerm('delete own volunteer projects')) {
       $scope.batchActions.delete = {
         label: ts("Delete"),
         run: function() {

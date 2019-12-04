@@ -21,16 +21,32 @@
                 return error;
               }
             });
-          }
+          },
+          project: function(crmApi, $route) {
+            return crmApi('VolunteerProject', 'getsingle', {
+              id: $route.current.params.projectId,
+            }).then(function (data) {              
+              return data;              
+            },function(error) {
+              if (error.is_error) {
+                CRM.alert(error.error_message, ts("Error"), "error");
+              } else {
+                return error;
+              }
+            });
+          },
         }
       });
     }
   );
 
-  angular.module('volunteer').controller('VolunteerAppeal', function ($scope,crmApi,crmUiAlert,$route, projectAppealsData) {
+  angular.module('volunteer').controller('VolunteerAppeal', function ($scope, crmApi, crmUiAlert, $route, project, projectAppealsData, $location) {
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
+    
     //assign project id from url.
     $scope.projectId = $route.current.params.projectId;
+    $scope.project = project;
+
     // Get current date for filter data for expired appeal and active appeal.
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');
@@ -38,6 +54,14 @@
     var yyyy = today.getFullYear();
     // today_date contains date with 2019-06-13 format.
     $scope.today_date = yyyy + '-' + mm + '-' + dd;
+
+    // permission sets
+    $scope.canAccessAllProjects = CRM.checkPerm('edit all volunteer projects') || CRM.checkPerm('delete all volunteer projects');
+    $scope.canCreateProjects = CRM.checkPerm('create volunteer projects');
+    $scope.canEditProjects = CRM.checkPerm('edit all volunteer projects') || CRM.checkPerm('edit own volunteer projects');
+    $scope.canManageProjects = CRM.checkPerm('edit all volunteer projects') || CRM.checkPerm('edit own volunteer projects') || CRM.checkPerm('manage own volunteer projects');
+    $scope.canDeleteProjects = CRM.checkPerm('delete all volunteer projects') || CRM.checkPerm('delete own volunteer projects');
+    $scope.canRegister = CRM.checkPerm('register to volunteer');
 
     /*
     * Manage code for Active appeal table.
@@ -64,6 +88,13 @@
       $scope.reverseExpiredTable = ($scope.propertyNameExpiredTable === propertyNameExpiredTable) ? !$scope.reverseExpiredTable : false;
       $scope.propertyNameExpiredTable = propertyNameExpiredTable;
     };
+
+    /**
+     * Go to create appeal or project pages
+     */
+    $scope.manageProjects = () => $location.path(`/volunteer/manage`); 
+    $scope.editAppeal = (appealId) => $location.path(`/volunteer/manage_appeal/${$scope.projectId}/${appealId}`); 
+    $scope.viewAppeal = (appealId) => $location.path(`/volunteer/appeal/${appealId}`); 
 
     /*
     * Update Appeal status.
@@ -102,8 +133,11 @@
     * Remove that element from table.
     **/
     $scope.deleteAppeal = function (id) {
-      CRM.confirm({message: ts("Are you sure you want to Delete the Appeal?")}).on('crmConfirm:yes', function() {
-        crmApi("VolunteerAppeal", "delete", {id: id}, true).then(function() {
+      CRM
+      .confirm({message: ts("Are you sure you want to Delete the Appeal?")})
+      .on('crmConfirm:yes', function() {
+        crmApi("VolunteerAppeal", "delete", {id: id}, true)
+        .then(function() {
           let appeals_details = $scope.appeals;
           // Remove that element from table based on id without page load.
           $scope.appeals = appeals_details.filter(function( obj ) {
@@ -113,6 +147,7 @@
       });
     };
   });
+
   // https://github.com/uxitten/polyfill/blob/master/string.polyfill.js
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
   if (!String.prototype.padStart) {

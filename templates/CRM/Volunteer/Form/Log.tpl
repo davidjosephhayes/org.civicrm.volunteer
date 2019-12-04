@@ -24,78 +24,99 @@
  +--------------------------------------------------------------------+
 *}
 <div class="volunteer-log form-item">
-  <div id="help">
-    {ts domain='org.civicrm.volunteer'}Available and scheduled volunteers are listed below. Enter the time spent by each volunteer in minutes under Actual Duration and change status to Completed. Click 'Add Volunteer to record hours for volunteers not already listed below. Click Save to save your entries.{/ts}
-  </div>
-
-  <div class="crm-copy-fields crm-grid-table" id="crm-log-entry-table" data-vid="{$vid}">
-    <div class="crm-grid-header">
-      <div class="crm-grid-cell"></div>
-      <div class="crm-grid-cell">
-        {ts domain='org.civicrm.volunteer'}Contact{/ts}
-        <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
-      </div>
-      <div class="crm-grid-cell">{ts domain='org.civicrm.volunteer'}Role{/ts}</div>
-      <div class="crm-grid-cell">{ts domain='org.civicrm.volunteer'}Start Date{/ts}</div>
-      <div class="crm-grid-cell">{ts domain='org.civicrm.volunteer'}Scheduled Duration <br/> (in minutes){/ts}</div>
-      <div class="crm-grid-cell">
-        <img src="{$config->resourceBase}i/copy.png"
-             alt="{ts domain='org.civicrm.volunteer'}Click to copy Actual Duration from row one to all rows.{/ts}"
-             fname="actual_duration" class="action-icon"
-             title="{ts domain='org.civicrm.volunteer'}Click here to copy the Actual Duration value in row one to ALL rows.{/ts}" />
-        {ts}Actual Duration <br/> (in minutes){/ts}
-        <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
-      </div>
-      <div class="crm-grid-cell">
-        {ts}Points ratio{/ts}
-        <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
-      </div>
-      <div class="crm-grid-cell"><img src="{$config->resourceBase}i/copy.png"
-                                      alt="{ts domain='org.civicrm.volunteer'}Click to copy Volunteer Status from row one to all rows.{/ts}"
-                                      fname="volunteer_status" class="action-icon"
-                                      title="{ts domain='org.civicrm.volunteer'}Click here to copy the Volunteer Status value in row one to ALL rows.{/ts}"/>{ts}Status{/ts}
-      </div>
-      <div class="crm-grid-cell"></div>
+  {if $showVolunteerRow>0 || call_user_func(array('CRM_Volunteer_Permission','check'), 'edit own volunteer projects')}
+    <div id="help">
+      {ts domain='org.civicrm.volunteer'}Available and scheduled volunteers are listed below. Enter the time spent by each volunteer in minutes under Actual Duration and change status to Completed. Click 'Add Volunteer to record hours for volunteers not already listed below. Click Save to save your entries.{/ts}
     </div>
-
-    {section name='i' start=1 loop=$rowCount}
-      {assign var='rowNumber' value=$smarty.section.i.index}
-      <div
-        class="{cycle values="odd-row,even-row"} selector-rows {if $rowNumber > $showVolunteerRow && $rowNumber != 1} hiddenElement {else} crm-grid-row {/if}"
-        entity_id="{$rowNumber}">
-        <div class="compressed crm-grid-cell volunteer-commendation"><span></span></div>
-        <div class="compressed crm-grid-cell">
-          {$form.field.$rowNumber.contact_id.html}
+    <div class="crm-copy-fields crm-grid-table" id="crm-log-entry-table" data-vid="{$vid}">
+      <div class="crm-grid-header">
+        <div class="crm-grid-cell"></div>
+        <div class="crm-grid-cell">
+          {ts domain='org.civicrm.volunteer'}Contact{/ts}
+          <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
         </div>
-        <div class="compressed crm-grid-cell">
-          {$form.field.$rowNumber.volunteer_role.html}
-        </div>
-        <div class="compressed crm-grid-cell">
-          {$form.field.$rowNumber.start_date.html}
-        </div>
-        <div class="compressed crm-grid-cell">
-          {$form.field.$rowNumber.scheduled_duration.html}
-        </div>
-        <div class="compressed crm-grid-cell">
-          {$form.field.$rowNumber.actual_duration.html}
-        </div>
-        <div class="compressed crm-grid-cell">
-          {$form.field.$rowNumber.time_weight.html}
-        </div>
-        <div class="compressed crm-grid-cell">
-          {$form.field.$rowNumber.volunteer_status.html}
+        <div class="crm-grid-cell">{ts domain='org.civicrm.volunteer'}Role{/ts}</div>
+        <div class="crm-grid-cell">{ts domain='org.civicrm.volunteer'}Start Date{/ts}</div>
+        <div class="crm-grid-cell">{ts domain='org.civicrm.volunteer'}Scheduled Duration <br/> (in minutes){/ts}</div>
+        <div class="crm-grid-cell">
+          <img
+            src="{$config->resourceBase}i/copy.png"
+            alt="{ts domain='org.civicrm.volunteer'}Click to copy Actual Duration from row one to all rows.{/ts}"
+            fname="actual_duration" class="action-icon"
+            title="{ts domain='org.civicrm.volunteer'}Click here to copy the Actual Duration value in row one to ALL rows.{/ts}"
+          />
+          {ts}Actual Duration <br/> (in minutes){/ts}
+          <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
         </div>
         <div class="crm-grid-cell">
-          <button crm-icon="fa-times" class="crm-button crm-vol-remove-row"><i class="crm-i fa-times"></i>
-            {ts domain='org.civicrm.volunteer'}Remove{/ts}
-          </button>
+          {ts}Points ratio{/ts}
+          <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
         </div>
+        <div class="crm-grid-cell">
+          <img 
+            src="{$config->resourceBase}i/copy.png"
+            alt="{ts domain='org.civicrm.volunteer'}Click to copy Volunteer Status from row one to all rows.{/ts}"
+            fname="volunteer_status" class="action-icon"
+            title="{ts domain='org.civicrm.volunteer'}Click here to copy the Volunteer Status value in row one to ALL rows.{/ts}"
+          />
+          {ts}Status{/ts}
+        </div>
+        <div class="crm-grid-cell"></div>
       </div>
-    {/section}
-  </div>
-  <a href="#" id="addMoreVolunteer" class="button">
-    <span><div class="icon ui-icon-plus"></div>{ts domain='org.civicrm.volunteer'}Add Volunteer{/ts}</span>
-  </a>
+      {section name='i' start=1 loop=$rowCount}
+        {assign var='rowNumber' value=$smarty.section.i.index}
+        <div
+          class="
+            {cycle values="odd-row,even-row"}
+            selector-rows
+            {if $rowNumber > $showVolunteerRow && $rowNumber != 1} 
+              hiddenElement
+            {else}
+              crm-grid-row
+            {/if}
+          "
+          entity_id="{$rowNumber}"
+        >
+          <div class="compressed crm-grid-cell volunteer-commendation"><span></span></div>
+          <div class="compressed crm-grid-cell">
+            {$form.field.$rowNumber.contact_id.html}
+          </div>
+          <div class="compressed crm-grid-cell">
+            {$form.field.$rowNumber.volunteer_role.html}
+          </div>
+          <div class="compressed crm-grid-cell">
+            {$form.field.$rowNumber.start_date.html}
+          </div>
+          <div class="compressed crm-grid-cell">
+            {$form.field.$rowNumber.scheduled_duration.html}
+          </div>
+          <div class="compressed crm-grid-cell">
+            {$form.field.$rowNumber.actual_duration.html}
+          </div>
+          <div class="compressed crm-grid-cell">
+            {$form.field.$rowNumber.time_weight.html}
+          </div>
+          <div class="compressed crm-grid-cell">
+            {$form.field.$rowNumber.volunteer_status.html}
+          </div>
+          <div class="crm-grid-cell">
+            <button crm-icon="fa-times" class="crm-button crm-vol-remove-row"><i class="crm-i fa-times"></i>
+              {ts domain='org.civicrm.volunteer'}Remove{/ts}
+            </button>
+          </div>
+        </div>
+      {/section}
+    </div>
+  {else}
+    <div id="help">
+      {ts domain='org.civicrm.volunteer'}There are currently no volunteer hours to log.{/ts}
+    </div>
+  {/if}
+  {if call_user_func(array('CRM_Volunteer_Permission','check'), 'edit own volunteer projects')}
+    <a href="#" id="addMoreVolunteer" class="button">
+      <span><div class="icon ui-icon-plus"></div>{ts domain='org.civicrm.volunteer'}Add Volunteer{/ts}</span>
+    </a>
+  {/if}
 
   <div class="crm-submit-buttons">{if $fields}{$form._qf_Batch_refresh.html}{/if} &nbsp; {$form.buttons.html}</div>
 </div>

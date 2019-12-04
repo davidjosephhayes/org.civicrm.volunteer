@@ -597,35 +597,48 @@ function volunteer_civicrm_alterAPIPermissions($entity, $action, &$params, &$per
 
     if ($activityTypeId === 'Volunteer') {
       $permissions['activity'][$action] = [
-        ['edit own volunteer projects', 'log own hours'],
+        ['edit all volunteer projects', 'edit own volunteer projects', 'manage own volunteer projects', 'log own hours'],
       ];
     }
   }
   $permissions['volunteer_need']['default'] = [
-    ['create volunteer projects', 'edit own volunteer projects']
+    ['create volunteer projects',  'edit all volunteer projects', 'edit own volunteer projects', 'manage own volunteer projects']
   ];
   $permissions['volunteer_need']['getsearchresult'] = ['register to volunteer'];
   $permissions['volunteer_need']['getvalue'] = ['log own hours'];
   $permissions['volunteer_assignment']['default'] = [
     // This totally insane syntax means either permission is sufficient to grant API access.
-    ['edit own volunteer projects', 'log own hours'],
+    ['edit all volunteer projects', 'edit own volunteer projects', 'manage own volunteer projects', 'log own hours'],
   ];
-  $permissions['volunteer_commendation']['default'] = ['edit own volunteer projects'];
+  $permissions['volunteer_commendation']['default'] = [
+    ['edit own volunteer projects', 'manage own volunteer projects']
+  ];
   $permissions['volunteer_project']['default'] = [
-    ['create volunteer projects', 'edit own volunteer projects']
+    ['edit all volunteer projects', 'create volunteer projects', 'edit own volunteer projects']
   ];
   $permissions['volunteer_project']['get'] = [
-    ['register to volunteer', 'edit own volunteer projects']
+    ['register to volunteer', 'edit all volunteer projects', 'edit own volunteer projects', 'manage own volunteer projects']
   ];
   $permissions['volunteer_project']['getlocblockdata'] = [
     // This totally insane syntax means either permission is sufficient to grant API access.
-    ['edit own volunteer projects', 'log own hours'],
+    ['edit all volunteer projects', 'edit own volunteer projects', 'manage own volunteer projects', 'log own hours'],
   ];
-  $permissions['volunteer_util']['default'] = ['edit own volunteer projects'];
+  $permissions['volunteer_util']['default'] = [
+    ['create volunteer projects', 'edit all volunteer projects', 'edit own volunteer projects', 'manage own volunteer projects']
+  ];
   $permissions['volunteer_appeal']['default'] = [
-    ['register to volunteer', 'edit own volunteer projects']
+    ['edit all volunteer projects', 'edit own volunteer projects']
   ];
-  $permissions['volunteer_project_contact']['default'] = ['edit own volunteer projects'];
+  $permissions['volunteer_appeal']['get'] =
+  $permissions['volunteer_appeal']['getappealdata'] = [
+    ['register to volunteer', 'edit all volunteer projects', 'edit own volunteer projects', 'manage own volunteer projects']
+  ];
+  $permissions['volunteer_project_contact']['default'] = [
+    ['edit all volunteer projects', 'edit own volunteer projects']
+  ];
+  $permissions['volunteer_project_contact']['get'] = [
+    ['edit all volunteer projects', 'edit own volunteer projects', 'manage own volunteer projects']
+  ];
 
   // Enables use of volunteer role in entityRef widgets
   $isVolRoleGetList = ($entity === 'option_value' && $action === 'getlist' && isset($params['params']) && CRM_Utils_Array::value('option_group_id', $params['params']) === 'volunteer_role');
@@ -637,7 +650,27 @@ function volunteer_civicrm_alterAPIPermissions($entity, $action, &$params, &$per
 
   // allow fairly liberal access to the volunteer opp listing UI, which uses lots of API calls
   if (_volunteer_isVolListingApiCall($entity, $action) && CRM_Volunteer_Permission::checkProjectPerms(CRM_Core_Action::VIEW)) {
-    $params['check_permissions'] = FALSE;
+    /**
+     * As cool as this would be to work for chained api calls
+     * \Civi\API\Subscriber::callNestedApi copies
+     * check_permissions from the original request
+     * not the one modified by this function
+     * Also, ACL clauses seem to be added to contact gets
+     * regardless if we clear it or not, however we can
+     * get rid of them in hook_civicrm_selectWhereClause
+     */
+    $params['check_permissions'] = false;
+  }
+}
+
+/**
+ * Implements hook_civicrm_selectWhereClause
+ */
+function volunteer_civicrm_selectWhereClause($entity, &$clauses) {
+
+  if (_volunteer_isVolListingApiCall($entity, 'get') && CRM_Volunteer_Permission::checkProjectPerms(CRM_Core_Action::VIEW)) {
+    // TODO make a query that checks if contacts are actually contacts we can access
+    $clauses = [];
   }
 }
 
@@ -656,6 +689,11 @@ function volunteer_civicrm_alterAPIPermissions($entity, $action, &$params, &$per
  *   True if the API call is of the type that the vol opps UI depends on.
  */
 function _volunteer_isVolListingApiCall($entity, $action) {
+  // normalize entity/action name to what we expect
+  $entity = preg_replace('/(?<=\\w)(?=[A-Z])/',"_$1", $entity);
+  $entity = strtolower($entity);
+  $action = strtolower($action);
+
   $actions = [
     'get',
     'getcountries',
@@ -663,7 +701,9 @@ function _volunteer_isVolListingApiCall($entity, $action) {
     'getsingle',
     'getsupportingdata',
     'getperms',
-    'getsearchresult'
+    'getsearchresult',
+    'getappealdata',
+    'getcustomfieldsetvolunteer',
   ];
   $entities = ['volunteer_project_contact', 'volunteer_need', 'volunteer_project', 'volunteer_util', 'volunteer_appeal'];
 

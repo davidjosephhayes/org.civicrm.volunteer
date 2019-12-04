@@ -6,8 +6,8 @@
     <page_callback>CRM_Volunteer_Form_Log</page_callback>
     <path_arguments>action=add</path_arguments>
     <!-- Access is further restricted in the preprocessor -->
-    <access_callback>CRM_Volunteer_Permission::check</access_callback>
-    <access_arguments>edit own volunteer projects</access_arguments>
+    <!-- <access_callback>CRM_Volunteer_Permission::check</access_callback> -->
+    <access_arguments>edit all volunteer projects;edit own volunteer projects;manage own volunteer projects</access_arguments>
     <is_public>1</is_public>
   </item>
   <item>
@@ -38,7 +38,7 @@
     <path>civicrm/volunteer/signup</path>
     <page_callback>CRM_Volunteer_Form_VolunteerSignUp</page_callback>
     <title>Volunteer Signup</title>
-    <access_callback>CRM_Volunteer_Permission::check</access_callback>
+    <!-- <access_callback>CRM_Volunteer_Permission::check</access_callback> -->
     <access_arguments>register to volunteer</access_arguments>
     <is_public>true</is_public>
   </item>
@@ -46,7 +46,7 @@
     <path>civicrm/volunteer/profile</path>
     <page_callback>CRM_Volunteer_Form_VolunteerProfile</page_callback>
     <title>Volunteer Profile</title>
-    <access_callback>CRM_Volunteer_Permission::check</access_callback>
+    <!-- <access_callback>CRM_Volunteer_Permission::check</access_callback> -->
     <access_arguments>register to volunteer</access_arguments>
     <is_public>true</is_public>
   </item>
@@ -65,8 +65,8 @@
     <page_callback>CRM_Volunteer_Form_Commendation</page_callback>
     <title>Volunteer Commendation</title>
     <!-- Access is further restricted in the preprocessor -->
-    <access_callback>CRM_Volunteer_Permission::check</access_callback>
-    <access_arguments>edit own volunteer projects</access_arguments>
+    <!-- <access_callback>CRM_Volunteer_Permission::check</access_callback> -->
+    <access_arguments>edit all volunteer projects;edit own volunteer projects;manage own volunteer projects</access_arguments>
     <is_public>true</is_public>
   </item>
   <item>
@@ -86,7 +86,7 @@
     <path>civicrm/volunteer/backbonetemplates</path>
     <title>Load Backbone Templates</title>
     <page_callback>CRM_Volunteer_Page_Backbone</page_callback>
-    <access_arguments>create volunteer projects;edit own volunteer projects</access_arguments>
+    <access_arguments>create volunteer projects;edit all volunteer projects;edit own volunteer projects;manage own volunteer projects</access_arguments>
   </item>
   <item>
     <path>civicrm/vol</path>
@@ -100,8 +100,8 @@
     <page_callback>CRM_Volunteer_Page_Roster</page_callback>
     <title>Roster</title>
     <!-- Access is further restricted in CRM_Volunteer_BAO_Project::retrieve() -->
-    <access_callback>CRM_Volunteer_Permission::check</access_callback>
-    <access_arguments>edit own volunteer projects</access_arguments>
+    <!-- <access_callback>CRM_Volunteer_Permission::check</access_callback> -->
+    <access_arguments>edit all volunteer projects;edit own volunteer projects;manage own volunteer projects</access_arguments>
     <is_public>true</is_public>
   </item>
   <item>
