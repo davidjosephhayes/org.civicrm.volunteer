@@ -623,7 +623,7 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
       $appeal['display_volunteer_shift'] = $dao->display_volunteer_shift;
       $appeal['hide_appeal_volunteer_button'] = $dao->hide_appeal_volunteer_button;
       $appeal['show_project_information'] = $dao->show_project_information;
-      $appeal['beneficiary_display_name'] = $dao->beneficiary_display_name;
+      $appeal['beneficiary_display_name'] = implode(', ',array_unique(explode('~|~',$dao->beneficiary_display_name)));
       $appeal['need_id'] = $dao->need_id;
       $appeal['need_shift_id'] = $dao->need_shift_id;
       $appeal['need_flexi_id'] = $dao->need_flexi_id;
