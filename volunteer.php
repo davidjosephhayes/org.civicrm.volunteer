@@ -731,6 +731,7 @@ function _volunteer_isVolListingApiCall($entity, $action) {
     'getsearchresult',
     'getappealdata',
     'getcustomfieldsetvolunteer',
+    'getcustomfieldsetwithmetavolunteerappeal',
   ];
   $entities = ['volunteer_project_contact', 'volunteer_need', 'volunteer_project', 'volunteer_util', 'volunteer_appeal'];
 

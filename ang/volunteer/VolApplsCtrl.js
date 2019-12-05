@@ -40,7 +40,7 @@
     $scope.canRegister = CRM.checkPerm('register to volunteer');
     
     //Change reult view
-    $scope.changeView=function(view) {
+    $scope.changeView= view => {
       view = view || 'grid';
       $location.path("/volunteer/appeals/" + view);
     };
@@ -74,28 +74,28 @@
     $scope.beneficiary_name = [];
     $scope.custom_field_display = [];
     $scope.supporting_data = supporting_data.values;
-
     $scope.appeals = [];
+    $scope.filters = {};
 
-    $scope.goToCalendar=function() {
-      $location.path("/volunteer/opportunities/calendar");
-    };
+    $scope.goToCalendar = () => $location.path("/volunteer/opportunities/calendar");
+    
     // Clear checkbox selection in Date and Location Filter.
-    $scope.clear = function clear() {
+    $scope.clear = () => {
       $scope.location_finder_way = null;
       $scope.lat = null;
       $scope.lon = null;
       $scope.postal_code = null;
     };
+
     // Assign custom field set values.
     $scope.custom_fieldset_volunteer = custom_fieldset_volunteer.values;
 
     var firstTime;
-    const getParams = function() {
+    const getParams = () => {
       // this line will check if the argument is undefined, null, or false
       // if so set it to false, otherwise set it to it's original value
       firstTime = firstTime || false;
-      let params={};
+      let params = {};
       if($window.localStorage.getItem("search_params") && firstTime == true) {
         
         params = JSON.parse($window.localStorage.getItem("search_params"));
@@ -166,6 +166,7 @@
       if (current_parms.beneficiary && typeof current_parms.beneficiary === "string") {
         params.beneficiary = current_parms.beneficiary;
       }
+
       if(params.beneficiary) {
         var beneficiaryArray = params.beneficiary.split(",");
         for(var i = 0; i < beneficiaryArray.length; i++) {
@@ -216,68 +217,68 @@
     }
 
     //Get appeal data with search text and/or pagination
-    const getAppeals = function (advancedFilter, filterObj, firstTime) {
+    const getAppeals = (advancedFilter, filterObj, firstTime) => {
       
       CRM.$('#crm-main-content-wrapper').block();
 
       const params = getParams();
       
       return crmApi('VolunteerAppeal', 'getsearchresult', params)
-        .then(function (data) {
-          
-          const appeals = data.values.map(function(appeal){
-            appeal.hide_appeal_volunteer_button = parseInt(appeal.hide_appeal_volunteer_button);
-            appeal.hide_appeal_volunteer_button = parseInt(appeal.display_volunteer_shift);
-            return appeal;
-          });
-          $scope.appeals = appeals;
-                    
-          $scope.totalRec = data.total;
-          $scope.numberOfPages= Math.ceil($scope.totalRec/$scope.pageSize);
-          $scope.closeModal('crm-vol-advanced-filters');
-          CRM.$('#crm-main-content-wrapper').unblock();
+      .then(function (data) {
+        
+        const appeals = data.values.map(function(appeal){
+          appeal.hide_appeal_volunteer_button = parseInt(appeal.hide_appeal_volunteer_button);
+          appeal.hide_appeal_volunteer_button = parseInt(appeal.display_volunteer_shift);
+          return appeal;
+        });
+        $scope.appeals = appeals;
+                  
+        $scope.totalRec = data.total;
+        $scope.numberOfPages= Math.ceil($scope.totalRec/$scope.pageSize);
+        $scope.closeModal('crm-vol-advanced-filters');
+        CRM.$('#crm-main-content-wrapper').unblock();
 
-          var sortOption = $scope.options.findIndex(function(option) {
-            return option.key == $scope.sortValue.key;
-          });
-          params.sortOptionKey = $scope.sortValue.key;
-          params.sortOption = sortOption;
-          params.location_finder_way = $scope.location_finder_way;
-          params.advanced_search_option = $scope.advanced_search;
-          $window.localStorage.setItem("search_params", JSON.stringify(params));
-          $scope.active_search = params;
-        },function(error) {
-          CRM.$('#crm-main-content-wrapper').unblock();
-          if (error.is_error) {
-            CRM.alert(error.error_message, ts("Error"), "error");
-          } else {
-            return error;
-          }
-        }); 
+        var sortOption = $scope.options.findIndex(function(option) {
+          return option.key == $scope.sortValue.key;
+        });
+        params.sortOptionKey = $scope.sortValue.key;
+        params.sortOption = sortOption;
+        params.location_finder_way = $scope.location_finder_way;
+        params.advanced_search_option = $scope.advanced_search;
+        $window.localStorage.setItem("search_params", JSON.stringify(params));
+        $scope.active_search = params;
+      },function(error) {
+        CRM.$('#crm-main-content-wrapper').unblock();
+        if (error.is_error) {
+          CRM.alert(error.error_message, ts("Error"), "error");
+        } else {
+          return error;
+        }
+      }); 
     }  
     //Loading  list on first time
     getAppeals('','',true);
 
     //update current page to previouse and get result data
-    $scope.prevPageData=function(){
+    $scope.prevPageData = () => {
       $scope.currentPage=$scope.currentPage-1;
       getAppeals();
     }
 
     //update current page to next and get result data
-    $scope.nextPageData=function(){
+    $scope.nextPageData = () => {
       $scope.currentPage=$scope.currentPage+1;
       getAppeals();
     }
 
     //reset page count and search data
-    $scope.searchRes=function(){
+    $scope.searchRes = () => {
       $scope.currentPage = 1;
       getAppeals();
     }
 
     //sort title,dates,beneficiaries by asc and desc
-    $scope.sort=function(){
+    $scope.sort = () => {
       $scope.currentPage = 1;
       checkAndSetSortValue();
       getAppeals();
@@ -309,11 +310,11 @@
       $scope.order=orderby;
     }
 
-    $scope.redirectTo=function(appealId) {
+    $scope.redirectTo = (appealId) => {
       $location.path("/volunteer/appeal/"+appealId);
     }
 
-    $scope.volSignup= function(need_flexi_id,projectId,hide_appeal_volunteer_button) {
+    $scope.volSignup = (need_flexi_id,projectId,hide_appeal_volunteer_button) => {
       if(hide_appeal_volunteer_button == "1") {
         $location.url("/volunteer/opportunities?project="+projectId+"&hideSearch=1");
       } else {
@@ -321,19 +322,19 @@
       }
     }
 
-    $scope.openModal = function(id) {
+    $scope.openModal = id => {
       volunteerModalService.open(id);
     };
-    $scope.closeModal = function(id) {
+    $scope.closeModal = id => {
       volunteerModalService.close(id);
     };
 
     $scope.active = 1;
-    $scope.selectTab = function(value){
+    $scope.selectTab = value => {
       $scope.active = value;
     }
 
-    $scope.isActive = function(value){
+    $scope.isActive = value => {
       if($scope.active==value){
         return true;
       }
@@ -342,7 +343,7 @@
       }
     }
 
-    $scope.getPosition = function (){
+    $scope.getPosition = () => {
       if(navigator.geolocation){
         navigator.geolocation.getCurrentPosition(showPosition);
       } else {
@@ -370,14 +371,16 @@
       {value: 100, label: ts('100')}
     ];
 
-    $scope.advanceFilter=function() {
-      let params={proximity:{}};
+    $scope.advanceFilter = () => {
+      let params = {
+        proximity: {},
+      };
       $scope.advanced_search = true;
       $scope.currentPage = 1;
       getAppeals();
     }
 
-    $scope.resetFilter=function() {
+    $scope.resetFilter= () => {
       $window.localStorage.removeItem("search_params");
       $location.search('beneficiary', null);
       $route.reload();
