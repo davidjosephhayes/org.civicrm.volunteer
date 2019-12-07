@@ -397,6 +397,8 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
     $show_beneficiary_at_front = 1;
     $seperator = CRM_CORE_DAO::VALUE_SEPARATOR;
 
+    $placeholders = [];
+
     $select = "
       SELECT SQL_CALC_FOUND_ROWS
         (select id from civicrm_volunteer_need where civicrm_volunteer_need.is_flexible = 1 and civicrm_volunteer_need.project_id=p.id) as need_flexi_id,
@@ -492,7 +494,8 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
           LEFT JOIN civicrm_volunteer_need as advance_need
             ON 1
               AND (advance_need.project_id = p.id)
-              AND advance_need.is_active = 1 And advance_need.visibility_id = 1 
+              AND advance_need.is_active = 1
+              AND advance_need.visibility_id = 1 
               AND advance_need.is_flexible=0
         ";
 
@@ -501,7 +504,8 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
         $where .= " AND (
           (
             (
-              advance_need.end_time IS NULL AND DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>='".$start_time."'
+              advance_need.end_time IS NULL AND 
+              DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>='".$start_time."'
             ) OR ( 
               DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>='".$start_time."' AND 
               DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')<='".$end_time."'

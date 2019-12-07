@@ -1,42 +1,9 @@
 <div class="crm-container">
-  <div class="active_filters" ng-if="active_search.advanced_search_option==true || active_search.beneficiary!== undefined">
-    <span class="active_filter_heading"><b>Active Filters : </b></span>
-    <div class="active_filter_content">
-      <div ng-if="active_search.advanced_search_option==true">
-        <div class="filter_data" ng-if="active_search.advanced_search.fromdate!== undefined">
-          <span><b>From Date : </b>{{ active_search.advanced_search.fromdate }}</span>
-        </div>
-        <div class="filter_data" ng-if="active_search.advanced_search.todate!== undefined">
-          <span><b>To Date : </b>{{ active_search.advanced_search.todate }}</span>
-        </div>
-        <div ng-if="active_search.advanced_search.show_appeals_done_anywhere === undefined">
-          <div ng-if="active_search.location_finder_way!== undefined">
-            <div class="filter_data" ng-if="active_search.location_finder_way== 'use_my_location'">
-              <span><b>Latitude : </b>{{ active_search.advanced_search.proximity.lat }}, </span>
-              <span><b>Longitude : </b>{{ active_search.advanced_search.proximity.lon }}</span>
-            </div>
-            <div class="filter_data" ng-if="active_search.location_finder_way== 'use_postal_code'">
-              <span><b>Postal Code : </b>{{ active_search.advanced_search.proximity.postal_code }}</span>
-            </div>
-            <span class="filter_data"><b>Radius : </b>{{ active_search.advanced_search.proximity.radius }} {{ active_search.advanced_search.proximity.unit }}</span>
-          </div>
-        </div>
-        <div class="filter_data" ng-if="active_search.advanced_search.show_appeals_done_anywhere == true">
-          <span><b>Only show Opportunities that can be done from anywhere : </b>True</span>
-        </div>
-      </div>
-      <div class="beneficiary_wrapper filter_data" ng-if="active_search.beneficiary!== undefined">
-         <span><b>Beneficiary : </b>{{ beneficiary_name.join() }}</span>
-      </div>
-      <div class="custom_field_display_wrapper filter_data" ng-if="custom_field_display.length">
-         <span><b>Additional Filters : </b>{{ custom_field_display.join() }}</span>
-      </div>
-    </div>
-  </div>
   <div crm-ui-debug="volOppData()"></div>
   <div crm-ui-debug="searchParams"></div>
   <div crm-ui-debug="proximityUnits"></div>
   <div crm-ui-debug="countries"></div>
+  <ng-include src="'~/volunteer/AppealFiltersDisplay.html'" />
   <div class="crm-vol-opp-search">
     <div class="crm-block ui-tabs ui-widget ui-widget-content ui-corner-all">
       <div class="crm-group">
@@ -75,17 +42,16 @@
   {{ts('No results found. Please try different search criteria.')}}
 </div>
 <ng-include ng-if="template" src="template" />
-<div class="pull-right appeal-pagination">
-  <div  ng-show="appeals.length>0">
-    <button ng-if="currentPage > 1" ng-click="prevPageData()">
-      <i class="fa fa-backward" aria-hidden="true"></i>
-    </button>         
-    {{currentPage}}/{{numberOfPages}}
-    <button ng-if="currentPage < totalRec/pageSize" ng-click="nextPageData()">
-      <i class="fa fa-forward" aria-hidden="true"></i>
-    </button>
-  </div>
+<div class="pull-right assignment-pagination">
+  <button ng-if="offset > 0" ng-click="changePage(-1)">
+    <i class="fa fa-backward" aria-hidden="true"></i>
+  </button>         
+  <span>{{currentPage}}/{{totalPages}}</span>
+  <button ng-if="currentPage < totalPages" ng-click="changePage(1)">
+    <i class="fa fa-forward" aria-hidden="true"></i>
+  </button>
 </div>
+<div class="clear"></div>
 <!-- advanced filters -->
 <ng-include src="'~/volunteer/AppealFilters.html'" />
 <div class="clear"></div>

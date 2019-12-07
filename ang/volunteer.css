@@ -384,12 +384,12 @@ body {font-family: "Lato", sans-serif;}
 .postal-code-input{
   width: 124px;
 }
-.posta-code-wrapper select{
+.postal-code-wrapper select{
   height: 27px;
   padding: 0px !important;
   font-size: 13px  !important;
 }
-.posta-code-wrapper {
+.postal-code-wrapper {
   margin-top: 15px;
 }
 .show-opp input[type="checkbox"]{

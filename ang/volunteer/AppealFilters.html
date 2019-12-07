@@ -5,13 +5,18 @@
       <div class="filter-model">
         <div class="tab"> 
           <button class="tablinks" ng-click="selectTab(1)" ng-class="{active:isActive(1)}">
-            <i class="fa fa-caret-right" aria-hidden="true" ng-if="!isActive(1)"></i>
-            <i class="fa fa-caret-down" aria-hidden="true" ng-if="isActive(1)"></i>
+            <i class="fa fa-caret-right" aria-hidden="true" ng-show="!isActive(1)"></i>
+            <i class="fa fa-caret-down" aria-hidden="true" ng-show="isActive(1)"></i>
             {{ts('Date and Location')}}
           </button>
-          <button ng-repeat="customFieldGroup in custom_fieldset_volunteer" class="tablinks" ng-click="selectTab(customFieldGroup.id)" ng-class="{active:isActive(customFieldGroup.id)}">
-            <i class="fa fa-caret-right" aria-hidden="true" ng-if="!isActive(customFieldGroup.id)"></i>
-            <i class="fa fa-caret-down" aria-hidden="true" ng-if="isActive(customFieldGroup.id)"></i>
+          <button
+            ng-repeat="customFieldGroup in custom_fieldset_volunteer"
+            class="tablinks"
+            ng-click="selectTab(customFieldGroup.id)"
+            ng-class="{active:isActive(customFieldGroup.id)}"
+          >
+            <i class="fa fa-caret-right" aria-hidden="true" ng-show="!isActive(customFieldGroup.id)"></i>
+            <i class="fa fa-caret-down" aria-hidden="true" ng-show="isActive(customFieldGroup.id)"></i>
             {{ts(customFieldGroup.title)}}
           </button>
         </div>
@@ -19,50 +24,70 @@
           <form name="volOppSearchForm" crm-ui-id-scope>
             <div>
               <label>{{ts('Between')}}<span crm-ui-visible="crmIsRequired" class="crm-marker" title="This field is required." style="visibility: inherit;">*</span></label>
-              <input crm-ui-id="volOppSearchForm.date_start" crm-ui-datepicker="{time: false}" ng-model="date_start" ng-required />
+              <input crm-ui-id="volOppSearchForm.date_start" crm-ui-datepicker="{time: false}" ng-model="filters.date_start" />
               <label crm-ui-for="volOppSearchForm.date_end">{{ts('and')}}</label>
-              <input crm-ui-id="volOppSearchForm.date_end" crm-ui-datepicker="{time: false}" ng-model="date_end" />
-              <div class="posta-code-wrapper"> {{ts('Within')}} 
-                <select ng-disabled="show_appeals_done_anywhere" ng-model="radius" ng-options="option.value as option.label for option in radiusvalue" ng-init="radius = radiusvalue[0].value" >
+              <input crm-ui-id="volOppSearchForm.date_end" crm-ui-datepicker="{time: false}" ng-model="filters.date_end" />
+              <div class="postal-code-wrapper" ng-show="!filters.show_appeals_done_anywhere">
+                {{ts('Within')}} 
+                <select
+                  ng-model="filters.radius"
+                  ng-options="option.value as option.label for option in radiusvalue"
+                >
                 </select>
-                <select ng-disabled="show_appeals_done_anywhere" ng-model="unit" ng-options="option.value as option.label for option in proximityUnits" ng-init="unit = proximityUnits[1].value">
+                <select
+                  ng-model="filters.unit"
+                  ng-options="option.value as option.label for option in proximityUnits"
+                >
                 </select> of
                 <div class="location_finder_wrapper">
                   <div class="location_postal_code">
-                    <input type="radio" ng-model="location_finder_way" value="use_postal_code" [name="use_postal_code"]>
+                    <input type="radio" ng-model="filters.location_finder_way" value="use_postal_code" />
                     <label for="postal_code">{{ts('Postal Code')}}</label>
                     <div class="postal_code_field">
-                      <input placeholder="Postal Code" ng-disabled="show_appeals_done_anywhere" ng-show="location_finder_way == 'use_postal_code'" type="text" class="postal-code-input" ng-model="postal_code">
+                      <input
+                        placeholder="Postal Code"
+                        ng-show="filters.location_finder_way == 'use_postal_code'"
+                        type="text"
+                        class="postal-code-input"
+                        ng-model="filters.filters.postal_code"
+                      />
                     </div>
                   </div>
                   <div class="location_my_location">
-                    <input type="radio" ng-model="location_finder_way" value="use_my_location" ng-click="getPosition()" [name="use_my_location"]>
+                    <input type="radio" ng-model="filters.location_finder_way" value="use_my_location" ng-click="getPosition()" />
                     <label for="my_location">Use My Location</label>
-                    <div ng-show="location_finder_way == 'use_my_location'" class="lat_long_wrapper">
-                      {{ts('Latitude:')}}  <input ng-disabled="show_appeals_done_anywhere" type="text" name="let" ng-model="lat">
-                      {{ts('Longitude:')}}  <input ng-disabled="show_appeals_done_anywhere" type="text" name="lon" ng-model="lon">
+                    <div ng-show="filters.location_finder_way == 'use_my_location'" class="lat_long_wrapper">
+                      {{ts('Latitude:')}} <input type="text" ng-model="filters.lat">
+                      {{ts('Longitude:')}} <input type="text" ng-model="filters.lng">
                     </div>
                   </div>
-                  <a ng-if="location_finder_way" ng-click="clear()" class="crm-hover-button crm-clear-link ng-scope" title=""><i class="crm-i fa-times"></i></a>
+                  <a
+                    ng-show="['use_postal_code','use_my_location'].includes(filters.location_finder_way)"
+                    ng-click="clearLocationFinder()"
+                    class="crm-hover-button crm-clear-link"
+                  >
+                    <i class="crm-i fa-times"></i>
+                  </a>
                 </div>
               </div>
               <br>
               <div class="show-opp pull-left">
-                <input ng-model="show_appeals_done_anywhere" type="checkbox" value="show_appeals_done_anywhere" name="show_appeals_done_anywhere" > {{ ts('Only show Opportunities that can be done from anywhere') }}
+                <input ng-model="filters.show_appeals_done_anywhere" type="checkbox" />
+                {{ ts('Only show Opportunities that can be done from anywhere') }}
               </div>
             </div>
           </form>
         </div>
-        <div ng-repeat="customFieldGroup in custom_fieldset_volunteer" class="tabcontent custom_fied_content" ng-show="isActive({{customFieldGroup.id}})">
+        <div ng-repeat="customFieldGroup in custom_fieldset_volunteer" class="tabcontent custom_fied_content" ng-show="isActive(customFieldGroup.id)">
           <form name="volAppealCustomFieldSearch" crm-ui-id-scope>
-            <fieldset crm-render-field-collection="customFieldGroup.appeal_custom_field_groups" model="appealCustomFieldData"></fieldset>
+            <fieldset crm-render-field-collection="customFieldGroup.appeal_custom_field_groups" model="filters.custom_data"></fieldset>
           </form>
         </div>
         <br>
       </div>
       <hr />
       <div class="crm-submit-buttons">
-        <button ng-click="advanceFilter()" class="crm-button crm-vol-advanced-filters-filter">{{ts('Search')}}</button>
+        <button ng-click="advFilter()" class="crm-button crm-vol-advanced-filters-filter">{{ts('Search')}}</button>
         <button ng-click="closeModal('crm-vol-advanced-filters')" class="crm-button crm-vol-advanced-filters-close">{{ts('Close')}}</button>
       </div>
     </div>
