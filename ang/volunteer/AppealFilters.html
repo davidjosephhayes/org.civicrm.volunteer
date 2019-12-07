@@ -4,7 +4,7 @@
       <h2>{{ts('Filter / Advanced Search')}}</h2>
       <div class="filter-model">
         <div class="tab"> 
-          <button class="tablinks"  ng-click="selectTab(1)" ng-class="{active:isActive(1)}">
+          <button class="tablinks" ng-click="selectTab(1)" ng-class="{active:isActive(1)}">
             <i class="fa fa-caret-right" aria-hidden="true" ng-if="!isActive(1)"></i>
             <i class="fa fa-caret-down" aria-hidden="true" ng-if="isActive(1)"></i>
             {{ts('Date and Location')}}
@@ -19,9 +19,9 @@
           <form name="volOppSearchForm" crm-ui-id-scope>
             <div>
               <label>{{ts('Between')}}<span crm-ui-visible="crmIsRequired" class="crm-marker" title="This field is required." style="visibility: inherit;">*</span></label>
-              <input crm-ui-id="volOppSearchForm.date_start" crm-ui-datepicker="{time: false}"  ng-model="date_start" ng-required />
+              <input crm-ui-id="volOppSearchForm.date_start" crm-ui-datepicker="{time: false}" ng-model="date_start" ng-required />
               <label crm-ui-for="volOppSearchForm.date_end">{{ts('and')}}</label>
-              <input crm-ui-id="volOppSearchForm.date_end" crm-ui-datepicker="{time: false}"  ng-model="date_end" />
+              <input crm-ui-id="volOppSearchForm.date_end" crm-ui-datepicker="{time: false}" ng-model="date_end" />
               <div class="posta-code-wrapper"> {{ts('Within')}} 
                 <select ng-disabled="show_appeals_done_anywhere" ng-model="radius" ng-options="option.value as option.label for option in radiusvalue" ng-init="radius = radiusvalue[0].value" >
                 </select>

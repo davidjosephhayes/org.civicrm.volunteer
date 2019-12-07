@@ -89,6 +89,8 @@
 
     // Assign custom field set values.
     $scope.custom_fieldset_volunteer = custom_fieldset_volunteer.values;
+    
+
 
     var firstTime;
     const getParams = () => {
@@ -181,7 +183,7 @@
             }
           }, function(error) {
             // oops
-            console.log(error);
+            console.warn(error);
           });
         }
       }
