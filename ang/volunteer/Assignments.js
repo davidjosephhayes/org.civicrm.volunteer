@@ -10,7 +10,10 @@
     });
   });
 
-  angular.module('volunteer').controller('Assignments', function($route, $routeParams, $scope, crmApi, $window, $location, volunteerCalendarConfig, volunteerModalService){
+  angular.module('volunteer').controller('Assignments', function(
+    $route, $routeParams, $scope, crmApi, $window, $location, 
+    volunteerCalendarConfig, volunteerModalService
+  ){
 
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
     
@@ -142,11 +145,11 @@
       $scope.changePage = direction => {
         let nextOffset = $scope.offset + direction * $scope.limit;
         if (nextOffset<0 && $scope.offset === 0) {
-          alert('This is the first page');
+          CRM.alert('This is the first page', ts("Error"), "error");
           return;
         }
         if (nextOffset>=$scope.totalRec) {
-          alert('This is the last page');
+          CRM.alert('This is the last page', ts("Error"), "error");
           return;
         }
         $scope.offset = nextOffset;
