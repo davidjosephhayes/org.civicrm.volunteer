@@ -542,20 +542,25 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
         $where .= " AND (
           (
             (
-              advance_need.end_time IS NULL AND 
-              DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=%$i_fromdate
+              advance_need.start_time IS NOT NULL AND
+              DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=%$i_fromdate AND
+              advance_need.end_time IS NULL 
             ) OR ( 
+              advance_need.start_time IS NOT NULL AND
               DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=%$i_fromdate AND 
+              advance_need.end_time IS NOT NULL AND
               DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')<=%$i_todate
             )
           ) 
         )";
       } else if (!empty($fromdate)) {
         $where .= "
+          AND advance_need.start_time IS NOT NULL
           AND (DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=%$i_fromdate)
         ";
       } else if (!empty($todate)) {
         $where .= "
+          AND advance_need.end_time IS NOT NULL
           AND (DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')<=%$i_todate)
         ";
       }
