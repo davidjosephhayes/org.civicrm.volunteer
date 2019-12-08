@@ -27,7 +27,6 @@
   ) {
 
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
-    console.log('loaded')
 
     // permission sets
     $scope.canAccessAllProjects = CRM.checkPerm('edit all volunteer projects') || CRM.checkPerm('delete all volunteer projects');
