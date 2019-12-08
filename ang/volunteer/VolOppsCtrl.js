@@ -193,7 +193,7 @@
 
     $scope.proximityUnits = [
       {value: 'km', label: ts('km')},
-      {value: 'miles', label: ts('miles')}
+      {value: 'mile', label: ts('miles')}
     ];
 
     // Logic for managing Cart Floating - TODO: refactor as a directive
