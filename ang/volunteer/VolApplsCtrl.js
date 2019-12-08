@@ -98,7 +98,27 @@
       const customFieldNames = Object.keys(fields);
       if (customFieldNames.length === 0)
         return;
-      customFieldNames.forEach(customFieldName => customFields[customFieldName] = fields[customFieldName])
+      customFieldNames.forEach(customFieldName => {
+        const field = fields[customFieldName];
+        // add field to our lookup list
+        customFields[customFieldName] = field;
+        // add a blank option at the beginning of select lists so they are clearable
+        if (field.widget === "crm-render-select") {
+          // should be a ref to origal object
+          field.options.unshift({
+            default: "",
+            is_active: "1",
+            label: "",
+            name: "",
+            order: "",
+            postText: "",
+            preText: "",
+            price: "",
+            required: "",
+            value: "",
+          });
+        }
+      });
     });
 
     // loading flag
