@@ -1,27 +1,20 @@
 <div class="grid appeal-grid">
-   <div class="grid2x2">
-      <div class="box" ng-repeat="appeal in appeals track by $index" role="row">
-         <div>
-            <div ng-if="appeal.image" class="pull-left w-30 appeal-image">
-               <img ng-src="{{supporting_data.image_upload_url+'appeal/medium/'+appeal.image}}" alt="Opportunity Image">
-            </div>
-            <div class="pull-right {{appeal.image ? 'w-70' : ''}}">
-               <div class="p-l-15">
-                  <h2 class="m-t-0 appeal-title" ng-click="redirectTo(appeal.id)">{{ appeal.title }}</h2>
-                  <em>{{appeal.beneficiary_display_name}}</em>
-                  <p ng-show="appeal.appeal_teaser">{{ appeal.appeal_teaser }}</p>
-                  <p ng-show="!appeal.appeal_teaser" ng-bind-html="appeal.appeal_description | textShortenerFilter:50"></p>
-               </div>
-            </div>
-            <div class="clearfix"></div>
-            <div class="text-right appeal-buttons">
-               <button ng-click="redirectTo(appeal.id)" class="appeal-more-info">
-                  <i class="fa fa-chevron-circle-right" aria-hidden="true"></i> {{ts('More Info')}}
-               </button>
-               <button ng-show="canRegister" ng-click="volSignup(appeal.need_flexi_id, appeal.project_id, appeal.hide_appeal_volunteer_button)" aria-hidden="true" value="volunteer" class="appeal-volunteer">
-                  <i class="fa fa-users"></i> {{ts('Volunteer')}}
-               </button>
-            </div>
+   <div class="box" ng-repeat="appeal in appeals track by $index" role="row">
+      <div ng-if="appeal.image" class="appeal-image">
+         <img ng-src="{{supporting_data.image_upload_url+'appeal/medium/'+appeal.image}}" alt="Opportunity Image">
+      </div>
+      <div class="appeal-info">
+         <h2 class="m-t-0 appeal-title" ng-click="redirectTo(appeal.id)">{{ appeal.title }}</h2>
+         <em>{{appeal.beneficiary_display_name}}</em>
+         <p ng-show="appeal.appeal_teaser">{{ appeal.appeal_teaser }}</p>
+         <p ng-show="!appeal.appeal_teaser" ng-bind-html="appeal.appeal_description | textShortenerFilter:50"></p>
+         <div class="appeal-buttons">
+            <button ng-click="redirectTo(appeal.id)" class="appeal-more-info">
+               <i class="fa fa-chevron-circle-right" aria-hidden="true"></i> {{ts('More Info')}}
+            </button>
+            <button ng-show="canRegister" ng-click="volSignup(appeal.need_flexi_id, appeal.project_id, appeal.hide_appeal_volunteer_button)" aria-hidden="true" value="volunteer" class="appeal-volunteer">
+               <i class="fa fa-users"></i> {{ts('Volunteer')}}
+            </button>
          </div>
       </div>
    </div>

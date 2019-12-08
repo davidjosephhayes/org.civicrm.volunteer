@@ -45,6 +45,28 @@
   .crm-vol-opp-search {
     margin-bottom: 20px;
   }
+  .appeal-grid {
+    display:flex;
+    flex-wrap: wrap;
+  }
+  .appeal-grid .box {
+    flex: 1 1 50%;
+  }
+  .appeal-grid .box,
+  .appeal-details .box {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .appeal-grid .box .appeal-image,
+  .appeal-details .box .appeal-image {
+    flex: 1 1 30%;
+    padding: 0 10px 0 0;
+  }
+  .appeal-details .box .appeal-info,
+  .appeal-grid .box .appeal-info {
+    flex: 1 1 70%;
+    padding: 0 20px 0 0;
+  }
   .crm-vol-manage-actions,
   .crm-vol-opp-search .crm-group {
     display: flex;
@@ -210,46 +232,6 @@ span.crm-button-text {
 #crm-vol-form-textarea-wrapper {
   clear: left;
 }
-
-.grid .grid2x2 {
-  min-height: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-}
-.grid .grid2x2 > div {
-  display: flex; 
-  flex-basis: calc(50% - 40px);  
-  justify-content: center;
-  flex-direction: column;
-  flex-grow: 1;
-}
-/*.grid .grid2x2 > div > div {
-  display: flex;
-  justify-content: center;
-  flex-direction: row;
-}*/
-
-.grid .box { margin: 20px; }
-
-.grid .w-30{
-    width: 30%;
-}
-.grid .w-70{
-    width: 70%;
-}
-@media (max-width: 999px) {
-  .grid .pull-left,
-  .grid .pull-right {
-    float: none;
-  }
-  .grid .w-30{
-    width: auto;
-  }
-  .grid .w-70{
-      width: auto;
-  }
-}
 .text-right{
     text-align: right;
 }
@@ -260,9 +242,6 @@ span.crm-button-text {
     margin-right: 15px;
     height: 37px;
     width: 132px;
-}
-.p-l-15{
-    padding-left: 15px;
 }
 .loc{
   padding-left: 15px;
@@ -283,12 +262,13 @@ span.crm-button-text {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.detail{
- flex-basis: auto!important;
-}
 
 .crm-vol-manage-appeal a {
   cursor: pointer;
+}
+
+.appeal-details .grid {
+  margin-top: 20px;
 }
 
 .appeal-image img {
