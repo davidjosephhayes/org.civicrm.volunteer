@@ -176,7 +176,7 @@
       lat: '',
       lon: '',
       radius: 2,
-      unit: 'miles',
+      unit: 'mile',
       show_appeals_done_anywhere: false,
       // custom data
       custom_data: {},
@@ -225,7 +225,7 @@
     // proximity vars
     $scope.proximityUnits = [
       {value: 'km', label: ts('km')},
-      {value: 'miles', label: ts('miles')}
+      {value: 'mile', label: ts('miles')}
     ];
     $scope.radiusValues = [
       {value: 2, label: ts('2')},
@@ -531,7 +531,14 @@
         customFieldNames.forEach(customFieldName => {
           if ($scope.filters.custom_data[customFieldName].length === 0)
             return;
-          params.custom_data[customFieldName] = $scope.filters.custom_data[customFieldName];
+          const customFieldValue = $scope.filters.custom_data[customFieldName];
+          params.custom_data[customFieldName] = customFieldValue;
+          // if (customFields[customFieldName].options.length>0) {
+          //   // fields with defined options get passed in as an array and process differently
+          //   params.custom_data[customFieldName] = [customFieldValue];
+          // } else {
+          //   params.custom_data[customFieldName] = customFieldValue;
+          // }
         });
         if (Object.keys(params.custom_data).length===0)
           delete params.custom_data;
