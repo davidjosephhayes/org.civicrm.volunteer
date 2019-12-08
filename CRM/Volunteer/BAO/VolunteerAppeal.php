@@ -401,15 +401,24 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
 
     $select = "
       SELECT SQL_CALC_FOUND_ROWS
-        (select id from civicrm_volunteer_need where civicrm_volunteer_need.is_flexible = 1 and civicrm_volunteer_need.project_id=p.id) as need_flexi_id,
+        (
+          SELECT id 
+          FROM civicrm_volunteer_need
+          WHERE 1
+            AND civicrm_volunteer_need.is_flexible = 1
+            AND civicrm_volunteer_need.project_id=p.id
+        ) AS need_flexi_id,
         appeal.*,
         addr.name as address_name,
         addr.street_address,
         addr.city,
         addr.postal_code,
-        GROUP_CONCAT(DISTINCT need.id ) as need_id
+        GROUP_CONCAT(DISTINCT need.id) AS need_id,
+        mdt.need_start_time
     ";//,mdt.need_start_time
-    $from = " FROM civicrm_volunteer_appeal AS appeal";
+    $from = "
+      FROM civicrm_volunteer_appeal AS appeal
+    ";
     $join = " 
       LEFT JOIN civicrm_volunteer_project AS p
         ON (p.id = appeal.project_id)
@@ -418,22 +427,39 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
       LEFT JOIN civicrm_address AS addr
         ON (addr.id = loc.address_id)
       LEFT JOIN civicrm_volunteer_need AS need
-        ON (need.project_id = p.id) AND need.is_active = 1 AND need.is_flexible = 1 AND need.visibility_id = 1
-    ";
+        ON 1
+          AND need.project_id = p.id
+          AND need.is_active = 1
+          AND need.is_flexible = 1
+          AND need.visibility_id = 1
+      LEFT JOIN (
+        SELECT
+          MIN(start_time) AS need_start_time, 
+          id,
+          project_id AS need_project_id
+        FROM civicrm_volunteer_need AS need_sort
+        WHERE id IS NOT NULL
+        GROUP BY project_id
+      ) AS mdt
+        ON mdt.need_project_id = p.id
+    ";     
     if($show_beneficiary_at_front == 1) {
       // Get beneficiary_rel_no for volunteer_project_relationship type.
       $beneficiary_rel_no = CRM_Core_PseudoConstant::getKey("CRM_Volunteer_BAO_ProjectContact", 'relationship_type_id', 'volunteer_beneficiary');
-      // Join Project Contact table for benificiary for specific $beneficiary_rel_no.
-      // Join civicrm_contact table for contact details.
+      $i = count($placeholders)+1;
+      $placeholders[$i] = [$beneficiary_rel_no, 'Positive'];
+
       $select .= ", 
-        GROUP_CONCAT(IFNULL(cc.id, '') SEPARATOR '~|~') as beneficiary_id,
+        GROUP_CONCAT(IFNULL(cc.id, '') SEPARATOR '~|~') AS beneficiary_id,
         GROUP_CONCAT(IFNULL(cc.display_name, '') SEPARATOR '~|~') as beneficiary_display_name,
         GROUP_CONCAT(IFNULL(ce.email, '') SEPARATOR '~|~') as beneficiary_email,
         GROUP_CONCAT(IFNULL(cc.image_URL, '') SEPARATOR '~|~') as beneficiary_image_URL
       ";
+      // Join Project Contact table for benificiary for specific $beneficiary_rel_no.
+      // Join civicrm_contact table for contact details.
       $join .= "
         LEFT JOIN civicrm_volunteer_project_contact AS pc
-          ON (pc.project_id = p.id And pc.relationship_type_id='".$beneficiary_rel_no."')
+          ON (pc.project_id = p.id And pc.relationship_type_id = %$i)
         LEFT JOIN civicrm_contact AS cc 
           ON (cc.id = pc.contact_id)
         LEFT JOIN civicrm_email AS ce
@@ -446,192 +472,252 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
       ";
     }
     // Appeal should be active, Current Date between appeal date and related project should be active.
-    $where = " WHERE 1
-      AND p.is_active = 1
-      AND appeal.is_appeal_active = 1
-      AND CURDATE() between appeal.active_fromdate AND appeal.active_todate
+    $where = "
+      WHERE 1
+        AND p.is_active = 1
+        AND appeal.is_appeal_active = 1
+        AND CURDATE() BETWEEN appeal.active_fromdate AND appeal.active_todate
     ";
 
-    if(!empty($params['search_appeal'])) {
-      $search_appeal = $params['search_appeal'];
-      $search_appeal = trim($search_appeal);
-      $where .= " AND (
-        appeal.title Like '%".$search_appeal."%' OR 
-        appeal.appeal_description Like '%".$search_appeal."%' OR 
-        cc.display_name LIKE '%".$search_appeal."%'
-      )";
+    $search = CRM_Utils_Array::value('search', $params);
+    if(!empty($search)) {
+      // loose text search, split up works and check on each word
+      $search = trim($search);
+      $search_fragments = preg_split('/[\s+,]/', $search);
+      $search_wheres = [];
+      foreach ($search_fragments as $search_fragment) {
+        $i_search = count($placeholders)+1;
+        $placeholders[$i_search] = ["%$search_fragment%", 'String'];
+        $search_wheres[] = "(
+          appeal.title LIKE %$i_search OR
+          appeal.appeal_description LIKE %$i_search OR
+          cc.display_name LIKE %$i_search
+        )";
+      }
+      $where .= ' AND (' . implode(' AND ', $search_wheres) . ') ';
     }
 
     $having = "";
     // Handle beneficiary filter.
-    if($params['beneficiary']) {
-      $params['beneficiary'] = rtrim($params['beneficiary'], ',');
-      $beneficiary = explode(',',$params['beneficiary']);
-      if (sizeof($beneficiary) > 1)  {
-        $lastElement = end($beneficiary);
-        $having = " HAVING (";
-        foreach ($beneficiary as $key => $benificiery_id) {
-          if($benificiery_id) {
-            if($benificiery_id == $lastElement) {
-              $having .= " FIND_IN_SET(".$benificiery_id.", beneficiary_id)";
-            } else {
-              $having .= " FIND_IN_SET(".$benificiery_id.", beneficiary_id) OR";
-            }
-          }
-        }
-        $having .= ")";
+    $beneficiaries = CRM_Utils_Array::value('beneficiaries', $params, []);
+    if(!empty($beneficiaries)) {
+      if (is_array($beneficiaries)) {
+        $beneficiary_ids = $beneficiaries;
       } else {
-        $having = " HAVING FIND_IN_SET(".$beneficiary[0].", beneficiary_id)";
+        $beneficiary_ids = preg_split('/[\s+,]/', trim($beneficiaries));
+      }
+      if (!empty($beneficiary_ids))  {
+        $beneficiary_wheres = [];
+        foreach ($beneficiary_ids as $benificiery_id) {
+          $i_beneficiary = count($placeholders)+1;
+          $placeholders[$i_beneficiary] = [$benificiery_id, 'Positive'];
+          $beneficiary_wheres[] = " FIND_IN_SET(%$i_beneficiary, REPLACE(beneficiary_id, '~|~', ',')) ";
+        }
+        $having .= "
+          HAVING (" . implode(' OR ', $beneficiary_wheres) . ") 
+        ";
       }
     }
 
-    //Advance search parameter.
-    if(!empty($params["advanced_search"])) {
-      // If start date and end date filter passed on advance search.
-      if($params["advanced_search"]["fromdate"] && $params["advanced_search"]["todate"]) {
-        $select .= " , GROUP_CONCAT(DISTINCT advance_need.id ) as need_shift_id";
-        $join .= "
-          LEFT JOIN civicrm_volunteer_need as advance_need
-            ON 1
-              AND (advance_need.project_id = p.id)
-              AND advance_need.is_active = 1
-              AND advance_need.visibility_id = 1 
-              AND advance_need.is_flexible=0
-        ";
-
-        $start_time = $params["advanced_search"]["fromdate"];
-        $end_time = $params["advanced_search"]["todate"];
+    // If start date and end date filter passed on advance search.
+    $fromdate = CRM_Utils_Array::value('fromdate', $params, '');
+    $todate = CRM_Utils_Array::value('todate', $params, '');
+    if (!empty($fromdate) || !empty($todate)) {
+      $select .= ",
+        GROUP_CONCAT(DISTINCT advance_need.id) AS need_shift_id
+      ";
+      $join .= "
+        LEFT JOIN civicrm_volunteer_need AS advance_need
+          ON 1
+            AND advance_need.project_id = p.id
+            AND advance_need.is_active = 1
+            AND advance_need.visibility_id = 1 
+            AND advance_need.is_flexible=0
+      ";
+      $i_fromdate = count($placeholders)+1;
+      $placeholders[$i_fromdate] = [$fromdate, 'String'];
+      $i_todate = count($placeholders)+1;
+      $placeholders[$i_todate] = [$todate, 'String'];
+      if (!empty($fromdate) && !empty($todate)) {
         $where .= " AND (
           (
             (
               advance_need.end_time IS NULL AND 
-              DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>='".$start_time."'
+              DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=%$i_fromdate
             ) OR ( 
-              DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>='".$start_time."' AND 
-              DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')<='".$end_time."'
+              DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=%$i_fromdate AND 
+              DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')<=%$i_todate
             )
           ) 
         )";
-      } else { // one but not the other supplied:
-        $select .= " , GROUP_CONCAT(DISTINCT advance_need.id ) as need_shift_id";
-        $join .= "
-          LEFT JOIN civicrm_volunteer_need as advance_need
-            ON 1
-              AND (advance_need.project_id = p.id)
-              AND advance_need.is_active = 1 And advance_need.visibility_id = 1
-              AND advance_need.is_flexible=0
+      } else if (!empty($fromdate)) {
+        $where .= "
+          AND (DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=%$i_fromdate)
         ";
-        if($params["advanced_search"]["fromdate"]) {
-          $where .= " AND (DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>='".$params["advanced_search"]["fromdate"]."')";
-        }
-        if($params["advanced_search"]["todate"]) {
-          $where .= " AND (DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')<='".$params["advanced_search"]["todate"]."')";
-        }
+      } else if (!empty($todate)) {
+        $where .= "
+          AND (DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')<=%$i_todate)
+        ";
       }
+    }
 
-      // If show appeals done anywhere passed on advance search.
-      if(isset($params["advanced_search"]["show_appeals_done_anywhere"]) && $params["advanced_search"]["show_appeals_done_anywhere"] == true ) {
-        $where .= " AND appeal.location_done_anywhere = 1 ";
-      } else {
-        // If show appeal is not set then check postal code, radius and proximity.
-        if(isset($params["advanced_search"]["proximity"]['postal_code']) || (isset($params["advanced_search"]["proximity"]['lat']) && isset($params["advanced_search"]["proximity"]['lon']))) {
-          $proximityquery = CRM_Volunteer_BAO_Project::buildProximityWhere($params["advanced_search"]["proximity"]);
+    // If show appeals done anywhere passed on advance search.
+    $show_appeals_done_anywhere = (bool)CRM_Utils_Array::value('show_appeals_done_anywhere', $params, false);
+    if($show_appeals_done_anywhere) {
+      $where .= "
+        AND appeal.location_done_anywhere = 1
+      ";
+    } else {
+      // If show appeal is not set then check postal code, radius and proximity.
+      $proximity = CRM_Utils_Array::value('proximity', $params, []);
+      if(
+        !empty($proximity['postal_code']) || 
+        (!empty($proximity['lat']) && !empty($proximity['lon']))
+      ) {
+        $proximity['radius'] = CRM_Utils_Array::value('radius', $proximity, 2);
+        $proximity['unit'] = CRM_Utils_Array::value('unit', $proximity, 'mile');
+        try {
+          $proximityquery = CRM_Volunteer_BAO_Project::buildProximityWhere($proximity);
           $proximityquery = str_replace("civicrm_address", "addr", $proximityquery);
-          $where .= " And ".$proximityquery;
+          $where .= " AND ".$proximityquery;
+        } catch(Exception $e) {
+          // we have some invalid values
+          $where .= ' AND 0 ';
         }
       }
+    }
 
-      // If custom field pass from advance search filter.
-      if(!empty($params["advanced_search"]["appealCustomFieldData"])) {
-        // Get all custom field database tables which are assoicated with Volunteer Appeal.
-        $sql_query = "
-          SELECT 
-            cg.table_name,
-            cg.id as groupID,
-            cg.is_multiple,
-            cf.column_name,
-            cf.id as fieldID,
-            cf.data_type as fieldDataType
-          FROM
-            civicrm_custom_group cg,
-            civicrm_custom_field cf 
-          WHERE 1
-            AND cf.custom_group_id = cg.id
-            AND cg.is_active = 1
-            AND cf.is_active = 1 
-            AND cg.extends IN ( 'VolunteerAppeal' )
+    // If custom field pass from advance search filter.
+    $custom_data = CRM_Utils_Array::value('custom_data', $params, []);
+    if(!empty($custom_data)) {
+      // Get all custom field database tables which are assoicated with Volunteer Appeal.
+      $sql_query = "
+        SELECT 
+          cg.table_name,
+          cg.id AS groupID,
+          cg.is_multiple,
+          cf.column_name,
+          cf.id AS fieldID,
+          cf.data_type AS fieldDataType,
+          cf.option_group_id
+        FROM
+          civicrm_custom_group cg,
+          civicrm_custom_field cf 
+        WHERE 1
+          AND cf.custom_group_id = cg.id
+          AND cg.is_active = 1
+          AND cf.is_active = 1 
+          AND cg.extends IN ('VolunteerAppeal')
+      ";
+      $dao10 = CRM_Core_DAO::executeQuery($sql_query);
+      // Join all custom field tables with appeal data which are assoicated with VolunteerAppeal.
+      while ($dao10->fetch()) {
+        $table_name = $dao10->table_name;
+        $column_name = $dao10->column_name;
+        $fieldID = $dao10->fieldID;
+        $table_alias = "table_".$fieldID;
+        $optionGroupId = $dao10->option_group_id;
+        // Join all custom field tables.
+        $join .= "
+          LEFT JOIN $table_name $table_alias
+            ON appeal.id = $table_alias.entity_id
         ";
-        $dao10 = CRM_Core_DAO::executeQuery($sql_query);
-        // Join all custom field tables with appeal data which are assoicated with VolunteerAppeal.
-        while ($dao10->fetch()) {
-          $table_name = $dao10->table_name;
-          $column_name = $dao10->column_name;
-          $fieldID = $dao10->fieldID;
-          $table_alias = "table_".$fieldID;
-          // Join all custom field tables.
-          $join .= "
-            LEFT JOIN $table_name $table_alias
-              ON appeal.id = $table_alias.entity_id
-          ";
-          $select .= ", ".$table_alias.".".$column_name;
-          foreach ($params["advanced_search"]["appealCustomFieldData"] as $key => $field_data) {
-            if(empty($field_data))
-              continue;
-              $custom_field_array = explode("_", $key);
-            if(empty($custom_field_array[1]))
-              continue;
-            $custom_field_id = $custom_field_array[1];
-            if($custom_field_id != $fieldID) 
-              continue;
-            // If value is in array then implode with Pipe first and then add in where condition.
-            if(is_array($field_data)) {
-              $field_data_string = implode("|", $field_data);
-              $where .= " AND CONCAT(',', $table_alias.$column_name, ',') REGEXP '$seperator($field_data_string)$seperator'";
+        $select .= ", ".$table_alias.".".$column_name;
+        foreach ($custom_data as $key => $field_data) {
+          if(empty($field_data))
+            continue;
+            $custom_field_array = explode("_", $key);
+          if(empty($custom_field_array[1]))
+            continue;
+          $custom_field_id = $custom_field_array[1];
+          if($custom_field_id != $fieldID) 
+            continue;
+          // If value is in array then implode with Pipe first and then add in where condition.
+          $i_custom_field = count($placeholders)+1;
+          if(is_array($field_data)) {
+            // TODO -- dont think this works, but isnt used right now
+            $field_data_string = implode("|", $field_data);
+            $placeholders[$i_custom_field] = [$field_data_string, 'String'];
+            $where .= "
+              AND CONCAT(',', $table_alias.$column_name, ',') REGEXP '$seperator(%$i_custom_field)$seperator'
+            ";
+          } else {
+            // Otherwise add with like query. -- will return funny results
+            if (!empty($optionGroupId)) { // if has option groupid, use a hard =
+              $placeholders[$i_custom_field] = ["$field_data", 'String'];
+              $where .= "
+                AND $table_alias.$column_name = %$i_custom_field
+              ";
             } else {
-              // Otherwise add with like query.
-              $where .= " AND $table_alias.$column_name LIKE '%$field_data%'";
+              $placeholders[$i_custom_field] = ["%$field_data%", 'String'];
+              $where .= "
+                AND $table_alias.$column_name LIKE %$i_custom_field
+              ";
             }
           }
         }
       }
     }
+
+    // get options for sort and limit
+    $options = CRM_Utils_Array::value('options', $params, []);
+    
     // Order by Logic.
-    $orderByColumn = "appeal.id";
-    $order = "ASC";
-    if(empty($params["orderby"])) {
-      $params["orderby"] = "upcoming_appeal";
-      $params["order"] = "DESC";
-    }
-    if(!empty($params["orderby"])) {
-      if($params["orderby"] == "project_beneficiary") {
-        $orderByColumn = "cc.display_name";
-      } elseif($params["orderby"] == "upcoming_appeal") {
-        $select .= ", mdt.need_start_time";
-        $join .= " LEFT JOIN (SELECT MIN(start_time) as need_start_time, id, project_id as need_project_id FROM civicrm_volunteer_need as need_sort Where id IS NOT NULL GROUP BY project_id) AS mdt ON (mdt.need_project_id = p.id)";      
-        $orderByColumn = "mdt.need_start_time";
-      } else {
-        $orderByColumn = $params["orderby"];
+    $orderby = '';
+    if (!empty($options['sort'])) {
+      $allowed_sorts = [
+        'upcoming_appeal' => 'mdt.need_start_time',
+        'active_fromdate' => 'active_fromdate',
+        'title' => 'title',
+        'project_beneficiary' => 'cc.display_name',
+      ];
+      $sort_parts = is_array($sort) ? $sort : preg_split('/,/', $options['sort']);
+      $order_bys = [];
+      if (!empty($sort_parts)) {
+        foreach ($sort_parts as $sort_part) {
+          $sort_part = trim($sort_part);
+          if (empty($sort_part))
+            continue;
+          $sort_words = preg_split('/\s+/', $sort_part);
+          // Check if we have an allowed order by
+          if (empty($allowed_sorts[$sort_words[0]]))
+            continue;
+          // Grab our sort column from allowed sorts
+          $order = $allowed_sorts[$sort_words[0]];
+          // Direction defaults to ASC unless DESC is specified
+          $dir = strtoupper(\CRM_Utils_Array::value(1, $sort_words, '')) === 'DESC' ? ' DESC' : '';
+          // add to order by list
+          $order_bys[] = "$order $dir";
+        }
+      }
+      if (!empty($order_bys)) {
+        $orderby .= "
+          ORDER BY " . implode(', ', $order_bys) . "
+        ";
       }
     }
-    if(!empty($params["order"])) {
-      $order = $params["order"];
-    }
-    // prepare orderby query.
-    $orderby = "
-      GROUP By appeal.id ".$having."
-      ORDER BY " . $orderByColumn . " " . $order;
-    
+
+    // Grouping
+    $groupby = "
+      GROUP By appeal.id
+    ";
+
     // Pagination Logic.
-    $no_of_records_per_page = 10;//2;
-    if(isset($params['page_no']) && !empty($params['page_no'])) {
-      $page_no = $params['page_no'];
-    } else {
-      $page_no = 1;
+    $paging = '';
+    $offset = (int)CRM_Utils_Array::value('offset', $options, 0);
+    $offset = $offset<0 ? 0 : $offset;
+    $limit = (int)CRM_Utils_Array::value('limit', $options, 10);
+    $limit = $limit<0 ? 10 : $limit;
+    if ($limit > 0) {
+      $paging .= "
+        LIMIT $offset, $limit 
+      ";
     }
-    $offset = ($page_no-1) * $no_of_records_per_page;
-    $limit = " LIMIT ".$offset.", ".$no_of_records_per_page;
-    $sql = $select . $from . $join . $where . $orderby . $limit;
-    $dao = CRM_Core_DAO::executeQuery($sql);
+
+    $sql = $select . $from . $join . $where . $groupby . $having . $orderby . $paging;
+    // die(CRM_Core_DAO::composeQuery($sql, $placeholders));
+
+    $dao = CRM_Core_DAO::executeQuery($sql, $placeholders);
     $this->total = (int)CRM_Core_DAO::singleValueQuery('SELECT FOUND_ROWS()');
 
     // Get the global configuration.
