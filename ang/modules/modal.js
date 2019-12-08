@@ -68,7 +68,12 @@
             // close modal on background click
             element.on('click', function (e) {
               var target = $(e.target);
-              if (!target.closest('.modal-body').length) {
+              if (
+                // not in modal body
+                target.closest('.modal-body').length === 0 &&
+                // but its in inside the modal and not some child scope
+                target.closest('.crm-vol-modal').length>0
+              ) {
                 scope.$evalAsync(close);
               }
             });
