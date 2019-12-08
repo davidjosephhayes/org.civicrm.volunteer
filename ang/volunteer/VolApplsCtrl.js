@@ -251,13 +251,14 @@
             CRM.alert(ts('Unknown custom filter'), ts("Error"), "error");
             return;
           }
-          const customField = customFields[customFieldName];
-          const selectedOption = customField.options.find(option => option.value === $scope.filters.custom_data[customFieldName]);
-          if (selectedOption === undefined) {
-            success = false;
-            CRM.alert(ts('Unknown custom filter value'), ts("Error"), "error");
-            return;
-          }
+          // TODO: Only valid for some field types
+          // const customField = customFields[customFieldName];
+          // const selectedOption = customField.options.find(option => option.value === $scope.filters.custom_data[customFieldName]);
+          // if (selectedOption === undefined) {
+          //   success = false;
+          //   CRM.alert(ts('Unknown custom filter value'), ts("Error"), "error");
+          //   return;
+          // }
         })
       }
       return success;
@@ -360,11 +361,18 @@
           if (!(customFieldName in customFields)) // should be taken care of by our validator, but dummy check
             return;
           const customField = customFields[customFieldName];
-          const selectedOption = customField.options.find(option => option.value === $scope.filters.custom_data[customFieldName]);
-          if (selectedOption === undefined) // should be taken care of by our validator, but dummy check
-            return;
+          const customFieldValue = $scope.filters.custom_data[customFieldName];
+          let label = '';
+          if (customField.options.length>0) {
+            const selectedOption = customField.options.find(option => option.value === customFieldValue);
+            const displayValue = selectedOption === undefined ? customFieldValue : selectedOption.label;
+            label = customField.label + ' is "' + displayValue + '"';
+          } else {
+            const displayValue = customFieldValue;
+            label = customField.label + ' contains "' + displayValue + '"';
+          }
           $scope.filterDisplay.push({
-            label: customField.label + ' is ' + selectedOption.label,
+            label: label,
             remove: () => {
               $scope.removeCustomFilter(customFieldName);
               $scope.applyFilters();
