@@ -137,7 +137,7 @@
       }
       $scope.offset = nextOffset;
       $scope.loadList();
-    }
+    };
 
     // sorting vars
     $scope.options = [
@@ -156,7 +156,7 @@
       $scope.order = $scope.sortValue.order;
       $scope.dir = $scope.sortValue.dir;
       $scope.loadList();
-    }
+    };
 
     /**
      *  filter variables
@@ -174,7 +174,7 @@
       location_finder_way: '',
       postal_code: '',
       lat: '',
-      lng: '',
+      lon: '',
       radius: 2,
       unit: 'miles',
       show_appeals_done_anywhere: false,
@@ -240,7 +240,7 @@
           $scope.$apply(() => {
             // 5 decimal places is like 1 meter resolution, no reason for more; also want these to stay strings
             $scope.filters.lat = position.coords.latitude.toFixed(5);
-            $scope.filters.lng = position.coords.longitude.toFixed(5);
+            $scope.filters.lon = position.coords.longitude.toFixed(5);
           });  
         });
       } else {
@@ -253,7 +253,7 @@
       $scope.filters.unit = defaultFilters.unit;
       $scope.filters.location_finder_way = defaultFilters.location_finder_way;
       $scope.filters.lat = defaultFilters.lat;
-      $scope.filters.lon = defaultFilters.lng;
+      $scope.filters.lon = defaultFilters.lon;
       $scope.filters.postal_code = defaultFilters.postal_code;
       // $scope.displayFilters();
     };
@@ -274,10 +274,10 @@
         success = false;
         CRM.alert(ts('Postal Code is required'), ts("Error"), "error");
       }
-      // lat/lng
+      // lat/lon
       if (
         $scope.filters.location_finder_way === 'use_my_location' && (
-          $scope.filters.lat.length === 0 || $scope.filters.lng.length === 0
+          $scope.filters.lat.length === 0 || $scope.filters.lon.length === 0
         )
       ) {
         success = false;
@@ -385,10 +385,10 @@
           } else if (
             $scope.filters.location_finder_way === 'use_my_location' &&
             $scope.filters.lat.length>0 &&
-            $scope.filters.lng.length>0
+            $scope.filters.lon.length>0
           ) {
             $scope.filterDisplay.push({
-              label: 'Within ' + radiusValue.label + ' ' + proximityUnit.label + ' of ' + $scope.filters.lat + ', ' + $scope.filters.lng,
+              label: 'Within ' + radiusValue.label + ' ' + proximityUnit.label + ' of ' + $scope.filters.lat + ', ' + $scope.filters.lon,
               remove: () => {
                 $scope.clearLocationFinder();
                 $scope.applyFilters();
@@ -474,126 +474,68 @@
     }  
     // parse our filters into a usable set of options for the server
     const getFilterParams = () => {
-      // this line will check if the argument is undefined, null, or false
-      // if so set it to false, otherwise set it to it's original value
-      // firstTime = firstTime || false;
-      let params = {};
-      // if($window.localStorage.getItem("search_params") && firstTime == true) {
-        
-      //   params = JSON.parse($window.localStorage.getItem("search_params"));
-      //   params.page_no ? $scope.currentPage=params.page_no : null;
-      //   params.search_appeal ? $scope.search=params.search_appeal : null;
-      //   params.orderby ? $scope.order=params.orderby : null;
-      //   params.order ? $scope.order=params.order : null;
-      //   params.sortOption ? $scope.sortValue=$scope.options[params.sortOption] : 0;
-      //   params.advanced_search_option ? $scope.advanced_search=params.advanced_search_option : false;
 
-      //   if(params.advanced_search_option) {
-      //     params.advanced_search.fromdate ? $scope.date_start=params.advanced_search.fromdate : null;
-      //     params.advanced_search.todate ? $scope.date_end=params.advanced_search.todate : null;
+      const params = {};
 
-      //     if(params.advanced_search.show_appeals_done_anywhere) {
-      //       params.advanced_search.show_appeals_done_anywhere ? $scope.show_appeals_done_anywhere=params.advanced_search.show_appeals_done_anywhere : null;
-      //     } else {
-      //       if(params.advanced_search.proximity) {
-      //         params.advanced_search.proximity.radius ? $scope.radius=params.advanced_search.proximity.radius : null;
-      //         params.advanced_search.proximity.unit ? $scope.unit=params.advanced_search.proximity.unit : null;
-      //       }
-      //       params.location_finder_way ? $scope.location_finder_way=params.location_finder_way : null;
-      //       if(params.location_finder_way == "use_postal_code") {
-      //         params.advanced_search.proximity.postal_code ? $scope.postal_code=params.advanced_search.proximity.postal_code : null;
-      //       }
-      //       if(params.location_finder_way == "use_my_location") {
-      //         params.advanced_search.proximity.lat ? $scope.lat=params.advanced_search.proximity.lat : null;
-      //         params.advanced_search.proximity.lon ? $scope.lon=params.advanced_search.proximity.lon : null;
-      //       }
-      //     }
-      //     params.advanced_search.appealCustomFieldData ? $scope.appealCustomFieldData=params.advanced_search.appealCustomFieldData : null;
-      //   }
-      // }
-      // $scope.currentPage ? params.page_no=$scope.currentPage : null;
-      // $scope.search ? params.search_appeal=$scope.search : null;
-      // $scope.order ? params.orderby=$scope.order : null;
-      // $scope.order ? params.order=$scope.order : null;
+      // text search
+      if ($scope.filters.search.length>0)
+        params.search = $scope.filters.search;
 
-      // // Date and Location Search
-      // if ($scope.advanced_search) {
-        
-      //   // Default Proximity Object Set to empty.
-      //   params.advanced_search={proximity:{}};
-        
-      //   // Date Search
-      //   $scope.date_start ? params.advanced_search.fromdate=$scope.date_start : null;
-      //   $scope.date_end ? params.advanced_search.todate=$scope.date_end : null;
-        
-      //   // Proximity Search
-      //   // If Show appeals done anywhere checkbox is disable then and then proximity set. 
-      //   if(!$scope.show_appeals_done_anywhere) {
-      //     $scope.radius?params.advanced_search.proximity.radius=$scope.radius:null;
-      //     $scope.unit?params.advanced_search.proximity.unit=$scope.unit:null;
-      //     if($scope.location_finder_way == "use_postal_code") {
-      //       $scope.postal_code?params.advanced_search.proximity.postal_code=$scope.postal_code:null;
-      //     } else {
-      //       $scope.lat ? params.advanced_search.proximity.lat=$scope.lat : null;
-      //       $scope.lon ? params.advanced_search.proximity.lon=$scope.lon : null;
-      //     }
-      //   }
-      //   $scope.show_appeals_done_anywhere ? params.advanced_search.show_appeals_done_anywhere=$scope.show_appeals_done_anywhere : null;
+      // date search
+      if ($scope.filters.date_start.length>0)
+        params.fromdate = $scope.filters.date_start;
+      if ($scope.filters.date_end.length>0)
+        params.todate = $scope.filters.date_end;
 
-      //   // Pass custom field data from advance search to API.
-      //   params.advanced_search.appealCustomFieldData = $scope.appealCustomFieldData;
-      // }
+      // beneficiaries search
+      if ($scope.filters.beneficiaries.length>0)
+        params.beneficiaries = $scope.filters.beneficiaries;
+
+      // proximity search
+      if ($scope.filters.show_appeals_done_anywhere) {
+        
+        params.show_appeals_done_anywhere = $scope.filters.show_appeals_done_anywhere;
+
+      } else if (['use_postal_code','use_my_location'].includes($scope.filters.location_finder_way)) {
+        // postal code search
+        if (
+          $scope.filters.location_finder_way === 'use_postal_code' &&
+          $scope.filters.postal_code.length>0
+        ) {
+          params.proximity = {
+            unit: $scope.filters.unit,
+            radius: $scope.filters.radius,
+            postal_code: $scope.filters.postal_code,
+          };
+        }
+        // lat / lon search
+        if (
+          $scope.filters.location_finder_way === 'use_my_location' &&
+          $scope.filters.lat.length>0 &&
+          $scope.filters.lon.length>0
+        ) {
+          params.proximity = {
+            unit: $scope.filters.unit,
+            radius: $scope.filters.radius,
+            lat: $scope.filters.lat,
+            lon: $scope.filters.lon,
+          };
+        }
+
+      }
       
-      // var current_parms = $route.current.params;
-      // if (current_parms.beneficiary && typeof current_parms.beneficiary === "string") {
-      //   params.beneficiary = current_parms.beneficiary;
-      // }
-
-      // if(params.beneficiary) {
-      //   var beneficiaryArray = params.beneficiary.split(",");
-      //   for(var i = 0; i < beneficiaryArray.length; i++) {
-      //     CRM.api3('Contact', 'get', {
-      //       "sequential": 1,
-      //       "id": beneficiaryArray[i]
-      //     }).then(function(result) {
-      //       if(result && result.values.length > 0) {
-      //         if(!!($scope.beneficiary_name.indexOf(result.values[0].display_name)+1) == false) {
-      //           $scope.beneficiary_name.push(result.values[0].display_name);
-      //         }
-      //       }
-      //     }, function(error) {
-      //       // oops
-      //       console.warn(error);
-      //     });
-      //   }
-      // }
-
-      // // Custom Data Search
-      // if(params.advanced_search) {
-      //   for (var key in params.advanced_search.appealCustomFieldData) {
-      //     if (params.advanced_search.appealCustomFieldData.hasOwnProperty(key)) {
-      //       var customFieldArray = key.split("_");
-      //       CRM.api3('CustomField', 'get', {
-      //         "sequential": 1,
-      //         "id": customFieldArray[1]
-      //       }).then(function(result) {
-      //         var group_id = result.values[0].custom_group_id;
-      //         CRM.api3('CustomGroup', 'get', {
-      //           "sequential": 1,
-      //           "id": group_id
-      //         }).then(function(result) {
-      //           if(!!($scope.custom_field_display.indexOf(result.values[0].title)+1) == false) {
-      //             $scope.custom_field_display.push(result.values[0].title);
-      //           }
-      //         }, function(error) {
-      //           // oops
-      //         });
-      //       }, function(error) {
-      //         // oops
-      //       });
-      //     }
-      //   }
-      // }
+      // custom data search, filter out empty values
+      const customFieldNames = Object.keys($scope.filters.custom_data);
+      if (customFieldNames.length>0) {
+        params.custom_data = {};
+        customFieldNames.forEach(customFieldName => {
+          if ($scope.filters.custom_data[customFieldName].length === 0)
+            return;
+          params.custom_data[customFieldName] = $scope.filters.custom_data[customFieldName];
+        });
+        if (Object.keys(params.custom_data).length===0)
+          delete params.custom_data;
+      }
 
       return params;
     }
