@@ -267,6 +267,10 @@ span.crm-button-text {
   cursor: pointer;
 }
 
+.appeal-grid .box {
+  margin-bottom: 20px;
+}
+
 .appeal-details .grid {
   margin-top: 20px;
 }
