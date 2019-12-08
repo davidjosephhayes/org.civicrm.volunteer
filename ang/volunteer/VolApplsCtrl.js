@@ -82,12 +82,24 @@
     $scope.active = 1;
     $scope.selectTab = value => $scope.active = value;
     $scope.isActive = value => $scope.active===value;
+    
+    // Assign supporting data values
+    $scope.supporting_data = supporting_data.values;
 
     // Assign custom field set values
     $scope.custom_fieldset_volunteer = custom_fieldset_volunteer.values;
-
-    // Assign supporting data values
-    $scope.supporting_data = supporting_data.values;
+    // So this is an array when empty and key'd object when data is there
+    // Object.keys can at least telss if we have something to work with
+    // just gonna parse this out into a keys object of custom fields so I do no have to do it later
+    const customGroupIds = Object.keys($scope.custom_fieldset_volunteer);
+    const customFields = {};
+    customGroupIds.forEach(customGroupId => {
+      const fields = $scope.custom_fieldset_volunteer[customGroupId].appeal_custom_field_groups.fields;
+      const customFieldNames = Object.keys(fields);
+      if (customFieldNames.length === 0)
+        return;
+      customFieldNames.forEach(customFieldName => customFields[customFieldName] = fields[customFieldName])
+    });
 
     // loading flag
     $scope.loading = false;
@@ -140,20 +152,20 @@
       // text search
       search: '',
       // need dates
-      date_start: null,
-      date_end: null,
+      date_start: '',
+      date_end: '',
       // beneficiary search
-      beneficiary: null,
+      beneficiaries: [],
       // proximity search
-      location_finder_way: null,
-      postal_code: null,
-      lat: null,
-      lng: null,
+      location_finder_way: '',
+      postal_code: '',
+      lat: '',
+      lng: '',
       radius: 2,
       unit: 'miles',
       show_appeals_done_anywhere: false,
       // custom data
-      custom_data: [],
+      custom_data: {},
     };
     const savedFiltersJson = window.localStorage.getItem('civivolunteer_appeal_filters');
     let savedFilters = {};
@@ -174,7 +186,7 @@
       {value: 'km', label: ts('km')},
       {value: 'miles', label: ts('miles')}
     ];
-    $scope.radiusvalue = [
+    $scope.radiusValues = [
       {value: 2, label: ts('2')},
       {value: 5, label: ts('5')},
       {value: 10, label: ts('10')},
@@ -184,10 +196,10 @@
     $scope.getPosition = () => {
       if(navigator.geolocation){
         navigator.geolocation.getCurrentPosition(position => {
-          $scope.$apply(function() {
-            $scope.filters.lat = position.coords.latitude;
-            $scope.filters.lng = position.coords.longitude;
-            $scope.saveFilters();
+          $scope.$apply(() => {
+            // 5 decimal places is like 1 meter resolution, no reason for more; also want these to stay strings
+            $scope.filters.lat = position.coords.latitude.toFixed(5);
+            $scope.filters.lng = position.coords.longitude.toFixed(5);
           });  
         });
       } else {
@@ -196,14 +208,64 @@
     }
     // Clear checkbox selection in Date and Location Filter.
     $scope.clearLocationFinder = () => {
-      $scope.filters.location_finder_way = null;
-      $scope.filters.lat = null;
-      $scope.filters.lon = null;
-      $scope.filters.postal_code = null;
-      $scope.displayFilters();
+      $scope.filters.radiusValue = defaultFilters.unit;
+      $scope.filters.unit = defaultFilters.unit;
+      $scope.filters.location_finder_way = defaultFilters.location_finder_way;
+      $scope.filters.lat = defaultFilters.lat;
+      $scope.filters.lon = defaultFilters.lng;
+      $scope.filters.postal_code = defaultFilters.postal_code;
+      // $scope.displayFilters();
+    };
+    // watch the only show opportunities anywhere value, clearning other fields as necessary
+    $scope.$watch('filters.show_appeals_done_anywhere', () => {
+      if (!$scope.filters.show_appeals_done_anywhere)
+        return;
+      $scope.clearLocationFinder();
+    })
+    // validate any filters
+    $scope.validateFilters = () => {
+      let success = true;
+      // postal code
+      if (
+        $scope.filters.location_finder_way === 'use_postal_code' &&
+        $scope.filters.postal_code.length === 0
+      ) {
+        success = false;
+        CRM.alert(ts('Postal Code is required'), ts("Error"), "error");
+      }
+      // lat/lng
+      if (
+        $scope.filters.location_finder_way === 'use_my_location' && (
+          $scope.filters.lat.length === 0 || $scope.filters.lng.length === 0
+        )
+      ) {
+        success = false;
+        CRM.alert(ts('Latitude and Longitude are required'), ts("Error"), "error");
+      }
+      // custom data
+      const customFieldNames = Object.keys($scope.filters.custom_data);
+      if (customFieldNames.length>0) {
+        customFieldNames.forEach(customFieldName => {
+          if (!(customFieldName in customFields)) {
+            success = false;
+            CRM.alert(ts('Unknown custom filter'), ts("Error"), "error");
+            return;
+          }
+          const customField = customFields[customFieldName];
+          const selectedOption = customField.options.find(option => option.value === $scope.filters.custom_data[customFieldName]);
+          if (selectedOption === undefined) {
+            success = false;
+            CRM.alert(ts('Unknown custom filter value'), ts("Error"), "error");
+            return;
+          }
+        })
+      }
+      return success;
     };
     // trigger filter
-    $scope.advFilter = () => {
+    $scope.applyFilters = () => {
+      if (!$scope.validateFilters())
+        return;
       $scope.offset = 0;
       $scope.loadList();
       $scope.displayFilters();
@@ -212,15 +274,104 @@
     }
     // clear filters
     $scope.resetFilters = () => {
-      $scope.offset = 0;
       $scope.filters = $.extend(true, {}, defaultFilters);
-      $scope.loadList();
-      $scope.displayFilters();
-      $scope.saveFilters();
+      $scope.applyFilters();
     }
-    // parset filters into a display
+    // remove a custom filter
+    $scope.removeCustomFilter = customFieldName => {
+      if (!(customFieldName in $scope.filters.custom_data)) {
+        CRM.alert(ts('Unknown custom filter'), ts("Error"), "error");
+        return false;
+      }
+      delete $scope.filters.custom_data[customFieldName];
+      return true;
+    };
+    // parse filters into a display
+    $scope.filterDisplay = [];
     $scope.displayFilters = () => {
-
+      // Reset Filter display
+      $scope.filterDisplay = [];
+      // Date Filters
+      if ($scope.filters.date_start!=='' || $scope.filters.date_end!=='') {
+        let label = '';
+        if ($scope.filters.date_start!=='' && $scope.filters.date_end!=='') {
+          label = 'Between ' + $scope.filters.date_start + ' and ' + $scope.filters.date_end;
+        } else if ($scope.filters.date_start!=='') {
+          label = 'On or after ' + $scope.filters.date_start;
+        } else {
+          label = 'On or before ' + $scope.filters.date_end;
+        }
+        $scope.filterDisplay.push({
+          label: label,
+          remove: () => {
+            $scope.filters.date_start = defaultFilters.date_start;
+            $scope.filters.date_end = defaultFilters.date_start;
+            $scope.applyFilters();
+          },
+        });
+      }
+      // Proximity Filters
+      if ($scope.filters.show_appeals_done_anywhere) {
+        $scope.filterDisplay.push({
+          label: 'Only Opportunities that can be done from anywhere',
+          remove: () => {
+            $scope.filters.show_appeals_done_anywhere = defaultFilters.show_appeals_done_anywhere;
+            $scope.applyFilters();
+          },
+        });
+      } else if (['use_postal_code','use_my_location'].includes($scope.filters.location_finder_way)) {
+        const proximityUnit = $scope.proximityUnits.find(v => v.value === $scope.filters.unit);
+        const radiusValue = $scope.radiusValues.find(v => v.value === $scope.filters.radius);
+        if (proximityUnit !== undefined && radiusValue !== undefined) {
+          if (
+            $scope.filters.location_finder_way === 'use_postal_code' &&
+            $scope.filters.postal_code.length>0
+          ) {
+            $scope.filterDisplay.push({
+              label: 'Within ' + radiusValue.label + ' ' + proximityUnit.label + ' of ' + $scope.filters.postal_code,
+              remove: () => {
+                $scope.clearLocationFinder();
+                $scope.applyFilters();
+              },
+            });
+          } else if (
+            $scope.filters.location_finder_way === 'use_my_location' &&
+            $scope.filters.lat.length>0 &&
+            $scope.filters.lng.length>0
+          ) {
+            $scope.filterDisplay.push({
+              label: 'Within ' + radiusValue.label + ' ' + proximityUnit.label + ' of ' + $scope.filters.lat + ', ' + $scope.filters.lng,
+              remove: () => {
+                $scope.clearLocationFinder();
+                $scope.applyFilters();
+              },
+            });
+          }
+        }
+      }
+      // Beneficiary Search
+      if ($scope.filters.beneficiaries.length>0) {
+        // TODO
+      }
+      // Custom Data Search
+      const customFieldNames = Object.keys($scope.filters.custom_data);
+      if (customFieldNames.length>0) {
+        customFieldNames.forEach(customFieldName => {
+          if (!(customFieldName in customFields)) // should be taken care of by our validator, but dummy check
+            return;
+          const customField = customFields[customFieldName];
+          const selectedOption = customField.options.find(option => option.value === $scope.filters.custom_data[customFieldName]);
+          if (selectedOption === undefined) // should be taken care of by our validator, but dummy check
+            return;
+          $scope.filterDisplay.push({
+            label: customField.label + ' is ' + selectedOption.label,
+            remove: () => {
+              $scope.removeCustomFilter(customFieldName);
+              $scope.applyFilters();
+            },
+          });
+        });
+      }
     };
     $scope.displayFilters();
     
@@ -228,44 +379,41 @@
      * Data load
      */
     // list of appeals
-    $scope.appeals = [];
+    $scope.sourceAppeals = [];
     // method to get list from server and do basic processing, returns promise
     const getAppeals = (params, method) => {
       
+      $scope.loading = true;
       CRM.$('#crm-main-content-wrapper').block();
 
-      return crmApi('VolunteerAppeal', 'getsearchresult', params)
+      method = method || 'getsearchresult';
+      if (!('sequential' in params))
+        params['sequential'] = 1;
+
+      return crmApi('VolunteerAppeal', method, params)
       .then(function (data) {
+
+        $scope.sourceAppeals = data.values;
+        $scope.totalRec = data.total;
+        $scope.calcCurrentPage();
+        $scope.calcTotalPages();
         
-        const appeals = data.values.map(function(appeal){
+        const appeals = data.values.map(appeal => {
           appeal.hide_appeal_volunteer_button = parseInt(appeal.hide_appeal_volunteer_button);
           appeal.hide_appeal_volunteer_button = parseInt(appeal.display_volunteer_shift);
           return appeal;
         });
-        $scope.appeals = appeals;
                   
-        $scope.totalRec = data.total;
-        $scope.numberOfPages= Math.ceil($scope.totalRec/$scope.pageSize);
-        $scope.closeModal('crm-vol-advanced-filters');
+        $scope.loading = false;
         CRM.$('#crm-main-content-wrapper').unblock();
 
-        var sortOption = $scope.options.findIndex(function(option) {
-          return option.key == $scope.sortValue.key;
-        });
-        params.sortOptionKey = $scope.sortValue.key;
-        params.sortOption = sortOption;
-        params.location_finder_way = $scope.location_finder_way;
-        params.advanced_search_option = $scope.advanced_search;
-        $window.localStorage.setItem("search_params", JSON.stringify(params));
-        $scope.active_search = params;
-      },function(error) {
+        return appeals;
+      })
+      .catch(error => {
+        CRM.alert(error.is_error ? error.error_message : error, ts("Error"), "error");
+        $scope.loading = false;
         CRM.$('#crm-main-content-wrapper').unblock();
-        if (error.is_error) {
-          CRM.alert(error.error_message, ts("Error"), "error");
-        } else {
-          return error;
-        }
-      }); 
+      });
     }  
     // parse our filters into a usable set of options for the server
     const getFilterParams = () => {
@@ -393,6 +541,7 @@
       return params;
     }
     // get a list of appeals
+    $scope.appeals = [];
     $scope.loadList = () => {
       
       $scope.appeals = [];

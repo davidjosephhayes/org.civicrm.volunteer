@@ -1,5 +1,12 @@
-<div class="active_filters" ng-if="active_search.advanced_search_option==true || active_search.beneficiary!== undefined">
-  <span class="active_filter_heading"><b>Active Filters : </b></span>
+<div class="active_filters" ng-if="filterDisplay.length>0">
+  <h4 class="active_filters_heading">Active Filters:</h4>
+  <div ng-repeat="filter in filterDisplay track by $index" class="active_filter">
+    {{filter.label}}
+    <a ng-click="filter.remove()" class="crm-hover-button">
+      <i class="crm-i fa-times"></i>
+    </a>
+  </div>
+  <!-- <span class="active_filter_heading"><b>Active Filters : </b></span>
   <div class="active_filter_content">
     <div ng-if="active_search.advanced_search_option==true">
       <div class="filter_data" ng-if="active_search.advanced_search.fromdate!== undefined">
@@ -30,5 +37,5 @@
     <div class="custom_field_display_wrapper filter_data" ng-if="custom_field_display.length">
         <span><b>Additional Filters : </b>{{ custom_field_display.join() }}</span>
     </div>
-  </div>
+  </div> -->
 </div>

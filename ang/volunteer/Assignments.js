@@ -80,13 +80,13 @@
       $scope.loading = true;
       CRM.$('#crm-main-content-wrapper').block();
 
-      method = method || 'get';
+      method = method || 'getsearchresult';
       if (!('sequential' in params))
         params['sequential'] = 1;
       if (!('assignee_contact_id' in params))
         params['assignee_contact_id'] = CRM.vars['org.civicrm.volunteer'].currentContactId;
 
-      return crmApi('VolunteerNeed', 'getsearchresult', params)
+      return crmApi('VolunteerNeed', method, params)
       .then(data => {
 
         $scope.sourceAssignments = data.values;
@@ -127,7 +127,6 @@
         CRM.alert(error.is_error ? error.error_message : error, ts("Error"), "error");
         $scope.loading = false;
         CRM.$('#crm-main-content-wrapper').unblock();
-        reject();
       });
     };
 

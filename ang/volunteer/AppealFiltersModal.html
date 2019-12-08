@@ -31,7 +31,7 @@
                 {{ts('Within')}} 
                 <select
                   ng-model="filters.radius"
-                  ng-options="option.value as option.label for option in radiusvalue"
+                  ng-options="option.value as option.label for option in radiusValues"
                 >
                 </select>
                 <select
@@ -43,13 +43,13 @@
                   <div class="location_postal_code">
                     <input type="radio" ng-model="filters.location_finder_way" value="use_postal_code" />
                     <label for="postal_code">{{ts('Postal Code')}}</label>
-                    <div class="postal_code_field">
+                    <div class="postal_code_field" ng-show="filters.location_finder_way == 'use_postal_code'">
+                      {{ts('Postal Code:')}}
                       <input
-                        placeholder="Postal Code"
-                        ng-show="filters.location_finder_way == 'use_postal_code'"
+                        placeholder="{{ts('Postal Code')}}"
                         type="text"
                         class="postal-code-input"
-                        ng-model="filters.filters.postal_code"
+                        ng-model="filters.postal_code"
                       />
                     </div>
                   </div>
@@ -57,16 +57,29 @@
                     <input type="radio" ng-model="filters.location_finder_way" value="use_my_location" ng-click="getPosition()" />
                     <label for="my_location">Use My Location</label>
                     <div ng-show="filters.location_finder_way == 'use_my_location'" class="lat_long_wrapper">
-                      {{ts('Latitude:')}} <input type="text" ng-model="filters.lat">
-                      {{ts('Longitude:')}} <input type="text" ng-model="filters.lng">
+                      {{ts('Latitude:')}}
+                      <input
+                        placeholder="{{ts('Latitude')}}"
+                        type="text"
+                        class="latitude-input"
+                        ng-model="filters.lat"
+                      />
+                      {{ts('Longitude:')}}
+                      <input
+                        placeholder="{{ts('Longitude')}}"
+                        type="text"
+                        class="longitude-input"
+                        ng-model="filters.lng"
+                      />
                     </div>
                   </div>
                   <a
                     ng-show="['use_postal_code','use_my_location'].includes(filters.location_finder_way)"
                     ng-click="clearLocationFinder()"
-                    class="crm-hover-button crm-clear-link"
+                    class="crm-hover-button"
                   >
                     <i class="crm-i fa-times"></i>
+                    Clear Location Filter
                   </a>
                 </div>
               </div>
@@ -87,7 +100,7 @@
       </div>
       <hr />
       <div class="crm-submit-buttons">
-        <button ng-click="advFilter()" class="crm-button crm-vol-advanced-filters-filter">{{ts('Search')}}</button>
+        <button ng-click="applyFilters()" class="crm-button crm-vol-advanced-filters-filter">{{ts('Search')}}</button>
         <button ng-click="closeModal('crm-vol-advanced-filters')" class="crm-button crm-vol-advanced-filters-close">{{ts('Close')}}</button>
       </div>
     </div>

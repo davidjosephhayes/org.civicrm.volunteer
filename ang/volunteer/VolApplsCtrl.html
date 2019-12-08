@@ -9,7 +9,7 @@
       <div class="crm-group">
         <div class="search-box">
           <input type="text" name="searchAppeal" ng-model="search" placeholder="{{ ts('Search') }}" ng-model-options='{ debounce: 1000 }'
-             ng-change='searchRes()'/>
+             ng-change='applyFilters()'/>
           <i class="fa fa-search"></i>
         </div>
         <div class="search-buttons">
@@ -18,7 +18,7 @@
             <button ng-click="openModal('crm-vol-advanced-filters')"><i class="fa fa-filter" aria-hidden="true"></i></button>
           </div>
           <div class="reset_filter">
-              <button ng-click="resetFilter()"> {{ts('Reset Filters')}}</button>
+              <button ng-click="resetFilters()"> {{ts('Reset Filters')}}</button>
           </div>
         </div>
         <div class="search-display">
@@ -53,5 +53,5 @@
 </div>
 <div class="clear"></div>
 <!-- advanced filters -->
-<ng-include src="'~/volunteer/AppealFilters.html'" />
+<ng-include src="'~/volunteer/AppealFiltersModal.html'" />
 <div class="clear"></div>

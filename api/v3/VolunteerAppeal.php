@@ -125,16 +125,16 @@ function civicrm_api3_volunteer_appeal_getCustomFieldsetVolunteer($params) {
  * @return array
  */
 function civicrm_api3_volunteer_appeal_getCustomFieldsetWithMetaVolunteerAppeal($params) {
-  $results = array();
+  $results = [];
   $controller = CRM_Utils_Array::value('controller', $params);
 
   // Get all custom group which are related to "Volunteer Appeal".
-  $projectCustomFieldGroupResult = civicrm_api3('CustomGroup', 'get', array(
+  $projectCustomFieldGroupResult = civicrm_api3('CustomGroup', 'get', [
     'extends' => $controller,
     'is_active' => 1,
     'return' => array('id', 'title'),
     'sort' => 'weight',
-  ));
+  ]);
 
   /*
    * Fetch all custom field for that group.
@@ -142,18 +142,18 @@ function civicrm_api3_volunteer_appeal_getCustomFieldsetWithMetaVolunteerAppeal(
    * Set default value to null for all custom fields.
    */
   foreach ($projectCustomFieldGroupResult['values'] as $key=>$v) {
-    $meta = civicrm_api3('Fieldmetadata', 'get', array(
+    $meta = civicrm_api3('Fieldmetadata', 'get', [
       'entity' => "CustomGroup",
-      'entity_params' => array('id' => $v['id']),
+      'entity_params' => ['id' => $v['id']],
       'context' => "Angular",
       'is_searchable' => 1,
-    ));
+    ]);
     // Set default value to Null for all custom field for search appeal box.
-    if(isset($meta['values']['fields']) && !empty($meta['values']['fields'])) {
+    if(!empty($meta['values']['fields'])) {
       foreach ($meta['values']['fields'] as $field_name => $field_data) {
         $meta['values']['fields'][$field_name]['default'] = "";
         $meta['values']['fields'][$field_name]['defaultValue'] = "";
-        if(isset($field_data['options']) && !empty($field_data['options'])) {
+        if(!empty($field_data['options'])) {
           foreach ($field_data['options'] as  $option_key=>$optionData) {
             $meta['values']['fields'][$field_name]['options'][$option_key]['default'] = "";
           }

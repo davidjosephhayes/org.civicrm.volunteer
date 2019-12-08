@@ -478,15 +478,16 @@ body {font-family: "Lato", sans-serif;}
   padding: 5px;
   border-radius: 4px;
 }
-.active_filter_content {
-  margin-top: 10px;
+.active_filters .active_filters_heading {
+  display: inline-block;
+  margin: 0 4px 0 0;
 }
-.active_filter_heading {
-  text-decoration: underline;
-  font-size: 18px;
-}
-.filter_data {
-  margin-bottom: 4px;
+.active_filters .active_filter {
+  display: inline-block;
+  margin: 0 4px 0 0;
+  border: 1px solid #d3d3d3;
+  padding: 5px;
+  border-radius: 4px;
 }
 
 /**
