@@ -532,7 +532,7 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
             AND advance_need.project_id = p.id
             AND advance_need.is_active = 1
             AND advance_need.visibility_id = 1 
-            AND advance_need.is_flexible=0
+            AND advance_need.is_flexible = 0
       ";
       $i_fromdate = count($placeholders)+1;
       $placeholders[$i_fromdate] = [$fromdate, 'String'];
