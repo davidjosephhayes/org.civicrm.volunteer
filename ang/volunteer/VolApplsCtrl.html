@@ -8,7 +8,7 @@
     <div class="crm-block ui-tabs ui-widget ui-widget-content ui-corner-all">
       <div class="crm-group">
         <div class="search-box">
-          <input type="text" name="searchAppeal" ng-model="search" placeholder="{{ ts('Search') }}" ng-model-options='{ debounce: 1000 }'
+          <input type="text" name="searchAppeal" ng-model="filters.search" placeholder="{{ ts('Search') }}" ng-model-options='{ debounce: 1000 }'
              ng-change='applyFilters()'/>
           <i class="fa fa-search"></i>
         </div>

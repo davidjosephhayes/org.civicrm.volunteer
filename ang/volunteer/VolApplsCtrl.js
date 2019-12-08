@@ -26,13 +26,8 @@
     supporting_data, $location, volunteerModalService
   ) {
 
-    if (!$window.location.origin) {
-      $window.location.origin = $window.location.protocol + "//" 
-      + $window.location.hostname 
-      + ($window.location.port ? ':' + $window.location.port : '');
-    }
-
     var ts = $scope.ts = CRM.ts('org.civicrm.volunteer');
+    console.log('loaded')
 
     // permission sets
     $scope.canAccessAllProjects = CRM.checkPerm('edit all volunteer projects') || CRM.checkPerm('delete all volunteer projects');
@@ -187,17 +182,44 @@
       // custom data
       custom_data: {},
     };
-    const savedFiltersJson = window.localStorage.getItem('civivolunteer_appeal_filters');
-    let savedFilters = {};
-    try {
-      if (savedFiltersJson !== null) {
-        const possibleSavedFilters = JSON.parse(savedFilters);
-        savedFilters = possibleSavedFilters;
+    // filters passed in url params -- possible XSFR, but seems AngularJS modal escapes properly; returns boolean false on failure
+    const getParamsFilters = () => {
+      if(!('filters' in $routeParams))
+        return false;
+      try {
+        const paramsFilters = JSON.parse($routeParams.filters);
+        return paramsFilters;
+      } catch(e) {
+        console.warn('Invalid param filters');
       }
-    } catch(e) {}
+      return false;
+    };
+    // filters saved in local storage; returns boolean false on failure
+    const getLocalStorageFilters = () => {
+      const savedFiltersJson = window.localStorage.getItem('civivolunteer_appeal_filters');
+      if (savedFiltersJson === null)
+        return false;
+      try {
+        const savedFilters = JSON.parse(savedFiltersJson);
+        return savedFilters;
+      } catch(e) {
+        console.warn('Invalid local strage filters');
+      }
+      return false;
+    };
+    // now we can get our initial filters from the route or local storage with a preference for route and fallback to local storage
+    let initialFilters = {};
+    const paramsFilters = getParamsFilters();
+    if (paramsFilters !== false) {
+      initialFilters = paramsFilters;
+    } else {
+      const localstorageFilters = getLocalStorageFilters();
+      if (localstorageFilters !== false)
+        initialFilters = localstorageFilters;
+    }
     // clone saved and default filter set to active filter object
-    $scope.filters = $.extend(true, savedFilters, defaultFilters);
-    
+    $scope.filters = $.extend(true, {}, defaultFilters, initialFilters);
+
     // save filters locally
     $scope.saveFilters = () => window.localStorage.setItem('civivolunteer_appeal_filters', JSON.stringify($scope.filters));
     $scope.saveFilters();
@@ -287,11 +309,17 @@
     $scope.applyFilters = () => {
       if (!$scope.validateFilters())
         return;
+      $scope.saveFilters(); // save the filters
+      if ('filters' in $routeParams) {
+        // reset the url so a refresh doesn't overwrite newly saved filters
+        $location.search('filters', null); 
+        return;
+      }
+      // reset and load our list
       $scope.offset = 0;
       $scope.loadList();
       $scope.displayFilters();
       $scope.closeModal('crm-vol-advanced-filters');
-      $scope.saveFilters();
     }
     // clear filters
     $scope.resetFilters = () => {
@@ -382,22 +410,24 @@
             return;
           const customField = customFields[customFieldName];
           const customFieldValue = $scope.filters.custom_data[customFieldName];
-          let label = '';
-          if (customField.options.length>0) {
-            const selectedOption = customField.options.find(option => option.value === customFieldValue);
-            const displayValue = selectedOption === undefined ? customFieldValue : selectedOption.label;
-            label = customField.label + ' is "' + displayValue + '"';
-          } else {
-            const displayValue = customFieldValue;
-            label = customField.label + ' contains "' + displayValue + '"';
+          if (customFieldValue !==null && customFieldValue !== '') {
+            let label = '';
+            if (customField.options.length>0) {
+              const selectedOption = customField.options.find(option => option.value === customFieldValue);
+              const displayValue = selectedOption === undefined ? customFieldValue : selectedOption.label;
+              label = customField.label + ' is "' + displayValue + '"';
+            } else {
+              const displayValue = customFieldValue;
+              label = customField.label + ' contains "' + displayValue + '"';
+            }
+            $scope.filterDisplay.push({
+              label: label,
+              remove: () => {
+                $scope.removeCustomFilter(customFieldName);
+                $scope.applyFilters();
+              },
+            });
           }
-          $scope.filterDisplay.push({
-            label: label,
-            remove: () => {
-              $scope.removeCustomFilter(customFieldName);
-              $scope.applyFilters();
-            },
-          });
         });
       }
     };
