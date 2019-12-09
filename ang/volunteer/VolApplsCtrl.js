@@ -220,7 +220,15 @@
     $scope.filters = $.extend(true, {}, defaultFilters, initialFilters);
 
     // save filters locally
-    $scope.saveFilters = () => window.localStorage.setItem('civivolunteer_appeal_filters', JSON.stringify($scope.filters));
+    $scope.saveFilters = () => {
+      // const sortLimit = {
+      //   offset: $scope.offset,
+      //   limit: $scope.limit,
+      //   order: $scope.order,
+      //   dir: $scope.dir,
+      // };
+      window.localStorage.setItem('civivolunteer_appeal_filters', JSON.stringify($scope.filters))
+    };
     $scope.saveFilters();
     // proximity vars
     $scope.proximityUnits = [
