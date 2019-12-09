@@ -526,6 +526,10 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
       $select .= ",
         GROUP_CONCAT(DISTINCT advance_need.id) AS need_shift_id
       ";
+      // $select .= ",
+      //   GROUP_CONCAT(DISTINCT advance_need.quantity) AS need_shift_quantity,
+      //   GROUP_CONCAT(DISTINCT assignment_query_count.quantity_assigned) AS need_shift_quantity_assigned
+      // ";
       $join .= "
         LEFT JOIN civicrm_volunteer_need AS advance_need
           ON 1
@@ -534,34 +538,77 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
             AND advance_need.visibility_id = 1 
             AND advance_need.is_flexible = 0
       ";
+      // join in assignments TODO, optimize, pry pretty slow as db get large
+      $assignmentQuery = CRM_Volunteer_BAO_Assignment::retrieveQuery([], []);
+      $join .= "
+        LEFT JOIN ( 
+          SELECT COUNT(*) AS quantity_assigned, volunteer_need_id
+          FROM (
+            ". $assignmentQuery . "
+          ) AS assignment_query
+          GROUP BY volunteer_need_id
+        ) AS assignment_query_count
+          ON assignment_query_count.volunteer_need_id = advance_need.id
+      ";
+        
       $i_fromdate = count($placeholders)+1;
       $placeholders[$i_fromdate] = [$fromdate, 'String'];
       $i_todate = count($placeholders)+1;
       $placeholders[$i_todate] = [$todate, 'String'];
+      /**
+       * Match CRM_Volunteer_BAO_Project::_get_open_needs as must as possible
+       */
+      // open needs must have a start time; this disqualifies flexible needs
+      $where .= "
+        AND advance_need.start_time IS NOT NULL
+      ";
+      // open needs must not have all positions assigned
+      $where .= "
+        AND assignment_query_count.quantity_assigned<advance_need.quantity
+      ";
+      // 1) start after now,
+      // 2) end after now, or
+      // 3) be open until filled
+      $where .= "
+        AND (
+          CURDATE()>=DATE_FORMAT(advance_need.start_time,'%Y-%m-%d') OR
+          (
+            advance_need.end_time IS NOT NULL AND
+            CURDATE()>=DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')
+          ) OR (
+            advance_need.end_time IS NULL AND
+            advance_need.duration IS NULL 
+          )
+      )";
       if (!empty($fromdate) && !empty($todate)) {
         $where .= " AND (
           (
-            (
-              advance_need.start_time IS NOT NULL AND
-              DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=%$i_fromdate AND
-              advance_need.end_time IS NULL 
-            ) OR ( 
-              advance_need.start_time IS NOT NULL AND
-              DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=%$i_fromdate AND 
-              advance_need.end_time IS NOT NULL AND
-              DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')<=%$i_todate
-            )
-          ) 
+            DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=%$i_fromdate AND
+            DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')<=%$i_todate AND
+            advance_need.end_time IS NULL 
+          ) OR ( 
+            DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=%$i_fromdate AND 
+            DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')<=%$i_todate AND 
+            advance_need.end_time IS NOT NULL AND
+            DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')>=%$i_fromdate AND
+            DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')<=%$i_todate
+          )
         )";
       } else if (!empty($fromdate)) {
         $where .= "
-          AND advance_need.start_time IS NOT NULL
           AND (DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=%$i_fromdate)
+          AND (
+            advance_need.end_time IS NULL OR
+            DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')>=%$i_fromdate
+          )
         ";
       } else if (!empty($todate)) {
         $where .= "
-          AND advance_need.end_time IS NOT NULL
-          AND (DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')<=%$i_todate)
+        AND (DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')<=%$i_todate)
+        AND (
+          advance_need.end_time IS NULL OR
+          DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')<=%$i_todate
+        )
         ";
       }
     }
