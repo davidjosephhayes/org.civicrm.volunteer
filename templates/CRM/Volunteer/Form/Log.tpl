@@ -28,6 +28,13 @@
     <div id="help">
       {ts domain='org.civicrm.volunteer'}Available and scheduled volunteers are listed below. Enter the time spent by each volunteer in minutes under Actual Duration and change status to Completed. Click 'Add Volunteer to record hours for volunteers not already listed below. Click Save to save your entries.{/ts}
     </div>
+    <div>
+      {$form.bulkUpdateStatus.html}
+      <button type="button" id="bulkUpdate">
+        Update all Statuses
+      </button>
+      <span>Marks all items to the status provided, sets the Actual Duration equal to the Scheduled Duration if blank.</span>
+    </div>
     <div class="crm-copy-fields crm-grid-table" id="crm-log-entry-table" data-vid="{$vid}">
       <div class="crm-grid-header">
         <div class="crm-grid-cell"></div>
@@ -48,10 +55,12 @@
           {ts}Actual Duration <br/> (in minutes){/ts}
           <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
         </div>
-        <div class="crm-grid-cell">
-          {ts}Points ratio{/ts}
-          <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
-        </div>
+        {if call_user_func(array('CRM_Volunteer_Permission','check'), 'edit own volunteer projects')}
+          <div class="crm-grid-cell">
+            {ts}Points ratio{/ts}
+            <span class="crm-marker" title="{ts domain='org.civicrm.volunteer'}This field is required.{/ts}">*</span>
+          </div>
+        {/if}
         <div class="crm-grid-cell">
           <img 
             src="{$config->resourceBase}i/copy.png"
@@ -93,9 +102,11 @@
           <div class="compressed crm-grid-cell">
             {$form.field.$rowNumber.actual_duration.html}
           </div>
-          <div class="compressed crm-grid-cell">
-            {$form.field.$rowNumber.time_weight.html}
-          </div>
+          {if call_user_func(array('CRM_Volunteer_Permission','check'), 'edit own volunteer projects')}
+            <div class="compressed crm-grid-cell">
+              {$form.field.$rowNumber.time_weight.html}
+            </div>
+          {/if}
           <div class="compressed crm-grid-cell">
             {$form.field.$rowNumber.volunteer_status.html}
           </div>

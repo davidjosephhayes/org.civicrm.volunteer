@@ -126,6 +126,9 @@ class CRM_Volunteer_Form_Log extends CRM_Core_Form {
     $volunteerRole = CRM_Volunteer_BAO_Need::buildOptions('role_id', 'create');
     $volunteerStatus = CRM_Activity_BAO_Activity::buildOptions('status_id', 'create');
 
+    // select box to set bulk complete
+    $this->add('select', "bulkUpdateStatus", '', $volunteerStatus);
+
     $attributes = [
       'size' => 6,
       'maxlength' => 14
