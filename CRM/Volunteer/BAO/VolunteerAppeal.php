@@ -524,12 +524,12 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
     $todate = CRM_Utils_Array::value('todate', $params, '');
     if (!empty($fromdate) || !empty($todate)) {
       $select .= ",
-        GROUP_CONCAT(DISTINCT advance_need.id) AS need_shift_id
+        GROUP_CONCAT(advance_need.id) AS need_shift_id
       ";
-      // $select .= ",
-      //   GROUP_CONCAT(DISTINCT advance_need.quantity) AS need_shift_quantity,
-      //   GROUP_CONCAT(DISTINCT assignment_query_count.quantity_assigned) AS need_shift_quantity_assigned
-      // ";
+      $select .= ",
+        GROUP_CONCAT(advance_need.quantity) AS need_shift_quantity,
+        GROUP_CONCAT(IFNULL(assignment_query_count.quantity_assigned,0)) AS need_shift_quantity_assigned
+      ";
       $join .= "
         LEFT JOIN civicrm_volunteer_need AS advance_need
           ON 1
@@ -542,13 +542,13 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
       $assignmentQuery = CRM_Volunteer_BAO_Assignment::retrieveQuery([], []);
       $join .= "
         LEFT JOIN ( 
-          SELECT COUNT(*) AS quantity_assigned, volunteer_need_id
+          SELECT COUNT(*) AS quantity_assigned, need_id
           FROM (
             ". $assignmentQuery . "
           ) AS assignment_query
-          GROUP BY volunteer_need_id
+          GROUP BY need_id
         ) AS assignment_query_count
-          ON assignment_query_count.volunteer_need_id = advance_need.id
+          ON assignment_query_count.need_id = advance_need.id
       ";
         
       $i_fromdate = count($placeholders)+1;
@@ -558,23 +558,42 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
       /**
        * Match CRM_Volunteer_BAO_Project::_get_open_needs as must as possible
        */
+      // // debugging
+      // $select .= "
+      //   ,GROUP_CONCAT(IF(advance_need.start_time IS NOT NULL, 1, 0)) AS start_time_not_null
+      //   ,GROUP_CONCAT(IF(advance_need.start_time IS NOT NULL, 1, 0)) AS not_full
+      //   ,GROUP_CONCAT(IF(DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=CURDATE(), 1, 0)) AS after_start_time
+      //   ,GROUP_CONCAT(IF(
+      //     advance_need.end_time IS NOT NULL AND
+      //     DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')>=CURDATE()
+      //     , 1, 0
+      //   )) AS after_end_time,
+      //   GROUP_CONCAT(IF(
+      //     advance_need.end_time IS NULL AND
+      //     advance_need.duration IS NULL
+      //     , 1, 0
+      //   )) AS end_time_duration_null
+      // ";
       // open needs must have a start time; this disqualifies flexible needs
       $where .= "
         AND advance_need.start_time IS NOT NULL
       ";
       // open needs must not have all positions assigned
       $where .= "
-        AND assignment_query_count.quantity_assigned<advance_need.quantity
+        AND (
+          assignment_query_count.quantity_assigned IS NULL OR
+          assignment_query_count.quantity_assigned<advance_need.quantity
+        )
       ";
-      // 1) start after now,
+      // 1) start after now, or
       // 2) end after now, or
       // 3) be open until filled
       $where .= "
         AND (
-          CURDATE()>=DATE_FORMAT(advance_need.start_time,'%Y-%m-%d') OR
+          DATE_FORMAT(advance_need.start_time,'%Y-%m-%d')>=CURDATE() OR
           (
             advance_need.end_time IS NOT NULL AND
-            CURDATE()>=DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')
+            DATE_FORMAT(advance_need.end_time,'%Y-%m-%d')>=CURDATE()
           ) OR (
             advance_need.end_time IS NULL AND
             advance_need.duration IS NULL 
@@ -810,6 +829,16 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
       $appeal['beneficiary_display_name'] = implode(', ',array_unique(explode('~|~',$dao->beneficiary_display_name)));
       $appeal['need_id'] = $dao->need_id;
       $appeal['need_shift_id'] = $dao->need_shift_id;
+      $appeal['need_shift_quantity'] = $dao->need_shift_quantity;
+      $appeal['need_shift_quantity_assigned'] = $dao->need_shift_quantity_assigned;
+
+      // // debugging
+      // $appeal['start_time_not_null'] = $dao->start_time_not_null;
+      // $appeal['not_full'] = $dao->not_full;
+      // $appeal['after_start_time'] = $dao->after_start_time;
+      // $appeal['after_end_time'] = $dao->after_end_time;
+      // $appeal['end_time_duration_null'] = $dao->end_time_duration_null;
+
       $appeal['need_flexi_id'] = $dao->need_flexi_id;
       if($params["orderby"] == "upcoming_appeal") {
         $appeal['need_start_time'] = $dao->need_start_time;

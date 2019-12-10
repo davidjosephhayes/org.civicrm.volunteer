@@ -210,6 +210,8 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
         civicrm_volunteer_need.start_time,
         civicrm_volunteer_need.is_flexible,
         civicrm_volunteer_need.role_id,
+        civicrm_volunteer_need.id as need_id,
+        civicrm_volunteer_need.project_id,
         assignee_contact.sort_name AS assignee_sort_name,
         assignee_contact.display_name AS assignee_display_name,
         assignee_phone.phone AS assignee_phone,
@@ -329,7 +331,6 @@ class CRM_Volunteer_BAO_Assignment extends CRM_Volunteer_BAO_Activity {
    * @return array
    *   Default parameters to use for api.activity.create
    */
-
   private static function setActivityDefaults(array $params) {
     $defaults = [];
     $op = empty($params['id']) ? CRM_Core_Action::ADD : CRM_Core_Action::UPDATE;
