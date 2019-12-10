@@ -142,11 +142,11 @@
           volOppSearch.params.beneficiary = volOppSearch.params.beneficiary.split(',');
         }
 
-        // don't show past opportunities
-        if (!volOppSearch.params.date_start) {
-          const now = moment();
-          volOppSearch.params.date_start = now.format("YYYY-MM-DD HH:mm:ss");
-        }
+        // // don't show past opportunities -- obselete with flexible opportunities
+        // if (!volOppSearch.params.date_start) {
+        //   const now = moment();
+        //   volOppSearch.params.date_start = now.format("YYYY-MM-DD HH:mm:ss");
+        // }
 
         // no pagination, do not limit results
         volOppSearch.params.options = {
@@ -179,20 +179,20 @@
             if (need.quantity_available<1)
               need.status = 'full';
             return need;
-          })
-          // time / quantity constraints
-          .filter(function(need){
-            const now = moment();
-            const date_start = need.start_time && moment(need.start_time);
-            return (
-              // in future -- param to api only supports by day, not time
-              (need.start_time && date_start.isAfter(now))
-              // supported schedule types
-              // (need.schedule_type === 'shift' || need.schedule_type === 'flexible')
-              // // not full -- manage with class that way we can hide/show with css
-              // && need.quantity_available>0
-            );
           });
+          // // time / quantity constraints
+          // .filter(function(need){
+          //   const now = moment();
+          //   const date_start = need.start_time && moment(need.start_time);
+          //   return (
+          //     // in future -- param to api only supports by day, not time
+          //     (need.start_time && date_start.isAfter(now))
+          //     // supported schedule types
+          //     // (need.schedule_type === 'shift' || need.schedule_type === 'flexible')
+          //     // // not full -- manage with class that way we can hide/show with css
+          //     // && need.quantity_available>0
+          //   );
+          // });
 
           CRM.$('#crm-main-content-wrapper').unblock();
 

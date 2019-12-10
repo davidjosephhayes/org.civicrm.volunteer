@@ -85,6 +85,8 @@ class CRM_Volunteer_BAO_NeedSearch {
     ]);
     $volunteer_role_option_group_id = $result['id'];
 
+    $placeholders = [];
+
     // Prepare select query for preparing fetch opportunity.
     // Join relevant table of need.
     $select = " 
@@ -159,53 +161,141 @@ class CRM_Volunteer_BAO_NeedSearch {
     ";
 
     $visibility_id = CRM_Volunteer_BAO_Project::getVisibilityId('name', "public");
-    $where = " Where project.is_active = 1 AND need.visibility_id = ".$visibility_id;
-    // search role and project information
-    if($this->searchParams['need']['search']) {
-      $name = CRM_Core_DAO::escapeString($this->searchParams['need']['search']);
-      $where .= " AND (opt.label LIKE '%$name%' OR project.title LIKE '%$name%')";
-    }
-    // Default Filter parameter of date start and date end field of need table.
-    if(empty($this->searchParams['need']['date_start']) && empty($this->searchParams['need']['date_end'])) {
-      $where .= " AND (
-       (DATE_FORMAT(need.start_time,'%Y-%m-%d') <=   CURDATE() AND DATE_FORMAT(need.end_time,'%Y-%m-%d') >= CURDATE()) OR 
-       (DATE_FORMAT(need.start_time,'%Y-%m-%d') >=  CURDATE()) OR (DATE_FORMAT(need.end_time,'%Y-%m-%d') >=  CURDATE()) OR
-       (need.start_time Is NOT NULL && need.end_time IS NULL) OR 
-       (need.start_time Is NULL && need.end_time IS NULL)
-      )";
-    }
-    // Add date start and date end filter if passed in UI.
-    if($this->searchParams['need']['date_start'] && $this->searchParams['need']['date_end']) {
-      $start_time = date("Y-m-d", $this->searchParams['need']['date_start']);
-      $end_time = date("Y-m-d", $this->searchParams['need']['date_end']);
-      $where .= " AND (
-        ( need.end_time IS NOT NULL AND need.start_time IS NOT NULL 
-          AND (
-            DATE_FORMAT(need.start_time,'%Y-%m-%d')<='".$end_time."' AND DATE_FORMAT(need.start_time,'%Y-%m-%d')>='".$start_time."'
-            OR 
-            DATE_FORMAT(need.end_time,'%Y-%m-%d') >= '".$start_time."' AND DATE_FORMAT(need.end_time,'%Y-%m-%d') <= '".$end_time."'
-          )
+    $i_visibility_id = count($placeholders)+1;
+    $placeholders[$i_visibility_id] = [$visibility_id, 'Positive'];
+    $where = "
+      WHERE 1
+        AND project.is_active = 1
+        AND need.visibility_id = %$i_visibility_id
+    ";
+
+    /**
+     * Match CRM_Volunteer_BAO_Project::_get_open_needs as must as possible
+     */
+    // // debugging
+    // $select .= "
+    //   ,IF(need.start_time IS NOT NULL, 1, 0) AS start_time_not_null
+    //   ,IF(need.start_time IS NOT NULL, 1, 0) AS not_full
+    //   ,IF(DATE_FORMAT(need.start_time,'%Y-%m-%d')>=CURDATE(), 1, 0) AS after_start_time
+    //   ,IF(
+    //     need.end_time IS NOT NULL AND
+    //     DATE_FORMAT(need.end_time,'%Y-%m-%d')>=CURDATE()
+    //     , 1, 0
+    //   ) AS after_end_time,
+    //   IF(
+    //     need.end_time IS NULL AND
+    //     need.duration IS NULL
+    //     , 1, 0
+    //   ) AS end_time_duration_null
+    // ";
+    // join in assignments TODO, optimize, pry pretty slow as db get large
+    $assignmentQuery = CRM_Volunteer_BAO_Assignment::retrieveQuery([], []);
+    $join .= "
+      LEFT JOIN ( 
+        SELECT COUNT(*) AS quantity_assigned, need_id
+        FROM (
+          ". $assignmentQuery . "
+        ) AS assignment_query
+        GROUP BY need_id
+      ) AS assignment_query_count
+        ON assignment_query_count.need_id = need.id
+    ";
+    // open needs must have a start time; this disqualifies flexible needs
+    $where .= "
+      AND need.start_time IS NOT NULL
+    ";
+    // open needs must not have all positions assigned
+    $where .= "
+      AND (
+        assignment_query_count.quantity_assigned IS NULL OR
+        assignment_query_count.quantity_assigned<need.quantity
+      )
+    ";
+    // 1) start after now, or
+    // 2) end after now, or
+    // 3) be open until filled
+    $where .= "
+      AND (
+        DATE_FORMAT(need.start_time,'%Y-%m-%d')>=CURDATE() OR
+        (
+          need.end_time IS NOT NULL AND
+          DATE_FORMAT(need.end_time,'%Y-%m-%d')>=CURDATE()
         ) OR (
-          need.end_time IS NULL AND DATE_FORMAT(need.start_time,'%Y-%m-%d')>='".$start_time."' AND DATE_FORMAT(need.start_time,'%Y-%m-%d')<='".$end_time."'
-        ) 
-      )";
-    } else { // one but not the other supplied:
-      if($this->searchParams['need']['date_start']) {
-        $start_time = date("Y-m-d", $this->searchParams['need']['date_start']);
-        $where .= " And (DATE_FORMAT(need.start_time,'%Y-%m-%d')>='".$start_time."')";
+          need.end_time IS NULL AND
+          need.duration IS NULL 
+        )
+      )
+    ";
+
+    // search role and project information
+    if(!empty($this->searchParams['need']['search'])) {
+      // loose text search, split up works and check on each word
+      $search = trim($this->searchParams['need']['search']);
+      $search_fragments = preg_split('/[\s+,]/', $search);
+      $search_wheres = [];
+      foreach ($search_fragments as $search_fragment) {
+        $i_search = count($placeholders)+1;
+        $placeholders[$i_search] = ["%$search_fragment%", 'String'];
+        $search_wheres[] = "(
+          opt.label LIKE %$i_search OR
+          project.title LIKE %$i_search
+        )";
       }
-      if($this->searchParams['need']['date_end']) {
-        $end_time = date("Y-m-d", $this->searchParams['need']['date_end']);
-        $where .= " And (DATE_FORMAT(need.end_time,'%Y-%m-%d')<='".$end_time."')";
+      $where .= ' AND (' . implode(' AND ', $search_wheres) . ') ';
+    }
+
+    $fromdate = CRM_Utils_Array::value('date_start', $this->searchParams['need'], '');
+    $todate = CRM_Utils_Array::value('date_end', $this->searchParams['need'], '');
+    if (!empty($fromdate) || !empty($todate)) {
+
+      $i_fromdate = count($placeholders)+1;
+      $placeholders[$i_fromdate] = [$fromdate, 'String'];
+      $i_todate = count($placeholders)+1;
+      $placeholders[$i_todate] = [$todate, 'String'];
+      
+      if (!empty($fromdate) && !empty($todate)) {
+        $where .= " AND (
+          (
+            DATE_FORMAT(need.start_time,'%Y-%m-%d')>=%$i_fromdate AND
+            DATE_FORMAT(need.start_time,'%Y-%m-%d')<=%$i_todate AND
+            need.end_time IS NULL 
+          ) OR ( 
+            DATE_FORMAT(need.start_time,'%Y-%m-%d')>=%$i_fromdate AND 
+            DATE_FORMAT(need.start_time,'%Y-%m-%d')<=%$i_todate AND 
+            need.end_time IS NOT NULL AND
+            DATE_FORMAT(need.end_time,'%Y-%m-%d')>=%$i_fromdate AND
+            DATE_FORMAT(need.end_time,'%Y-%m-%d')<=%$i_todate
+          )
+        )";
+      } else if (!empty($fromdate)) {
+        $where .= "
+          AND (DATE_FORMAT(need.start_time,'%Y-%m-%d')>=%$i_fromdate)
+          AND (
+            need.end_time IS NULL OR
+            DATE_FORMAT(need.end_time,'%Y-%m-%d')>=%$i_fromdate
+          )
+        ";
+      } else if (!empty($todate)) {
+        $where .= "
+        AND (DATE_FORMAT(need.start_time,'%Y-%m-%d')<=%$i_todate)
+        AND (
+          need.end_time IS NULL OR
+          DATE_FORMAT(need.end_time,'%Y-%m-%d')<=%$i_todate
+        )
+        ";
       }
     }
+
     // Add role filter if passed in UI.
     if(!empty($this->searchParams['need']['role_id'])) {
-      $role_id_string = implode(",", array_map(function($i){
-        return (int)$i;
+      $role_id_string = implode(",", array_map(function($role_id)use(&$placeholders){
+        $i_role_id = count($placeholders)+1;
+        $placeholders[$i_role_id] = [$role_id, 'Positive'];
+        return "%$i_role_id";
       }, $this->searchParams['need']['role_id']));
       $where .= " AND need.role_id IN (".$role_id_string.")";
     }
+    
     // Add assignee_contact_id filter if passed in UI.
     if(!empty($this->searchParams['need']['assignee_contact_id'])) {
       $assignmentCustomGroup = CRM_Volunteer_BAO_Assignment::getCustomGroup();
@@ -218,23 +308,32 @@ class CRM_Volunteer_BAO_NeedSearch {
       ]);
       $where .= " AND EXISTS (". $assignmentQuery .")";
     }
+
     // Add with(benificiary) filter if passed in UI.
     if(!empty($this->searchParams['project']['project_contacts']['volunteer_beneficiary'])) {
-      $beneficiary_id_string = implode(",", array_map(function($i){
-        return (int)$i;
+      $beneficiary_id_string = implode(",", array_map(function($beneficiary_id)use(&$placeholders){
+        $i_beneficiary_id = count($placeholders)+1;
+        $placeholders[$i_beneficiary_id] = [$beneficiary_id, 'Positive'];
+        return "%$i_beneficiary_id";
       }, $this->searchParams['project']['project_contacts']['volunteer_beneficiary']));
       $where .= " AND pc.contact_id IN (".$beneficiary_id_string.")";
     }
+
     // Add Location filter if passed in UI.
     if(!empty($this->searchParams['project']["proximity"])) {
       $proximityquery = CRM_Volunteer_BAO_Project::buildProximityWhere($this->searchParams['project']["proximity"]);
       $proximityquery = str_replace("civicrm_address", "addr", $proximityquery);
-      $where .= " And ".$proximityquery;
+      $where .= " AND ".$proximityquery;
     }
+
     // If Project Id is passed from URL- Query String.
     if(!empty($this->searchParams['project'])) {
       if(isset($this->searchParams['project']['is_active']) && isset($this->searchParams['project']['id'])) {
-        $where .= " And project.id=". (int)$this->searchParams['project']['id'];
+        $i_project_id = count($placeholders)+1;
+        $placeholders[$i_project_id] = [$this->searchParams['project']['id'], 'Positive'];
+        $where .= "
+          AND project.id = %$i_project_id 
+        ";
       }
     }
 
@@ -247,7 +346,9 @@ class CRM_Volunteer_BAO_NeedSearch {
     
     // Prepare whole sql query dynamic.
     $sql = $select . $from . $join . $where . $orderby . $limit;
-    $dao = CRM_Core_DAO::executeQuery($sql);
+    // die(CRM_Core_DAO::composeQuery($sql, $placeholders));
+
+    $dao = CRM_Core_DAO::executeQuery($sql, $placeholders);
     $this->total = (int)CRM_Core_DAO::singleValueQuery('SELECT FOUND_ROWS()');
 
     // Prepare array for need of projects.
@@ -318,6 +419,14 @@ class CRM_Volunteer_BAO_NeedSearch {
         $project_opportunities[$i]['project']['beneficiaries'] = $dao->beneficiary_display_name;
         $project_opportunities[$i]['project']['beneficiary_id'] = $dao->beneficiary_id;
       }
+
+      // // debugging
+      // $project_opportunities[$i]['start_time_not_null'] = $dao->start_time_not_null;
+      // $project_opportunities[$i]['not_full'] = $dao->not_full;
+      // $project_opportunities[$i]['after_start_time'] = $dao->after_start_time;
+      // $project_opportunities[$i]['after_end_time'] = $dao->after_end_time;
+      // $project_opportunities[$i]['end_time_duration_null'] = $dao->end_time_duration_null;
+
       $i++;
     }
 
