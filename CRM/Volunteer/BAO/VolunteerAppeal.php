@@ -598,7 +598,8 @@ class CRM_Volunteer_BAO_VolunteerAppeal extends CRM_Volunteer_DAO_VolunteerAppea
             advance_need.end_time IS NULL AND
             advance_need.duration IS NULL 
           )
-      )";
+        )
+      ";
       if (!empty($fromdate) && !empty($todate)) {
         $where .= " AND (
           (
